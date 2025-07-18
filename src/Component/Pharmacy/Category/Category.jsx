@@ -1,131 +1,286 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { baseurl } from "../../../Baseurl"; 
+import { baseurl } from "../../../Baseurl";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 export default function Category() {
-  const [categoryName, setCategoryName] = useState("");
-  const [categories, setCategories] = useState([]);
+  const [categoryData, setCategoryData] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [viewItem, setViewItem] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [formData, setFormData] = useState({ name: "", description: "" });
   const [editId, setEditId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Get all categories
-  const fetchCategories = async () => {
+  const navigate = useNavigate();
+
+  const getCategory = async () => {
     try {
-      const res = await axios.get(`${baseurl}/getcategory`);
-      setCategories(res.data);
+      const res = await axios.get(`${baseurl}/getAllCategories`);
+      setCategoryData(res.data.data || []);
     } catch (error) {
-      console.error("Fetch Error:", error);
+      console.error("Error fetching categories:", error);
+      Swal.fire("Error", "Failed to load categories", "error");
     }
+  };
+
+  const handleDelete = async (id) => {
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: "This category will be deleted permanently!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (confirm.isConfirmed) {
+      try {
+        await axios.delete(`${baseurl}/deleteCategory/${id}`);
+        Swal.fire("Deleted!", "Category has been deleted.", "success");
+        getCategory();
+      } catch (error) {
+        console.error("Delete failed", error);
+        Swal.fire("Error", "Something went wrong!", "error");
+      }
+    }
+  };
+
+  const handleAddEdit = async (e) => {
+    e.preventDefault();
+    try {
+      if (editMode) {
+        await axios.put(`${baseurl}/updateCategory/${editId}`, formData);
+        Swal.fire("Success", "Category updated successfully", "success");
+      } else {
+        await axios.post(`${baseurl}/addCategories`, formData);
+        Swal.fire("Success", "Category added successfully", "success");
+      }
+      resetForm();
+      getCategory();
+    } catch (error) {
+      console.error("Submit failed", error);
+      Swal.fire("Error", "Something went wrong!", "error");
+    }
+  };
+
+  const handleEdit = (item) => {
+    setFormData({ name: item.name, description: item.description || "" });
+    setEditId(item.id);
+    setEditMode(true);
+    setModalOpen(true);
+  };
+
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const resetForm = () => {
+    setFormData({ name: "", description: "" });
+    setEditMode(false);
+    setEditId(null);
+    setModalOpen(false);
   };
 
   useEffect(() => {
-    fetchCategories();
+    getCategory();
   }, []);
 
-  
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!categoryName) return;
-
-    try {
-      if (editId) {
-        
-        await axios.put(`${baseurl}/updatecategory/${editId}`, { name: categoryName });
-      } else {
-      
-        await axios.post(`${baseurl}/addcategory`, { name: categoryName });
-      }
-
-      setCategoryName("");
-      setEditId(null);
-      fetchCategories();
-    } catch (error) {
-      console.error("Save Error:", error);
-    }
-  };
-
-  
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure to delete this category?")) return;
-
-    try {
-      await axios.delete(`${baseurl}/deletecategory/${id}`);
-      fetchCategories();
-    } catch (error) {
-      console.error("Delete Error:", error);
-    }
-  };
-
- 
-  const handleEdit = (category) => {
-    setCategoryName(category.name);
-    setEditId(category.id);
-  };
+  // Filter categories based on search query
+  const filteredCategories = categoryData.filter((category) =>
+    category.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="pc-container">
       <div className="pc-content">
-        <div className="container mt-4">
-          <h4>📁 Category Management</h4>
-
-          
-          <form onSubmit={handleSubmit} className="mb-4">
-            <div className="input-group">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Enter Category Name"
-                value={categoryName}
-                onChange={(e) => setCategoryName(e.target.value)}
-              />
-              <button type="submit" className="btn btn-primary">
-                {editId ? "Update" : "Save"}
+        <div className="row">
+          <div className="col-12 searchParent d-flex justify-content-between align-items-center mb-3">
+            <h5>Category List</h5>
+            <div className="d-flex align-items-center gap-2">
+              
+              <button className="btn btn-primary" onClick={() => setModalOpen(true)}>
+                Add Category
               </button>
             </div>
-          </form>
+          </div>
 
-         
-          <table className="table table-bordered">
-            <thead>
-              <tr>
-                <th style={{ width: "10%" }}>#</th>
-                <th>Name</th>
-                <th style={{ width: "20%" }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.map((cat, index) => (
-                <tr key={cat.id}>
-                  <td>{index + 1}</td>
-                  <td>{cat.name}</td>
-                  <td>
-                    <button
-                      className="btn btn-sm btn-warning me-2"
-                      onClick={() => handleEdit(cat)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="btn btn-sm btn-danger"
-                      onClick={() => handleDelete(cat.id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-
-              {categories.length === 0 && (
-                <tr>
-                  <td colSpan="3" className="text-center text-muted">
-                    No categories found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+          <div className="col-md-12">
+            <div className=" table-card patientCardHeader">
+               <div className="mb-3" style={{ margin: "10px", width: "300px" }}>
+              <input
+                type="text"
+                placeholder="Search by name..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="form-control"
+                style={{ width: "250px" }}
+              />
+              </div>
+              <table className="table">
+                <thead>
+                  <tr className="text-center">
+                    <th>Sr No.</th>
+                    <th>Category Name</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredCategories.length > 0 ? (
+                    filteredCategories.map((item, index) => (
+                      <tr key={item.id} className="text-center">
+                        <td>{index + 1}</td>
+                        <td>{item.name}</td>
+                        <td>{item.description || "N/A"}</td>
+                        <td>
+                          <div className="d-flex justify-content-center gap-2">
+                            <div
+                              className="avtar avtar-xs viewIcon"
+                              style={{ cursor: "pointer" }}
+                              onClick={() => {
+                                setViewItem(item);
+                                setViewModalOpen(true);
+                              }}
+                            >
+                              <i className="ti ti-eye f-20" />
+                              <span className="ms-1">View</span>
+                            </div>
+                            <div
+                              className="avtar avtar-xs btn-link-secondary editIcon"
+                              style={{ cursor: "pointer" }}
+                              onClick={() => handleEdit(item)}
+                            >
+                              <i className="ti ti-edit f-20" />
+                              <span className="ms-1">Edit</span>
+                            </div>
+                            <div
+                              className="avtar avtar-xs btn-link-secondary deleteIcon"
+                              style={{ cursor: "pointer" }}
+                              onClick={() => handleDelete(item.id)}
+                            >
+                              <i className="ti ti-trash f-20" />
+                              <span className="ms-1">Delete</span>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className="text-center">
+                        No categories found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Add/Edit Modal */}
+      {modalOpen && (
+        <div className="custom-modal">
+          <div className="modal-content p-4">
+            <h5>{editMode ? "Edit Category" : "Add Category"}</h5>
+            <form onSubmit={handleAddEdit}>
+              <div className="mb-3">
+                <label>Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  required
+                  className="form-control"
+                />
+              </div>
+              <div className="mb-3">
+                <label>Description</label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  required
+                  className="form-control"
+                />
+              </div>
+              <div className="d-flex justify-content-end">
+                <button
+                  type="button"
+                  className="btn btn-secondary me-2"
+                  onClick={resetForm}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  {editMode ? "Update" : "Add"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* View Modal */}
+      {viewModalOpen && viewItem && (
+        <div className="custom-modal">
+          <div className="modal-content p-4">
+            <h5>Category Details</h5>
+            <p>
+              <strong>Name:</strong> {viewItem.name}
+            </p>
+            <p>
+              <strong>Description:</strong> {viewItem.description || "N/A"}
+            </p>
+            <div className="text-end">
+              <button
+                className="btn btn-secondary"
+                onClick={() => {
+                  setViewModalOpen(false);
+                  setViewItem(null);
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal CSS */}
+      <style>{`
+        .custom-modal {
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background-color: rgba(0,0,0,0.4);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+          overflow-y: auto;
+        }
+        .modal-content {
+          background: #fff;
+          border-radius: 8px;
+          width: 100%;
+          max-width: 500px;
+        }
+        .avtar {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .btn-link-secondary {
+          color: #007bff;
+        }
+        .btn-link-secondary:hover {
+          color: #0056b3;
+        }
+      `}</style>
     </div>
   );
 }

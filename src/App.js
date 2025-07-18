@@ -29,6 +29,10 @@ import EditPatient from './Component/Header/MAnage Patient/EditPatient';
 import Calander from './Component/Header/calander/Calander';
 import Vierappointment from './Component/Appointment2/Vierappointment';
 import Category from './Component/Pharmacy/Category/Category';
+import EditInventory from './Component/Pharmacy/EditInventory';
+import ViewInventory from "./Component/Pharmacy/ViewInventory";
+import ViewRx from "./Component/Pharmacy/ViewRxList";
+import AddInventory from './Component/Pharmacy/AddInventory';
 function App() {
   // console.log("hellow admin")
   return (
@@ -67,7 +71,11 @@ function App() {
             <Route path="/Admin/DoctorDashboard" element={<DoctorDashboard />} />
             <Route path="/Admin/ReportsInc" element={<Reports />} />
             <Route path="/Admin/Category" element={<Category />} />
-            
+            <Route path="/Admin/EditInventory" element={<EditInventory />} />
+            <Route path="/Admin/ViewInventory" element={<ViewInventory/>} />
+           <Route path="/Admin/ViewRx/:rxId" element={<ViewRx />} />
+
+            <Route path="/Admin/AddInventory" element={<AddInventory />} />
           </Route>
         </Routes>
       </BrowserRouter>
