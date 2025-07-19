@@ -1,63 +1,210 @@
+// import React, { useEffect, useState } from "react";
+// import { useParams } from "react-router-dom";
+// import axios from "axios";
+// import { baseurl } from "../../Baseurl";
+
+// export default function ViewInventory() {
+//   const { id } = useParams(); 
+//   const [inventory, setInventory] = useState({});
+
+//   useEffect(() => {
+//     if (id) {
+//       axios
+//         .get(`${baseurl}/api/inventory/${id}`)
+//         .then((res) => setInventory(res.data))
+//         .catch((err) => console.error("Error fetching inventory:", err));
+//     }
+//   }, [id]);
+
+//   return (
+//      <div className="pc-container">
+//       <div className="pc-content">
+//     <div className="card p-4">
+//       <h5 className="card-title">Rx Standard Info</h5>
+//       <div className="row p20">
+
+//         <div className="col-md-6">
+//           <label className="form-label">Medicine</label>
+//           <input
+//             type="text"
+//             className="form-control"
+//             value={inventory.itemCode || ""}
+//             disabled
+//             placeholder="Item Code"
+//           />
+//         </div>
+
+//         <div className="col-md-6">
+//           <label className="form-label">Strength</label>
+//           <input
+//             type="text"
+//             className="form-control"
+//             value={inventory.itemName || ""}
+//             disabled
+//             placeholder="Item Name"
+//           />
+//         </div>
+
+     
+
+//         <div className="col-md-6">
+//           <label className="form-label">Unit</label>
+//           <input
+//             type="number"
+//             className="form-control"
+//             value={inventory.quantity || ""}
+//             disabled
+//             placeholder="Quantity"
+//           />
+//         </div>
+
+  
+
+//         <div className="col-md-6">
+//           <label className="form-label">Form</label>
+//           <input
+//             type="number"
+//             className="form-control"
+//             value={inventory.price || ""}
+//             disabled
+//             placeholder="Price"
+//           />
+//         </div>
+
+      
+
+//         <div className="col-md-6">
+//           <label className="form-label">Route</label>
+//           <input
+//             type="text"
+//             className="form-control"
+//             value={inventory.supplier || ""}
+//             disabled
+//             placeholder="Supplier"
+//           />
+//         </div>
+
+//         <div className="col-md-6">
+//           <label className="form-label">Substance</label>
+//           <input
+//             type="date"
+//             className="form-control"
+//             value={
+//               inventory.dateAdded
+//                 ? new Date(inventory.dateAdded).toISOString().split("T")[0]
+//                 : ""
+//             }
+//             disabled
+//           />
+//         </div>
+
+//          <div className="col-md-6">
+//           <label className="form-label">Substance</label>
+//           <input
+//             type="date"
+//             className="form-control"
+//             value={
+//               inventory.dateAdded
+//                 ? new Date(inventory.dateAdded).toISOString().split("T")[0]
+//                 : ""
+//             }
+//             disabled
+//           />
+//         </div>
+
+//         <div className="col-md-6">
+//           <label className="form-label">Type</label>
+//           <input
+//             type="text"
+//             className="form-control"
+//             value={inventory.supplier || ""}
+//             disabled
+//             placeholder="Supplier"
+//           />
+//         </div>
+
+//       </div>
+//     </div>
+//     </div>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { baseurl } from "../../Baseurl";
 
 export default function ViewRx() {
-  const { rxId } = useParams(); // assuming route is like /Admin/ViewRx/:rxId
-  const [rxData, setRxData] = useState(null);
+  const { id: rxId } = useParams();
+  const navigate = useNavigate();
+  const [rx, setRx] = useState(null);
 
   useEffect(() => {
-    const fetchRxData = async () => {
-      try {
-        const res = await axios.get(`https://sisccltd.com/medical_app/api/getRxById/${rxId}`);
-        if (res.data.success) {
-          setRxData(res.data.data);
-        }
-      } catch (error) {
-        console.error("Error fetching Rx data:", error);
-      }
-    };
-
-    fetchRxData();
+    axios
+      .get(`${baseurl}getRxById/${rxId}`)
+      .then((res) => {
+        setRx(res.data.data);
+      })
+      .catch((err) => console.error("Error fetching Rx data:", err));
   }, [rxId]);
 
-  if (!rxData) {
-    return <div>Loading Rx Data...</div>;
-  }
+  if (!rx) return <div>Loading...</div>;
 
   return (
     <div className="pc-container">
       <div className="pc-content">
-        <div className="container mt-4">
-          <h5 className="mb-4">Rx Details (ID: {rxData.rxId})</h5>
-
-          <div className="card p-3">
-            <div className="row mb-3">
-              <div className="col-md-6"><strong>Medicine Name:</strong> {rxData.medicineName}</div>
-              <div className="col-md-6"><strong>Strength:</strong> {rxData.strength}</div>
+        <div className="col-12">
+          <div className="card table-card">
+            <div className="tableHeader">
+              <h5>Rx Standard Info</h5>
             </div>
+            <div className="card-body">
+              <div className="row p20">
+                {[
+                  ["Medicine Name", rx.medicineName],
+                  ["Strength", rx.strength],
+                  ["Unit", rx.unit],
+                  ["Form", rx.form],
+                  ["Route", rx.route],
+                  ["Active Substances", rx.activeSubstances],
+                  ["Type", rx.productType],
+                  ["Frequency", rx.frequency],
+                  ["Duration", rx.duration],
+                  ["Notes", rx.notes],
+                ].map(([label, value], idx) => (
+                  <div className="col-md-6 mb-3" key={idx}>
+                    <label className="form-label">{label}</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={value ?? ""}
+                      disabled
+                    />
+                  </div>
+                ))}
+              </div>
 
-            <div className="row mb-3">
-              <div className="col-md-6"><strong>Unit:</strong> {rxData.unit}</div>
-              <div className="col-md-6"><strong>Form:</strong> {rxData.form}</div>
-            </div>
-
-            <div className="row mb-3">
-              <div className="col-md-6"><strong>Route:</strong> {rxData.route}</div>
-              <div className="col-md-6"><strong>Product Type:</strong> {rxData.productType}</div>
-            </div>
-
-            <div className="row mb-3">
-              <div className="col-md-6"><strong>Frequency:</strong> {rxData.frequency || "N/A"}</div>
-              <div className="col-md-6"><strong>Duration:</strong> {rxData.duration || "N/A"}</div>
-            </div>
-
-            <div className="row mb-3">
-              <div className="col-md-12"><strong>Notes:</strong> {rxData.notes || "N/A"}</div>
-            </div>
-
-            <div className="row mb-3">
-              <div className="col-md-12"><strong>Active Substances:</strong> {rxData.activeSubstances}</div>
+              <div className="text-end">
+                <button
+                  className="btn btn-secondary me-2"
+                  onClick={() => navigate(-1)}
+                >
+                  Back
+                </button>
+              </div>
             </div>
           </div>
         </div>

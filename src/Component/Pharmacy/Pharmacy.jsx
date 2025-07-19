@@ -22,7 +22,7 @@ export default function Pharmacy() {
   const [loading, setLoading] = useState(false);
   const [categoryList, setCategoryList] = useState([]);
   const [categoryData, setCategoryData] = useState({});
-  // const [showCategoryModal, setShowCategoryModal] = useState(false);
+ 
 
 
 
@@ -33,7 +33,7 @@ export default function Pharmacy() {
   useEffect(() => {
     getdata();
     getRxList();
-    //  getAllCategories();
+    
   }, []);
 
   const getdata = async () => {
@@ -291,10 +291,10 @@ export default function Pharmacy() {
             <div className="card-body pt-3">
               <div className="table-responsive">
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <div style={{ width: "300px" }}>
+                  <div style={{ width: "300px",  margin: "15px" }}>
                     <input
                       type="text"
-                      className="form-control"
+                      className="form-control "
                       placeholder="Search by medicine name"
                       value={activeTab === "tab1" ? searchDrug : searchRx}
                       onChange={(e) => {
@@ -307,7 +307,7 @@ export default function Pharmacy() {
                   </div>
 
 
-                  <div className="d-flex gap-2">
+                 <div className="d-flex gap-2" style={{ margin: "15px" }}>
                     {activeTab === "tab1" && (
                       <>
                         <button className="btn btn-primary" onClick={() => navigate("/Admin/AddInventory")}>
@@ -319,7 +319,7 @@ export default function Pharmacy() {
                       </>
                     )}
                     {activeTab === "tab2" && (
-                      <button className="btn btn-primary" onClick={() => setModalOpen(true)}>
+                      <button className="btn btn-primary" onClick={() => navigate("/Admin/AddRxList")}>
                         Add Rx Medicine
                       </button>
                     )}
@@ -377,8 +377,7 @@ export default function Pharmacy() {
 
                             <td>
                               <NavLink
-                                to="/Admin/ViewInventory"
-                                state={{ drug: item }}
+                                to={`/Admin/ViewInventory/${item.id}`}
                                 className="avtar avtar-xs btn-link-secondary viewIcon"
                               >
                                 <i className="ti ti-eye f-20" />
