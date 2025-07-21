@@ -1,146 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import { useParams } from "react-router-dom";
-// import axios from "axios";
-// import { baseurl } from "../../Baseurl";
-
-// export default function ViewInventory() {
-//   const { id } = useParams(); 
-//   const [inventory, setInventory] = useState({});
-
-//   useEffect(() => {
-//     if (id) {
-//       axios
-//         .get(`${baseurl}/api/inventory/${id}`)
-//         .then((res) => setInventory(res.data))
-//         .catch((err) => console.error("Error fetching inventory:", err));
-//     }
-//   }, [id]);
-
-//   return (
-//      <div className="pc-container">
-//       <div className="pc-content">
-//     <div className="card p-4">
-//       <h5 className="card-title">Rx Standard Info</h5>
-//       <div className="row p20">
-
-//         <div className="col-md-6">
-//           <label className="form-label">Medicine</label>
-//           <input
-//             type="text"
-//             className="form-control"
-//             value={inventory.itemCode || ""}
-//             disabled
-//             placeholder="Item Code"
-//           />
-//         </div>
-
-//         <div className="col-md-6">
-//           <label className="form-label">Strength</label>
-//           <input
-//             type="text"
-//             className="form-control"
-//             value={inventory.itemName || ""}
-//             disabled
-//             placeholder="Item Name"
-//           />
-//         </div>
-
-     
-
-//         <div className="col-md-6">
-//           <label className="form-label">Unit</label>
-//           <input
-//             type="number"
-//             className="form-control"
-//             value={inventory.quantity || ""}
-//             disabled
-//             placeholder="Quantity"
-//           />
-//         </div>
-
-  
-
-//         <div className="col-md-6">
-//           <label className="form-label">Form</label>
-//           <input
-//             type="number"
-//             className="form-control"
-//             value={inventory.price || ""}
-//             disabled
-//             placeholder="Price"
-//           />
-//         </div>
-
-      
-
-//         <div className="col-md-6">
-//           <label className="form-label">Route</label>
-//           <input
-//             type="text"
-//             className="form-control"
-//             value={inventory.supplier || ""}
-//             disabled
-//             placeholder="Supplier"
-//           />
-//         </div>
-
-//         <div className="col-md-6">
-//           <label className="form-label">Substance</label>
-//           <input
-//             type="date"
-//             className="form-control"
-//             value={
-//               inventory.dateAdded
-//                 ? new Date(inventory.dateAdded).toISOString().split("T")[0]
-//                 : ""
-//             }
-//             disabled
-//           />
-//         </div>
-
-//          <div className="col-md-6">
-//           <label className="form-label">Substance</label>
-//           <input
-//             type="date"
-//             className="form-control"
-//             value={
-//               inventory.dateAdded
-//                 ? new Date(inventory.dateAdded).toISOString().split("T")[0]
-//                 : ""
-//             }
-//             disabled
-//           />
-//         </div>
-
-//         <div className="col-md-6">
-//           <label className="form-label">Type</label>
-//           <input
-//             type="text"
-//             className="form-control"
-//             value={inventory.supplier || ""}
-//             disabled
-//             placeholder="Supplier"
-//           />
-//         </div>
-
-//       </div>
-//     </div>
-//     </div>
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-
 
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -169,7 +26,16 @@ export default function ViewRx() {
         <div className="col-12">
           <div className="card table-card">
             <div className="tableHeader">
-              <h5>Rx Standard Info</h5>
+              <h5 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span
+                  style={{ cursor: 'pointer', color: '#007bff', fontWeight: 'bold', fontSize: '1.5rem' }}
+                  onClick={() => navigate(-1)}
+                  title="Back"
+                >
+                  &larr;
+                </span>
+                Rx Standard Info
+              </h5>
             </div>
             <div className="card-body">
               <div className="row p20">

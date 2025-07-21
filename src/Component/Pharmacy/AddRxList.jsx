@@ -47,7 +47,7 @@ export default function AddRxList() {
 
     const newErrors = {};
     requiredFields.forEach((field) => {
-      if (!formData[field]) {
+      if (!formData[field] || formData[field].trim() === "") {
         newErrors[field] = `${field.replace(/_/g, " ")} is required`;
       }
     });
@@ -66,16 +66,20 @@ export default function AddRxList() {
     }
 
     try {
-      const response = await axios.post(`${baseurl}/addRxList`, formData);
+      console.log("Submitting Rx data:", formData);
+      const response = await axios.post(`${baseurl}addRxMedicine`, formData);
       if (response.data.success) {
         setSubmitted(true);
         Swal.fire("Success", "RX Item added successfully!", "success");
-        navigate("/Admin/RxList"); // Adjust route if needed
+        navigate("/Admin/Pharmacy"); // Adjust route if needed
       } else {
         Swal.fire("Error", response.data.message || "Something went wrong", "error");
       }
     } catch (error) {
       console.error(error);
+      if (error.response) {
+        console.log(error.response.data);
+      }
       Swal.fire("Error", "Server error while adding RX item", "error");
     }
   };
@@ -86,9 +90,16 @@ export default function AddRxList() {
         <div className="col-12">
           <div className="card table-card">
             <div className="tableHeader">
-              <div className="d-sm-flex align-items-center justify-content-between">
-                <h5>Add RX List Item</h5>
-              </div>
+              <h5 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span
+                  style={{ cursor: 'pointer', color: '#007bff', fontWeight: 'bold', fontSize: '1.5rem' }}
+                  onClick={() => navigate(-1)}
+                  title="Back"
+                >
+                  &larr;
+                </span>
+                Add Rx Medicine
+              </h5>
             </div>
 
             {submitted && (
@@ -122,9 +133,8 @@ export default function AddRxList() {
                     value={formData[field.name]}
                     onChange={handleChange}
                     className="form-control"
-                    placeholder={field.label}
                   />
-                  {errors[field.name] && (
+                  {errors && errors[field.name] && (
                     <p className="text-danger">{errors[field.name]}</p>
                   )}
                 </div>

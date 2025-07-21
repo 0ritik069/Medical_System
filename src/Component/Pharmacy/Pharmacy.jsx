@@ -22,8 +22,7 @@ export default function Pharmacy() {
   const [loading, setLoading] = useState(false);
   const [categoryList, setCategoryList] = useState([]);
   const [categoryData, setCategoryData] = useState({});
- 
-
+  const [categories, setCategories] = useState([]); 
 
 
   const navigate = useNavigate();
@@ -33,8 +32,19 @@ export default function Pharmacy() {
   useEffect(() => {
     getdata();
     getRxList();
-    
+    fetchCategories(); 
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await axios.get(`${baseurl}getAllCategories`);
+      if (res.data.success && Array.isArray(res.data.data)) {
+        setCategories(res.data.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch categories", err);
+    }
+  };
 
   const getdata = async () => {
     try {
@@ -241,6 +251,12 @@ export default function Pharmacy() {
     textOverflow: "ellipsis",
   };
 
+  // Helper to get category name by id
+  const getCategoryName = (id) => {
+    const cat = categories.find((c) => String(c.id) === String(id));
+    return cat ? cat.name : id;
+  };
+
 
   return (
     <div className="pc-container">
@@ -346,7 +362,7 @@ export default function Pharmacy() {
                           <th>Cost</th>
                           <th>Price</th>
                           <th>Control</th>
-                          <th>Action</th>
+                          <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -362,7 +378,7 @@ export default function Pharmacy() {
                               )}
                             </td>
                             <td>{item.id}</td>
-                            <td>{item.category}</td>
+                            <td>{getCategoryName(item.category)}</td>
                             <td>{item.name}</td>
                             <td style={truncateStyle} title={item.substance}>{item.substance}</td>
 
@@ -426,7 +442,7 @@ export default function Pharmacy() {
                           <th>Route</th>
                           <th>Substance</th>
                           <th>Type</th>
-                          <th>Action</th>
+                          <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>

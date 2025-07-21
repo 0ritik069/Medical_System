@@ -7,28 +7,54 @@ import { toast } from "react-toastify";
 
 export default function EditInventory() {
   const location = useLocation();
-  const data = location.state?.inventoryItem;
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    name: data?.name || "",
-    substance: data?.substance || "",
-    unit_of_measurement: data?.unit_of_measurement || "",
-    company: data?.company || "",
-    quality: data?.quality || "",
-    expiration_date: data?.expiration_date || "",
-    cost: data?.cost || "",
-    price: data?.price || "",
-    category: data?.category || "",
-    strength: data?.strength || "",
+    _id: "",
+    name: "",
+    substance: "",
+    unit_of_measurement: "",
+    company: "",
+    quantity: "",
+    expiration_date: "",
+    cost: "",
+    price: "",
+    category: "",
+    strength: "",
+    image: "", // optional: for showing existing image
   });
 
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [categories, setCategories] = useState([]); // <-- Add this
+
+  useEffect(() => {
+    const drug = location.state?.drug;
+    if (drug) {
+      setFormData({ ...drug });
+    }
+    fetchCategories(); // <-- Fetch categories on mount
+  }, [location.state]);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await axios.get("https://sisccltd.com/medical_app/api/getAllCategories");
+      if (res.data.success && Array.isArray(res.data.data)) {
+        setCategories(res.data.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch categories", err);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    setImageFile(e.target.files[0]);
   };
 
   const validate = () => {
@@ -37,17 +63,18 @@ export default function EditInventory() {
     if (!formData.substance.trim()) err.substance = "Substance is required";
     if (!formData.unit_of_measurement.trim()) err.unit_of_measurement = "Unit is required";
     if (!formData.company.trim()) err.company = "Company is required";
-    if (!formData.quality.trim()) err.quality = "Quality is required";
+    if (!formData.quantity.trim()) err.quantity = "Quantity is required";
     if (!formData.expiration_date.trim()) err.expiration_date = "Expiration date is required";
     if (!formData.cost || isNaN(formData.cost)) err.cost = "Cost must be a number";
     if (!formData.price || isNaN(formData.price)) err.price = "Price must be a number";
-    if (!formData.category.trim()) err.category = "Category is required";
+    if (!formData.category) err.category = "Category is required";
     if (!formData.strength.trim()) err.strength = "Strength is required";
     return err;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const foundErrors = validate();
     if (Object.keys(foundErrors).length > 0) {
       setErrors(foundErrors);
@@ -56,12 +83,29 @@ export default function EditInventory() {
     }
 
     try {
-      const response = await axios.put(`${baseurl}updateInventory/${data.id}`, formData);
+      const data = new FormData();
+
+      // Append all text fields
+      Object.keys(formData).forEach((key) => {
+        data.append(key, formData[key]);
+      });
+
+      // Append image only if selected
+      if (imageFile) {
+        data.append("image", imageFile);
+      }
+
+      const response = await axios.put(`${baseurl}updateDrug/${formData.id}`, data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
       if (response.data.success === true) {
         setSubmitted(true);
         Swal.fire("Success!", "Inventory updated successfully!", "success");
         toast.success("Inventory updated successfully!");
-        navigate("/Admin/inventory");
+        navigate("/Admin/Pharmacy");
       } else {
         alert("Update failed: " + response.data.message);
       }
@@ -77,9 +121,16 @@ export default function EditInventory() {
         <div className="col-12">
           <div className="card table-card">
             <div className="tableHeader">
-              <div className="d-sm-flex align-items-center justify-content-between">
-                <h5>Edit Inventory</h5>
-              </div>
+              <h5 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span
+                  style={{ cursor: 'pointer', color: '#007bff', fontWeight: 'bold', fontSize: '1.5rem' }}
+                  onClick={() => navigate(-1)}
+                  title="Back"
+                >
+                  &larr;
+                </span>
+                Edit Inventory
+              </h5>
             </div>
 
             {submitted && (
@@ -87,129 +138,71 @@ export default function EditInventory() {
             )}
 
             <form onSubmit={handleSubmit} className="row g-3 px-3 py-2 mb-3">
+              {/* Render all fields except category as before */}
+              {["name", "substance", "unit_of_measurement", "company", "quantity", "expiration_date", "cost", "price", "strength"].map((field) => (
+                <div className="col-md-6" key={field}>
+                  <label className="form-label">{field.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}</label>
+                  <input
+                    type={field === "expiration_date" ? "date" : (field === "cost" || field === "price" ? "number" : "text")}
+                    name={field}
+                    className="form-control"
+                    value={formData[field]}
+                    onChange={handleChange}
+                  />
+                  {errors[field] && (
+                    <p className="text-danger">{errors[field]}</p>
+                  )}
+                </div>
+              ))}
 
-              <div className="col-md-6">
-                <label className="form-label">Item Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  className="form-control"
-                  value={formData.name}
-                  onChange={handleChange}
-                />
-                {errors.name && <p className="text-danger">{errors.name}</p>}
-              </div>
-
-              <div className="col-md-6">
-                <label className="form-label">Substance</label>
-                <input
-                  type="text"
-                  name="substance"
-                  className="form-control"
-                  value={formData.substance}
-                  onChange={handleChange}
-                />
-                {errors.substance && <p className="text-danger">{errors.substance}</p>}
-              </div>
-
-              <div className="col-md-6">
-                <label className="form-label">Unit of Measurement</label>
-                <input
-                  type="text"
-                  name="unit_of_measurement"
-                  className="form-control"
-                  value={formData.unit_of_measurement}
-                  onChange={handleChange}
-                />
-                {errors.unit_of_measurement && <p className="text-danger">{errors.unit_of_measurement}</p>}
-              </div>
-
-              <div className="col-md-6">
-                <label className="form-label">Company</label>
-                <input
-                  type="text"
-                  name="company"
-                  className="form-control"
-                  value={formData.company}
-                  onChange={handleChange}
-                />
-                {errors.company && <p className="text-danger">{errors.company}</p>}
-              </div>
-
-              <div className="col-md-6">
-                <label className="form-label">Quality</label>
-                <input
-                  type="text"
-                  name="quality"
-                  className="form-control"
-                  value={formData.quality}
-                  onChange={handleChange}
-                />
-                {errors.quality && <p className="text-danger">{errors.quality}</p>}
-              </div>
-
-              <div className="col-md-6">
-                <label className="form-label">Expiration Date</label>
-                <input
-                  type="date"
-                  name="expiration_date"
-                  className="form-control"
-                  value={formData.expiration_date}
-                  onChange={handleChange}
-                />
-                {errors.expiration_date && <p className="text-danger">{errors.expiration_date}</p>}
-              </div>
-
-              <div className="col-md-6">
-                <label className="form-label">Cost</label>
-                <input
-                  type="number"
-                  name="cost"
-                  className="form-control"
-                  value={formData.cost}
-                  onChange={handleChange}
-                />
-                {errors.cost && <p className="text-danger">{errors.cost}</p>}
-              </div>
-
-              <div className="col-md-6">
-                <label className="form-label">Price</label>
-                <input
-                  type="number"
-                  name="price"
-                  className="form-control"
-                  value={formData.price}
-                  onChange={handleChange}
-                />
-                {errors.price && <p className="text-danger">{errors.price}</p>}
-              </div>
-
+              {/* Category Dropdown */}
               <div className="col-md-6">
                 <label className="form-label">Category</label>
-                <input
-                  type="text"
+                <select
                   name="category"
-                  className="form-control"
                   value={formData.category}
                   onChange={handleChange}
-                />
-                {errors.category && <p className="text-danger">{errors.category}</p>}
+                  className="form-control"
+                  required
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
+                {errors.category && (
+                  <p className="text-danger">{errors.category}</p>
+                )}
               </div>
 
+              {/* Show Existing Image */}
+              {formData.image && (
+                <div className="col-md-6">
+                  <label className="form-label">Current Image:</label><br />
+                  <img
+                    src={`${baseurl}${formData.image}`}
+                    alt="Current"
+                    style={{ width: "100px", height: "100px", objectFit: "contain" }}
+                  />
+                </div>
+              )}
+
+              {/* Upload New Image */}
               <div className="col-md-6">
-                <label className="form-label">Strength</label>
+                <label className="form-label">Update Image (optional)</label>
                 <input
-                  type="text"
-                  name="strength"
+                  type="file"
+                  name="image"
                   className="form-control"
-                  value={formData.strength}
-                  onChange={handleChange}
+                  onChange={handleFileChange}
+                  accept="image/*"
                 />
-                {errors.strength && <p className="text-danger">{errors.strength}</p>}
               </div>
 
               <div className="col-12 text-center">
-                <button type="submit" className="bgBtn">Update Inventory</button>
+                <button type="submit" className="bgBtn">
+                  Update Inventory
+                </button>
               </div>
             </form>
 

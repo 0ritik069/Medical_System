@@ -87,37 +87,51 @@ export default function Category() {
     getCategory();
   }, []);
 
-  // Filter categories based on search query
+ 
   const filteredCategories = categoryData.filter((category) =>
     category.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
-    <div className="pc-container">
-      <div className="pc-content">
-        <div className="row">
-          <div className="col-12 searchParent d-flex justify-content-between align-items-center mb-3">
-            <h5>Category List</h5>
-            <div className="d-flex align-items-center gap-2">
-              
-              <button className="btn btn-primary" onClick={() => setModalOpen(true)}>
-                Add Category
-              </button>
-            </div>
-          </div>
+   <div className="pc-container">
+  <div className="pc-content">
+    <div className="row">
+      <div className="col-12">
+        <div className="col-12 searchParent">
+          <h5 className="" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span
+              style={{ cursor: 'pointer', color: '#007bff', fontWeight: 'bold', fontSize: '1.5rem' }}
+              onClick={() => navigate(-1)}
+              title="Back"
+            >
+              &larr;
+            </span>
+            Category List
+          </h5>
+        </div>
 
-          <div className="col-md-12">
-            <div className=" table-card patientCardHeader">
-               <div className="mb-3" style={{ margin: "10px", width: "300px" }}>
+        <div className="table-card patientCardHeader">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            
+            {/* Search Input */}
+            <div style={{ width: "300px", margin: "15px" }}>
               <input
                 type="text"
                 placeholder="Search by name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="form-control"
-                style={{ width: "250px" }}
               />
-              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="d-flex align-items-center gap-2" style={{ margin: "15px" }}>
+              <button className="btn btn-primary" onClick={() => setModalOpen(true)}>
+                Add Category
+              </button>
+            </div>
+
+          </div>
               <table className="table">
                 <thead>
                   <tr className="text-center">
@@ -183,69 +197,95 @@ export default function Category() {
 
       {/* Add/Edit Modal */}
       {modalOpen && (
-        <div className="custom-modal">
-          <div className="modal-content p-4">
-            <h5>{editMode ? "Edit Category" : "Add Category"}</h5>
-            <form onSubmit={handleAddEdit}>
-              <div className="mb-3">
-                <label>Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
-                  className="form-control"
-                />
-              </div>
-              <div className="mb-3">
-                <label>Description</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  required
-                  className="form-control"
-                />
-              </div>
-              <div className="d-flex justify-content-end">
+        <div
+          className="modal fade show"
+          style={{
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "block",
+          }}
+        >
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">{editMode ? "Edit Category" : "Add Category"}</h5>
                 <button
                   type="button"
-                  className="btn btn-secondary me-2"
+                  className="btn-close"
                   onClick={resetForm}
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  {editMode ? "Update" : "Add"}
-                </button>
+                ></button>
               </div>
-            </form>
+              <div className="modal-body">
+                <form onSubmit={handleAddEdit}>
+                  <div className="mb-3">
+                    <label>Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      required
+                      className="form-control"
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label>Description</label>
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      required
+                      className="form-control"
+                    />
+                  </div>
+                  <div className="d-flex justify-content-end">
+                    <button
+                      type="button"
+                      className="btn btn-secondary me-2"
+                      onClick={resetForm}
+                    >
+                      Cancel
+                    </button>
+                    <button type="submit" className="btn btn-primary">
+                      {editMode ? "Update" : "Add"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
       {/* View Modal */}
       {viewModalOpen && viewItem && (
-        <div className="custom-modal">
-          <div className="modal-content p-4">
-            <h5>Category Details</h5>
-            <p>
-              <strong>Name:</strong> {viewItem.name}
-            </p>
-            <p>
-              <strong>Description:</strong> {viewItem.description || "N/A"}
-            </p>
-            <div className="text-end">
-              <button
-                className="btn btn-secondary"
-                onClick={() => {
-                  setViewModalOpen(false);
-                  setViewItem(null);
-                }}
-              >
-                Close
-              </button>
+        <div
+          className="modal fade show"
+          style={{
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "block",
+          }}
+        >
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Category Details</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => {
+                    setViewModalOpen(false);
+                    setViewItem(null);
+                  }}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>
+                  <strong>Name:</strong> {viewItem.name}
+                </p>
+                <p>
+                  <strong>Description:</strong> {viewItem.description || "N/A"}
+                </p>
+              </div>
             </div>
           </div>
         </div>
