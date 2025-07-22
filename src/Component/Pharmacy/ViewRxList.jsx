@@ -63,14 +63,7 @@ export default function ViewRx() {
                 ))}
               </div>
 
-              <div className="text-end">
-                <button
-                  className="btn btn-secondary me-2"
-                  onClick={() => navigate(-1)}
-                >
-                  Back
-                </button>
-              </div>
+             
             </div>
           </div>
         </div>
