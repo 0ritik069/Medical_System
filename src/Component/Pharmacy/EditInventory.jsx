@@ -39,7 +39,7 @@ export default function EditInventory() {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("https://sisccltd.com/medical_app/api/getAllCategories");
+      const res = await axios.get(`${baseurl}getAllCategories`);
       if (res.data.success && Array.isArray(res.data.data)) {
         setCategories(res.data.data);
       }

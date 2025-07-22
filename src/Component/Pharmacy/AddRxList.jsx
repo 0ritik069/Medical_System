@@ -71,7 +71,7 @@ export default function AddRxList() {
       if (response.data.success) {
         setSubmitted(true);
         Swal.fire("Success", "RX Item added successfully!", "success");
-        navigate("/Admin/Pharmacy"); // Adjust route if needed
+        navigate("/Admin/Pharmacy"); 
       } else {
         Swal.fire("Error", response.data.message || "Something went wrong", "error");
       }

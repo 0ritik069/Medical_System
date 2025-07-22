@@ -18,7 +18,7 @@ export default function Category() {
 
   const getCategory = async () => {
     try {
-      const res = await axios.get(`${baseurl}/getAllCategories`);
+      const res = await axios.get(`${baseurl}getAllCategories`);
       setCategoryData(res.data.data || []);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -37,7 +37,7 @@ export default function Category() {
 
     if (confirm.isConfirmed) {
       try {
-        await axios.delete(`${baseurl}/deleteCategory/${id}`);
+        await axios.delete(`${baseurl}deleteCategory/${id}`);
         Swal.fire("Deleted!", "Category has been deleted.", "success");
         getCategory();
       } catch (error) {
@@ -51,7 +51,7 @@ export default function Category() {
     e.preventDefault();
     try {
       if (editMode) {
-        await axios.put(`${baseurl}/updateCategory/${editId}`, formData);
+        await axios.put(`${baseurl}updateCategory/${editId}`, formData);
         Swal.fire("Success", "Category updated successfully", "success");
       } else {
         await axios.post(`${baseurl}/addCategories`, formData);
