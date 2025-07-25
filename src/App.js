@@ -111,6 +111,9 @@ import ViewRx from "./Component/Pharmacy/ViewRxList";
 import AddInventory from './Component/Pharmacy/AddInventory';
 import AddRxList from './Component/Pharmacy/AddRxList';
 import NewRequest from './Component/ManageLabs/NewRequest';
+import SettingsDashboard from './Setting/SettingsDashboard';
+
+// import SettingsDashboard from './'
 function App() {
   // console.log("hellow admin")
   return (
@@ -157,6 +160,7 @@ function App() {
 
              <Route path="/Admin/AddInventory" element={<AddInventory />} />
             <Route path="/Admin/AddRxList" element={<AddRxList />} />
+             <Route path="/Admin/SettingsDashboard" element={<SettingsDashboard />} />
             
           </Route>
         </Routes>

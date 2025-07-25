@@ -9,10 +9,13 @@ import lab from "../../../src/assests/sideImg/labs.png";
 import pharmacy from "../../../src/assests/sideImg/pharmacy.png";
 import medical from "../../../src/assests/sideImg/medicals.png";
 import doctor from "../../../src/assests/sideImg/doctors.png";
+import insurance from "../../../src/assests/sideImg/insurance.png";
 import treatment from "../../../src/assests/sideImg/treatment.png";
 import vital from "../../../src/assests/sideImg/vitals.png";
 import file from "../../../src/assests/sideImg/files.png";
 import stats from "../../../src/assests/sideImg/stats.png";
+import setting from "../../../src/assests/sideImg/settings.png";
+import report from "../../../src/assests/sideImg/reports.png";
  
 export default function Header({ isOpen }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -84,7 +87,7 @@ export default function Header({ isOpen }) {
     {
       path: "/Admin/Insurance",
       text: "Insurance",
-      icon: vital,
+      icon: insurance,
     },
     {
       path: "/Admin/Service",
@@ -94,7 +97,12 @@ export default function Header({ isOpen }) {
     {
       path: "/Admin/ReportsInc",
       text: "Reports",
-      icon: file,
+      icon: report,
+    },
+        {
+      path: "/Admin/setting",
+      text: "Setting",
+      icon: setting,
     },
   ];
   const handleclicklogout = () => {
