@@ -2,62 +2,34 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
+import { baseurl} from "../../Baseurl"
 
-const labsData = [
-  {
-    id: 1,
-    date: "2024-06-15",
-    patient: "John Doe",
-    patientId: "P1001",
-    lab: "LabCorp",
-    title: "Blood Test",
-    description: "Routine blood work",
-    days: 2,
-    sentBy: "Dr. Smith",
-    status: "New",
-    avatar: require("../../assests/patients2.png"),
-  },
-  {
-    id: 2,
-    date: "2024-06-14",
-    patient: "Jane Smith",
-    patientId: "P1002",
-    lab: "Quest Diagnostics",
-    title: "Urine Test",
-    description: "Urinalysis",
-    days: 1,
-    sentBy: "Dr. Adams",
-    status: "New",
-    avatar: require("../../assests/patients2.png"),
-  },
-  {
-    id: 3,
-    date: "2024-06-13",
-    patient: "Alice Johnson",
-    patientId: "P1003",
-    lab: "BioReference",
-    title: "X-Ray",
-    description: "Chest X-Ray",
-    days: 3,
-    sentBy: "Dr. Lee",
-    status: "New",
-    avatar: require("../../assests/patients2.png"),
-  },
-];
 export default function ManageLabs() {
   const navigate = useNavigate();
   const [labRequests, setLabRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedTab, setSelectedTab] = useState("Not Sent"); // 'Not Sent', 'Pending', 'Received', 'Result'
-  const [resultInputs, setResultInputs] = useState({}); // { [request_id]: resultText }
-  const [attachments, setAttachments] = useState({}); // { [request_id]: [File, ...] }
+  const [selectedTab, setSelectedTab] = useState("Not Sent"); 
+  const [resultInputs, setResultInputs] = useState({}); 
+  const [attachments, setAttachments] = useState({}); 
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editData, setEditData] = useState({ request_id: null, lab_id: '', description: '' });
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [viewData, setViewData] = useState(null);
+  const [labs, setLabs] = useState([]);
+  const [refreshFlag, setRefreshFlag] = useState(0);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportLabId, setReportLabId] = useState(null);
+  const [reportFiles, setReportFiles] = useState([]);
+  const [reportFile, setReportFile] = useState(null);
+  const [reportName, setReportName] = useState("");
+  const [reportStatus, setReportStatus] = useState("");
 
   useEffect(() => {
     setLoading(true);
     setError(null);
     axios
-      .post("https://sisccltd.com/medical_app/api/getLabRequestsByStatus", { status: selectedTab })
+      .post(`${baseurl}getLabRequestsByStatus`, { status: selectedTab })
       .then((res) => {
         if (res.data.success && Array.isArray(res.data.data)) {
           setLabRequests(res.data.data);
@@ -70,7 +42,16 @@ export default function ManageLabs() {
         setError("Failed to fetch lab requests");
         setLoading(false);
       });
-  }, [selectedTab]);
+  }, [selectedTab, refreshFlag]);
+
+  useEffect(() => {
+    // Fetch labs for the edit modal dropdown
+    axios.get(`${baseurl}getAllLabs`).then(res => {
+      if (res.data.success && Array.isArray(res.data.data)) {
+        setLabs(res.data.data);
+      }
+    });
+  }, []);
 
   // Add delete handler
   const handleDelete = (request_id) => {
@@ -84,7 +65,7 @@ export default function ManageLabs() {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`https://sisccltd.com/medical_app/api/deleteLabRequest/${request_id}`)
+          .delete(`${baseurl}deleteLabRequest/${request_id}`)
           .then((res) => {
             if (res.data.success) {
               setLabRequests((prev) => prev.filter((item) => item.request_id !== request_id));
@@ -99,12 +80,91 @@ export default function ManageLabs() {
       }
     });
   };
+
+  const handleEditClick = (lab) => {
+    setEditData({
+      request_id: lab.request_id,
+      lab_id: lab.lab_id || '',
+      description: lab.description || '',
+    });
+    setShowEditModal(true);
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.put(`${baseurl}editLabRequest/${editData.request_id}`, {
+        lab_id: editData.lab_id,
+        description: editData.description,
+      });
+      if (res.data.success) {
+        setLabRequests((prev) => prev.map((item) =>
+          item.request_id === editData.request_id
+            ? { ...item, lab_id: editData.lab_id, description: editData.description }
+            : item
+        ));
+        setShowEditModal(false);
+        Swal.fire('Success', 'Lab request updated successfully', 'success');
+      } else {
+        Swal.fire('Error', res.data.message || 'Failed to update lab request', 'error');
+      }
+    } catch {
+      Swal.fire('Error', 'Server error while updating lab request', 'error');
+    }
+  };
+
+  const handleViewClick = (lab) => {
+    setViewData(lab);
+    setShowViewModal(true);
+  };
+
+  const handleAddReportClick = (labId) => {
+    setReportLabId(labId);
+    setShowReportModal(true);
+    setReportFile(null);
+    setReportName("");
+    setReportStatus("");
+  };
+
+  const handleReportFileChange = (e) => {
+    setReportFile(e.target.files[0] || null);
+  };
+
+  const handleReportUpload = async () => {
+    if (!reportFile || !reportName || !reportStatus) {
+      Swal.fire('Error', 'Please select file, enter name and status', 'error');
+      return;
+    }
+    const formData = new FormData();
+    formData.append('file', reportFile);
+    formData.append('name', reportName);
+    formData.append('report_status', reportStatus);
+    try {
+      const res = await axios.post(`${baseurl}addLabRequestAttachment/${reportLabId}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      if (res.data.success) {
+        setShowReportModal(false);
+        Swal.fire('Success', 'Attachment uploaded successfully', 'success');
+      } else {
+        Swal.fire('Error', res.data.message || 'Failed to upload', 'error');
+      }
+    } catch (err) {
+      Swal.fire('Error', 'Server error while uploading', 'error');
+    }
+  };
+
   return (
     <div className="pc-container">
       <div className="pc-content">
         <div className="d-flex justify-content-between">
           <div>
-            <button className="btn btn-primary mx-2 px-4 my-3" onClick={() => navigate("/Admin/newrequest")}>
+            <button className="btn btn-primary ml-5 px-4 my-3" onClick={() => navigate("/Admin/newrequest")}>
               {" "}
               New Request
             </button>
@@ -121,7 +181,7 @@ export default function ManageLabs() {
         </div>
         <div class="container my-12">
           <div className="w-100 border rounded p-2">
-            <ul className="nav nav-pills w-100" id="pills-tab" role="tablist">
+            <ul className="nav nav-pills w-100" id="pills-tab" role="tablist"> 
               <li className="nav-item" role="presentation">
                 <button
                   className={`nav-link${selectedTab === "Not Sent" ? " active" : ""}`}
@@ -231,13 +291,13 @@ export default function ManageLabs() {
                                       className="form-select form-select-sm border-primary shadow-sm px-1 py-0"
                                       style={{ minWidth: 90, fontWeight: 500, fontSize: '0.85em', height: '1.8em', backgroundColor: '#f8f9fa' }}
                                       value={lab.status}
-                                      title="Change status to Not Sent or Pending"
+                                      title="Change status"
                                       onChange={async e => {
-                                        const newStatus = e.target.value;
+                                        const newStatus = e.target.value === 'Cancel' ? 'Cancelled' : e.target.value;
                                         try {
-                                          const res = await axios.post(`https://sisccltd.com/medical_app/api/updateLabRequestStatus/${lab.request_id}`, { status: newStatus });
+                                          const res = await axios.post(`${baseurl}updateLabRequestStatus/${lab.request_id}`, { status: newStatus });
                                           if (res.data.success) {
-                                            setLabRequests(prev => prev.map(item => item.request_id === lab.request_id ? { ...item, status: newStatus } : item));
+                                            setRefreshFlag(f => f + 1);
                                             Swal.fire('Success', 'Status updated successfully', 'success');
                                           } else {
                                             Swal.fire('Error', res.data.message || 'Failed to update status', 'error');
@@ -249,13 +309,14 @@ export default function ManageLabs() {
                                     >
                                       <option value="Not Sent">Not Sent</option>
                                       <option value="Pending">Pending</option>
+                                      <option value="Cancel">Cancel</option>
                                     </select>
                                   </td>
                                   <td>
-                                    <a href="#" className="avtar avtar-xs btn-link-secondary">
+                                    <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); handleViewClick(lab); }}>
                                       <i className="ti ti-eye f-20" />{" "}
                                     </a>
-                                    <a href="#" className="avtar avtar-xs btn-link-secondary">
+                                    <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); handleEditClick(lab); }}>
                                       <i className="ti ti-edit f-20" />{" "}
                                     </a>
                                     <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); handleDelete(lab.request_id); }}>
@@ -327,13 +388,13 @@ export default function ManageLabs() {
                                     className="form-select form-select-sm border-primary shadow-sm px-1 py-0"
                                     style={{ minWidth: 90, fontWeight: 500, fontSize: '0.85em', height: '1.8em', backgroundColor: '#f8f9fa' }}
                                     value={lab.status}
-                                    title="Change status to Pending or Received"
+                                    title="Change status"
                                     onChange={async e => {
-                                      const newStatus = e.target.value;
+                                      const newStatus = e.target.value === 'Cancel' ? 'Cancelled' : e.target.value;
                                       try {
-                                        const res = await axios.post(`https://sisccltd.com/medical_app/api/updateLabRequestStatus/${lab.request_id}`, { status: newStatus });
+                                        const res = await axios.post(`${baseurl}updateLabRequestStatus/${lab.request_id}`, { status: newStatus });
                                         if (res.data.success) {
-                                          setLabRequests(prev => prev.map(item => item.request_id === lab.request_id ? { ...item, status: newStatus } : item));
+                                          setRefreshFlag(f => f + 1);
                                           Swal.fire('Success', 'Status updated successfully', 'success');
                                         } else {
                                           Swal.fire('Error', res.data.message || 'Failed to update status', 'error');
@@ -345,13 +406,14 @@ export default function ManageLabs() {
                                   >
                                     <option value="Pending">Pending</option>
                                     <option value="Received">Received</option>
+                                    <option value="Cancel">Cancel</option>
                                   </select>
                                 </td>
                                 <td>
-                                  <a href="#" className="avtar avtar-xs btn-link-secondary">
+                                  <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); handleViewClick(lab); }}>
                                     <i className="ti ti-eye f-20" />{" "}
                                   </a>
-                                  <a href="#" className="avtar avtar-xs btn-link-secondary">
+                                  <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); handleEditClick(lab); }}>
                                     <i className="ti ti-edit f-20" />{" "}
                                   </a>
                                   <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); handleDelete(lab.request_id); }}>
@@ -417,12 +479,38 @@ export default function ManageLabs() {
                                 <td>{lab.description}</td>
                                 <td>{lab.days_since_request ?? ''}</td>
                                 <td>{lab.sent_by}</td>
-                                <td>{lab.status}</td>
                                 <td>
-                                  <a href="#" className="avtar avtar-xs btn-link-secondary">
+                                  <select
+                                    id={`status-select-received-${lab.request_id}`}
+                                    className="form-select form-select-sm border-primary shadow-sm px-1 py-0"
+                                    style={{ minWidth: 90, fontWeight: 500, fontSize: '0.85em', height: '1.8em', backgroundColor: '#f8f9fa' }}
+                                    value={lab.status}
+                                    title="Change status"
+                                    onChange={async e => {
+                                      const newStatus = e.target.value === 'Cancel' ? 'Cancelled' : e.target.value;
+                                      try {
+                                        const res = await axios.post(`${baseurl}updateLabRequestStatus/${lab.request_id}`, { status: newStatus });
+                                        if (res.data.success) {
+                                          setRefreshFlag(f => f + 1);
+                                          Swal.fire('Success', 'Status updated successfully', 'success');
+                                        } else {
+                                          Swal.fire('Error', res.data.message || 'Failed to update status', 'error');
+                                        }
+                                      } catch {
+                                        Swal.fire('Error', 'Server error while updating status', 'error');
+                                      }
+                                    }}
+                                  >
+                                    <option value="Received">Received</option>
+                                    <option value="Result">Result</option>
+                                    <option value="Cancel">Cancel</option>
+                                  </select>
+                                </td>
+                                <td>
+                                  <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); handleViewClick(lab); }}>
                                     <i className="ti ti-eye f-20" />{" "}
                                   </a>
-                                  <a href="#" className="avtar avtar-xs btn-link-secondary">
+                                  <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); handleEditClick(lab); }}>
                                     <i className="ti ti-edit f-20" />{" "}
                                   </a>
                                   <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); handleDelete(lab.request_id); }}>
@@ -490,31 +578,45 @@ export default function ManageLabs() {
                                 <td>{lab.sent_by}</td>
                                 <td>
                                   <select
-                                    className="form-select"
-                                    value={lab.status === 'Positive' || lab.status === 'Negative' ? lab.status : ''}
-                                    onChange={e => {
-                                      // Optionally, handle status change here (e.g., update backend or local state)
-                                      setLabRequests(prev => prev.map(item => item.request_id === lab.request_id ? { ...item, status: e.target.value } : item));
+                                    id={`status-select-result-${lab.request_id}`}
+                                    className="form-select form-select-sm border-primary shadow-sm px-1 py-0"
+                                    style={{ minWidth: 90, fontWeight: 500, fontSize: '0.85em', height: '1.8em', backgroundColor: '#f8f9fa' }}
+                                    value={lab.status}
+                                    title="Change status"
+                                    onChange={async e => {
+                                      const newStatus = e.target.value === 'Cancel' ? 'Cancelled' : e.target.value;
+                                      try {
+                                        const res = await axios.post(`${baseurl}updateLabRequestStatus/${lab.request_id}`, { status: newStatus });
+                                        if (res.data.success) {
+                                          setRefreshFlag(f => f + 1);
+                                          Swal.fire('Success', 'Status updated successfully', 'success');
+                                        } else {
+                                          Swal.fire('Error', res.data.message || 'Failed to update status', 'error');
+                                        }
+                                      } catch {
+                                        Swal.fire('Error', 'Server error while updating status', 'error');
+                                      }
                                     }}
                                   >
-                                    <option value="">Select</option>
                                     <option value="Positive">Positive</option>
                                     <option value="Negative">Negative</option>
+                                    <option value="Cancel">Cancel</option>
                                   </select>
                                 </td>
                                 <td>
-                                  <input
-                                    type="file"
-                                    className="form-control"
-                                    multiple
-                                    onChange={e => setAttachments(prev => ({ ...prev, [lab.request_id]: Array.from(e.target.files) }))}
-                                  />
+                                  <button
+                                    className="btn btn-sm btn-outline-primary"
+                                    style={{ minWidth: 90, fontSize: '0.85em', padding: '2px 8px', height: '1.8em' }}
+                                    onClick={() => handleAddReportClick(lab.request_id)}
+                                  >
+                                    Add Report
+                                  </button>
                                 </td>
                                 <td>
-                                  <a href="#" className="avtar avtar-xs btn-link-secondary">
+                                  <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); handleViewClick(lab); }}>
                                     <i className="ti ti-eye f-20" />{" "}
                                   </a>
-                                  <a href="#" className="avtar avtar-xs btn-link-secondary">
+                                  <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); handleEditClick(lab); }}>
                                     <i className="ti ti-edit f-20" />{" "}
                                   </a>
                                   <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); handleDelete(lab.request_id); }}>
@@ -534,6 +636,170 @@ export default function ManageLabs() {
           </div>
         </div>
       </div>
+      {showEditModal && (
+  <div
+    className="modal fade show"
+    style={{
+      backgroundColor: "rgba(0,0,0,0.5)",
+      display: "block",
+    }}
+  >
+    <div className="modal-dialog modal-lg">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h5 className="modal-title">Edit Lab Request</h5>
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setShowEditModal(false)}
+          ></button>
+        </div>
+        <div className="modal-body">
+          <form onSubmit={handleEditSubmit}>
+            <div className="mb-3">
+              <label className="form-label">Lab</label>
+              <select
+                className="form-select"
+                name="lab_id"
+                value={editData.lab_id}
+                onChange={handleEditChange}
+                required
+              >
+                <option value="">Select Lab</option>
+                {labs.map(lab => (
+                  <option key={lab.id} value={lab.id}>{lab.lab_name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Description</label>
+              <textarea
+                className="form-control"
+                name="description"
+                value={editData.description}
+                onChange={handleEditChange}
+                required
+              />
+            </div>
+            <div className="d-flex justify-content-end">
+              <button
+                type="button"
+                className="btn btn-secondary me-2"
+                onClick={() => setShowEditModal(false)}
+              >
+                Cancel
+              </button>
+              <button type="submit" className="btn btn-primary">
+                Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+{showViewModal && viewData && (
+  <div
+    className="modal fade show"
+    style={{
+      backgroundColor: "rgba(0,0,0,0.5)",
+      display: "block",
+    }}
+  >
+    <div className="modal-dialog modal-lg">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h5 className="modal-title">Lab Request Details</h5>
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setShowViewModal(false)}
+          ></button>
+        </div>
+        <div className="modal-body">
+          <div className="mb-2"><strong>ID:</strong> {viewData.request_id}</div>
+          <div className="mb-2"><strong>Date:</strong> {viewData.request_date ? viewData.request_date.split('T')[0] : ''}</div>
+          <div className="mb-2"><strong>Patient:</strong> {viewData.patient_name}</div>
+          <div className="mb-2"><strong>Patient ID:</strong> {viewData.patient_civil_id}</div>
+          <div className="mb-2"><strong>Lab ID:</strong> {viewData.lab_id}</div>
+          <div className="mb-2"><strong>Lab Name:</strong> {viewData.lab_name}</div>
+          <div className="mb-2"><strong>Doctor:</strong> {viewData.doctor_name}</div>
+          <div className="mb-2"><strong>Title:</strong> {viewData.title}</div>
+          <div className="mb-2"><strong>Description:</strong> {viewData.description}</div>
+          <div className="mb-2"><strong>Days Since Request:</strong> {viewData.days_since_request ?? ''}</div>
+          <div className="mb-2"><strong>Sent By:</strong> {viewData.sent_by}</div>
+          <div className="mb-2"><strong>Status:</strong> {viewData.status}</div>
+        </div>
+        <div className="modal-footer">
+          <button type="button" className="btn btn-secondary" onClick={() => setShowViewModal(false)}>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+{showReportModal && (
+  <div
+    className="modal fade show"
+    style={{ backgroundColor: "rgba(0,0,0,0.5)", display: "block" }}
+  >
+    <div className="modal-dialog modal-md">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h5 className="modal-title">Add Report Attachment</h5>
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setShowReportModal(false)}
+          ></button>
+        </div>
+        <div className="modal-body">
+          <div className="mb-3">
+            <label className="form-label">Select File</label>
+            <input
+              type="file"
+              className="form-control form-control-sm"
+              onChange={handleReportFileChange}
+              accept="image/*,application/pdf"
+            />
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Name</label>
+            <input
+              type="text"
+              className="form-control form-control-sm"
+              value={reportName}
+              onChange={e => setReportName(e.target.value)}
+              placeholder="Report Name"
+            />
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Status</label>
+            <select
+              className="form-select form-select-sm"
+              value={reportStatus}
+              onChange={e => setReportStatus(e.target.value)}
+            >
+              <option value="">Select Status</option>
+              <option value="Positive">Positive</option>
+              <option value="Negative">Negative</option>
+            </select>
+          </div>
+        </div>
+        <div className="modal-footer">
+          <button type="button" className="btn btn-secondary" onClick={() => setShowReportModal(false)}>
+            Cancel
+          </button>
+          <button type="button" className="btn btn-primary" onClick={handleReportUpload}>
+            Upload
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
