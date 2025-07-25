@@ -23,7 +23,7 @@ export default function NewRequest() {
   });
 
   useEffect(() => {
-    // Fetch patients 
+     
     axios.get(`${baseurl}getAllPatients`)
       .then(res => {
         if (res.data.success && Array.isArray(res.data.data)) {
@@ -37,7 +37,7 @@ export default function NewRequest() {
 
 
   useEffect(() =>{
-    //fetch labs
+   
     axios.get(`${baseurl}getAllLabs`)
     .then(res => {
         if(res.data.success && Array.isArray(res.data.data)) {
