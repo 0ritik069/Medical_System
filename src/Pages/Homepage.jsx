@@ -259,6 +259,7 @@ import doctor from "../../src/assests/sideImg/doctors.png";
 import treatment from "../../src/assests/sideImg/treatment.png";
 import vital from "../../src/assests/sideImg/vitals.png";
 import file from "../../src/assests/sideImg/files.png";
+import insurance from "../../src/assests/sideImg/insurance.png";
  
 const Homepage = () => {
   const cards = [
@@ -308,7 +309,7 @@ const Homepage = () => {
       subtitle: "240+ Appointment Today",
       image: image7,
       url: "/Admin/Insurance",
-      iconClass: treatment,
+      iconClass: insurance,
     },
     {
       title: "Billing",
@@ -380,8 +381,8 @@ const Homepage = () => {
   };
   return (
     <div className="container">
-      <Sidebar />
-      <div className="row g-4" style={{marginTop:"80px"}}>
+      {/* <Sidebar /> */}
+      <div className="row g-4" style={{marginTop:"0px"}}>
         {/* Left section */}
         <div className="col-lg-8">
           <div className="row">
