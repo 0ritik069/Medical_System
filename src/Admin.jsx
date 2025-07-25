@@ -14,18 +14,7 @@ export default function Admin() {
     <div style={{ display: "flex" }}>
       {/* Left sidebar */}
       <Header isOpen={isSidebarOpen} />
-
-      {/* Main content area */}
-      {/* <div
-        className="main-content"
-        style={{
-          marginLeft: isSidebarOpen ? "240px" : "50px", // Space for sidebar
-          width: isSidebarOpen ? "calc(100% - 240px)" : "calc(100% - 50px)",
-          transition: "all 0.3s ease",
-        }}
-      > */}
-        <div
-        className="main-content"> 
+      <div className="main-content">
         <Sidebar onToggle={handleToggleSidebar} />
 
         <div>
