@@ -33659,7 +33659,6 @@ input[type="radio"] {
  
 .calenderClock input {
   border: 1px solid var(--borderLight);
-  font-weight: 500;
   font-size: 14px;
   border-radius: 8px;
   padding: 10px;
@@ -33705,6 +33704,7 @@ input[type="radio"] {
   padding-top: 7px;
   margin-right: 10px;
 }
+
 .filterDoc i:nth-child(2) {
   background: var(--green);
   height: 36px;
@@ -33723,18 +33723,20 @@ input[type="radio"] {
    font-weight: 700;
   margin-bottom: 25px;
 }
+
 .modal-dialog {
    top: 50%;
     transform: translateY(-50%) !important;
 }
+
 .searchInput{
   border: 1px solid var(--borderLight) !important;
-  font-weight: 500;
   font-size: 14px;
   border-radius: 8px;
   padding: 10px;
   min-width: 230px;
 }
+
 button.btn-close {
     background-color: #fff;
     opacity: 1;
@@ -33924,3 +33926,36 @@ th {
  .new{
   background-color: red;
  }
+ .cardDesign .card-title {
+    border-bottom: unset !important;
+}
+input [type="chekbox"]{
+  height: 40px !important;
+  width: 40px !important;
+}
+.listTableIcon {
+    /* margin-top: 9px; */
+    border: 1px solid #d2d2d2;
+    padding: 8px;
+    border-radius: 50%;
+    height: 40px;
+    width: 40px;
+    text-align: center;
+}
+.listTableIcon i{
+  font-size: 20px !important;
+}
+.calenderTableSea{
+  border: 1px solid rgb(210, 210, 210);
+  padding: 10px;
+  border-bottom: unset;
+  padding: 10px;
+  background-color: #fff;
+}
+.iconheadSet i {
+    font-size: 28px;
+}
+.MuiPickersSectionList-root {
+    padding: 14px !important;
+}
+ 

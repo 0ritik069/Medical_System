@@ -6,8 +6,8 @@ export default function Vierappointment() {
   return (
     <div className="pc-container">
       <div className="pc-content">
-        <div className="mt-5 commonCard pt-5">
-          <div className="row g-3">
+        <div>
+          <div className="row">
             {/* Left Section */}
             <div className="col-md-12">
               {/* Personal Info */}
@@ -25,7 +25,7 @@ export default function Vierappointment() {
                 </div>
                 <div>
                   <h5 className="card-title">View Appointment</h5>
-                  <div className="row p20">
+                  <div className="row p20 g-3">
                     <div className="col-md-6">
                       <label className="form-label">Doctor Name</label>
                       <input
@@ -65,7 +65,7 @@ export default function Vierappointment() {
                         placeholder="Nationality"
                       />
                     </div>
-                    <div className="col-md-4">
+                    <div className="col-md-6">
                       <label className="form-label">Date</label>
                       <input
                         type="date"
@@ -80,7 +80,7 @@ export default function Vierappointment() {
                         }
                       />
                     </div>
-                    <div className="col-md-4">
+                    <div className="col-md-6">
                       <label className="form-label">Status</label>
                       <input
                         type="text"
