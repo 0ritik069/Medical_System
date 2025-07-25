@@ -75,7 +75,18 @@
 
 
 // // const arr =[1,2,5,7,88]
-// // arradd(arr)
+// // /;
+// console.log(str.length)
+// for(let i=0;i<str.length;i++){
+//     revstr=str[i]+revstr;
+// }
+// console.log(revstr);
+
+// if(revstr===str){
+//     console.log("given string is palindrome");
+// }
+// else{
+//     console.log("given string is not palindrome");/ arradd(arr)
 
 
 // function fincbidd() {
@@ -133,28 +144,67 @@
 //     console.log("not palindrome");
 // }
  
+// const str="madam";
+// let revstr=""
+// }
+
+// const str = "javascript"
+// const vowel="aeiou"
+// let count=0;
+// for (let i = 0; i<str.length;i++){
+//     if(vowel.includes(str[i].toLowerCase())){
+//         console.log(str[i])
+//         count++
+//     }
+// console.log(count)
+// }
+
+// const str="aeiou";
+// const vowel="aeiou";
+// let count=0;
+// for (let i = 0; i<str.length;i++){
+//     if(vowel.includes(str[i].toLowerCase())){
+//         count++
+//     }
+// }
+// console.log(count)
 
 
+// const str = "tushar is learning the javascript from the start"
+
+// const word = str.split(" ")
+// console.log(word)
+// let longest = "";
+
+// for (let i=0;i<str.length;i++){
+//     if (word[i].length > longest.length) {
+
+//        longest = word[i]
+//    }
+// }
+// console.log(longest)
+
+// const strinng = "this is is soooo good"
+
+// let res ="";
+// for (let i=0;i<strinng.length;i++){
+//     // console.log(res)
+//             if (strinng[i]===" "){
+//              res+="-"
+//             }else{
+//                res += strinng[i]
+//             }
+// }
+// console.log(res)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+const obj ={
+    name: "tushar",
+    age: 22,
+    city: "pune"
+}
+console.log(obj.name)
+ // Output: ['tushar', 22, 'p   
 
 
 

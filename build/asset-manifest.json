@@ -1,11 +1,10 @@
 {
   "files": {
-    "main.css": "/medicalSystem/static/css/main.46b11b38.css",
-    "main.js": "/medicalSystem/static/js/main.8ab0faaf.js",
+    "main.css": "/medicalSystem/static/css/main.d810d2fa.css",
+    "main.js": "/medicalSystem/static/js/main.7c9f6d30.js",
     "static/media/national-cancer-institute-4SiOVKH3DYA-unsplash.jpg": "/medicalSystem/static/media/national-cancer-institute-4SiOVKH3DYA-unsplash.3b060009c9b1c45aff23.jpg",
     "static/media/insurance11.png": "/medicalSystem/static/media/insurance11.862ff15567c0f19a4f7d.png",
     "static/media/liver.png": "/medicalSystem/static/media/liver.56a6aec443ce2832ff7a.png",
-    "static/media/labs.png": "/medicalSystem/static/media/labs.7b342e797899fcf49666.png",
     "static/media/Screenshot 2025-06-13 150418.png": "/medicalSystem/static/media/Screenshot 2025-06-13 150418.afa5ba8c27da146bd984.png",
     "static/media/Reports11.png": "/medicalSystem/static/media/Reports11.74f83c0291b2cc4a4c16.png",
     "static/media/dashboard.png": "/medicalSystem/static/media/dashboard.1dc5946470bfeb721371.png",
@@ -13,18 +12,28 @@
     "static/media/logo.png": "/medicalSystem/static/media/logo.137a3d419a9ca715ffe3.png",
     "static/media/img-auth-bg.jpg": "/medicalSystem/static/media/img-auth-bg.1b86011c0e292fa8528c.jpg",
     "static/media/Image.jpg": "/medicalSystem/static/media/Image.cbb261404d9f7bcbe956.jpg",
-    "static/media/patients2.png": "/medicalSystem/static/media/patients2.1b2a2efcab3507a538a7.png",
+    "static/media/treatment.png": "/medicalSystem/static/media/treatment.1d1eee6e0469a2bf66c9.png",
+    "static/media/billing.png": "/medicalSystem/static/media/billing.9b18e4a0a98c98bc3f00.png",
+    "static/media/doctors.png": "/medicalSystem/static/media/doctors.fb1b5bf04f45de381d0e.png",
+    "static/media/pharmacy.png": "/medicalSystem/static/media/pharmacy.bf89cfe0bbb3fca41b0a.png",
+    "static/media/home.png": "/medicalSystem/static/media/home.9dfcda42cf8b0da15402.png",
+    "static/media/vitals.png": "/medicalSystem/static/media/vitals.b1337b1e8b1ae3e1c910.png",
+    "static/media/labs.png": "/medicalSystem/static/media/labs.75a81b44a36053dcf493.png",
+    "static/media/appointments.png": "/medicalSystem/static/media/appointments.4b23032df5d9ca9f8301.png",
+    "static/media/stats.png": "/medicalSystem/static/media/stats.2b4e3a71e5a94975e0a9.png",
+    "static/media/HOME-DASH.png": "/medicalSystem/static/media/HOME-DASH.1d612e507994e537d15a.png",
+    "static/media/medicals.png": "/medicalSystem/static/media/medicals.a4065c3a94cde29c3c3c.png",
+    "static/media/files.png": "/medicalSystem/static/media/files.7d81afb00e98f243bced.png",
     "static/media/profile.jpg": "/medicalSystem/static/media/profile.cb14d273471f29feb446.jpg",
     "static/media/img-cunstruct-1-bg.png": "/medicalSystem/static/media/img-cunstruct-1-bg.6c21f793bd541bc6bf18.png",
-    "static/media/medicals.png": "/medicalSystem/static/media/medicals.9defaf4777d5817e2810.png",
     "index.html": "/medicalSystem/index.html",
     "static/media/img-dropbox-bg.svg": "/medicalSystem/static/media/img-dropbox-bg.6ba2c2ca8a6b9fcae659.svg",
     "static/media/img-cunstruct-1-bottom.svg": "/medicalSystem/static/media/img-cunstruct-1-bottom.2dbd5d98166f00361b2b.svg",
-    "main.46b11b38.css.map": "/medicalSystem/static/css/main.46b11b38.css.map",
-    "main.8ab0faaf.js.map": "/medicalSystem/static/js/main.8ab0faaf.js.map"
+    "main.d810d2fa.css.map": "/medicalSystem/static/css/main.d810d2fa.css.map",
+    "main.7c9f6d30.js.map": "/medicalSystem/static/js/main.7c9f6d30.js.map"
   },
   "entrypoints": [
-    "static/css/main.46b11b38.css",
-    "static/js/main.8ab0faaf.js"
+    "static/css/main.d810d2fa.css",
+    "static/js/main.7c9f6d30.js"
   ]
 }
