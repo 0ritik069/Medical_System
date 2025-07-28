@@ -505,23 +505,16 @@ export default function Appointment2() {
     (item) =>
       `${item.doctorName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.patientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      // item.gender?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.reason?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.duration?.toString().includes(searchTerm) ||
       item.mobileNumber?.toString().includes(searchTerm) ||
       (item.appointmentDate &&
         new Date(item.appointmentDate)
-          .toLocaleDateString("en-GB") // gives "23/07/2025"
+          .toLocaleDateString("en-GB")
           .includes(searchTerm))
-    // item.appointmentDate?.toString().includes(searchTerm)
-    // item.age?.toString().includes(searchTerm) ||
-    // item.fileNumber?.toString().includes(searchTerm) ||
-    // item.gender?.toString().includes(searchTerm) ||
-    // item.primaryDoctor?.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
-    //  setAppointmentdata
   };
   return (
     <div className="pc-container">
@@ -529,21 +522,6 @@ export default function Appointment2() {
         <div className="col-12">
           <div className="d-flex justify-content-between">
             <h5 className="mainTitle">Appointments</h5>
-            <div
-              className="d-flex justify-content-end calenderListIcon"
-              style={{ marginBottom: "25px" }}
-            >
-              <div
-                className="me-3"
-                style={{ cursor: "pointer" }}
-                onClick={handleclickchange}
-              >
-                <i class="fa fa-calendar fs-4" aria-hidden="true"></i>
-              </div>
-              <div style={{ cursor: "pointer" }} onClick={handleclickchange11}>
-                <i class="fa fa-list fs-4" aria-hidden="true"></i>
-              </div>
-            </div>
           </div>
           <div className="patientCardHeaderd">
             <div
@@ -555,8 +533,8 @@ export default function Appointment2() {
                 borderBottom: "unset",
               }}
             >
-              <div className="d-flex justify-content-between calenderClock align-items-center">
-                <div className="d-flex align-items-center start">
+              <div className="d-flex flex-wrap justify-content-between calenderClock align-items-center">
+                <div className="d-flex align-items-center start flex-wrap">
                   <div>
                     <button
                       className="bgBtn me-2 "
@@ -564,7 +542,7 @@ export default function Appointment2() {
                         navigate("/Admin/Addappointment");
                       }}
                     >
-                      New Appointment{" "}
+                      New Appointment
                     </button>
                     <button
                       className="waitingBtn me-2"
@@ -579,31 +557,62 @@ export default function Appointment2() {
                   <AnalogClock />
                 </div>
                 <div>
-                  <div className="filterDoc text-end mb-2">
-                    <i
-                      class="ti ti-adjustments-horizontal"
-                      onClick={handlelcicktoopen}
-                      style={{ cursor: "pointer" }}
-                    ></i>
-                    <i class="ti ti-printer"></i>
+                  <div className="d-flex ">
+                    <div className="d-flex justify-content-end calenderListIcon ">
+                      <div className="filterDoc text-end mb-2">
+                        <i
+                          class="ti ti-adjustments-horizontal"
+                          onClick={handlelcicktoopen}
+                          style={{ cursor: "pointer" }}
+                        ></i>
+                        <i class="ti ti-printer"></i>
+                      </div>
+                      <div
+                        className="me-2 listTableIcon"
+                        style={{ cursor: "pointer" }}
+                        onClick={handleclickchange}
+                      >
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                      </div>
+                      <div
+                        className="me-2 listTableIcon"
+                        style={{ cursor: "pointer" }}
+                        onClick={handleclickchange11}
+                      >
+                        <i class="fa fa-list" aria-hidden="true"></i>
+                      </div>
+                    </div>
+                    <div className="position-relative">
+                      <DatePicker
+                        multiple
+                        value={selectedDates}
+                        onChange={setSelectedDates}
+                        format="YYYY-MM-DD"
+                        placeholder="Select dates"
+                        inputClass="form-control py-2"
+                        className="custom-calendar-style"
+                      />
+                      <i
+                        className="fa fa-calendar position-absolute"
+                        style={{
+                          right: "10px",
+                          top: "20px",
+                          transform: "translateY(-50%)",
+                          color: "#888",
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <button
+                        onClick={() => {
+                          handleMultiDateFilter();
+                        }}
+                        className="btn btn-primary ms-1"
+                      >
+                        <span className="fa fa-search"></span>
+                      </button>
+                    </div>
                   </div>
-                  <div></div>
-                  <DatePicker
-                    multiple
-                    value={selectedDates}
-                    onChange={setSelectedDates}
-                    format="YYYY-MM-DD"
-                    inputClass="form-control py-2"
-                    className="custom-calendar-style"
-                  />
-                  <button
-                    onClick={() => {
-                      handleMultiDateFilter();
-                    }}
-                    className="btn btn-primary ms-1"
-                  >
-                    <span className="fa fa-search"></span>{" "}
-                  </button>
                 </div>
               </div>
             </div>
@@ -668,6 +677,26 @@ export default function Appointment2() {
                             }
                           />
                         </div>
+                          <div className="col-md-6">
+                          <label className="form-label">Start Time</label>
+                          <input
+                            type="time"
+                            className={`form-control `}
+                            name="startTime"
+                            value={appointmentdata1.startTime}
+                            onChange={handleChange23}
+                          />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label">End Time</label>
+                          <input
+                            type="time"
+                            className={`form-control`}
+                            name="endTime"
+                            value={appointmentdata1.endTime}
+                            onChange={handleChange23}
+                          />
+                        </div>
                         <div className="col-lg-6">
                           <label className="form-label">Appointment Type</label>
                           <div className="d-flex align-items-center gap-3 mb-3">
@@ -708,26 +737,7 @@ export default function Appointment2() {
                           </div>
                         </div>
 
-                        <div className="col-md-6">
-                          <label className="form-label">Start Time</label>
-                          <input
-                            type="time"
-                            className={`form-control `}
-                            name="startTime"
-                            value={appointmentdata1.startTime}
-                            onChange={handleChange23}
-                          />
-                        </div>
-                        <div className="col-md-6">
-                          <label className="form-label">End Time</label>
-                          <input
-                            type="time"
-                            className={`form-control`}
-                            name="endTime"
-                            value={appointmentdata1.endTime}
-                            onChange={handleChange23}
-                          />
-                        </div>
+                      
                         <div className="col-lg-12">
                           <label className="form-label">Notes</label>
                           <input
@@ -748,7 +758,7 @@ export default function Appointment2() {
                     </div>
                     <siv className="d-flex justify-content-center">
                       <button
-                        className=" my-3 w-25 btn btn-primary"
+                        className=" my-3 bgBtn"
                         onClick={() => {
                           updateappointment();
                         }}
@@ -783,7 +793,7 @@ export default function Appointment2() {
                         {doctors && doctors.length > 0 ? (
                           doctors.map((item, index) => (
                             <div className="col-md-4 mb-3" key={index}>
-                              <div className="form-check border rounded p-3 h-100">
+                              <div className="form-check">
                                 <input
                                   type="checkbox"
                                   style={{ cursor: "pointer" }}
@@ -810,7 +820,7 @@ export default function Appointment2() {
                     </div>
                     <siv className="d-flex justify-content-center">
                       <button
-                        className=" my-3 w-25 btn btn-primary"
+                        className=" my-3 bgBtn"
                         onClick={() => {
                           setFunction();
                         }}
@@ -824,12 +834,12 @@ export default function Appointment2() {
             )}
             {showdata ? (
               <div className="card-body tableAppoint">
-                <div className="table-responsive">
+                <div className="calenderTableSea">
                   <div className="tableSearch">
                     <input
                       type="text"
                       placeholder="Search by name, or mobile"
-                      className=" mx-4 form-control"
+                      className="form-control"
                       value={searchTerm}
                       onChange={handleSearchChange}
                     />
@@ -841,7 +851,6 @@ export default function Appointment2() {
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="gray"
-                        className="mx-4"
                         style={{
                           position: "absolute",
                           top: "50%",
@@ -859,6 +868,8 @@ export default function Appointment2() {
                       </svg>
                     </span>
                   </div>
+                </div>
+                <div className="table-responsive">
                   <table className="table table-hover" id="pc-dt-simple">
                     <thead>
                       <tr>
@@ -960,7 +971,7 @@ export default function Appointment2() {
                     style={{
                       border: "1px solid #d2d2d2",
                       background: "#fff",
-                      borderRadius: "8px 8px 0px 0px",
+
                       borderBottom: "unset",
                     }}
                   ></div>

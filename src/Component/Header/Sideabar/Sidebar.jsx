@@ -102,17 +102,20 @@ export default function Sidebar({isOpen, onToggle }) {
         <div className="ms-auto">
           <ul className="list-unstyled">
             <li  className="dropdown pc-h-item">
-              <div
+              <a
                 className="pc-head-link"
                 onClick={()=>{navigate('/Admin/ManageStaff')}}
                 role="button"
                 aria-haspopup="true"
               >
-                <div className="pc-icon" >
+               <div className=" iconheadSet">
+                  
+
+                  <i className="fas fa-atom "></i>
+              
                   {/* <use xlinkHref="#custom-notification" /> */}
-                  <i className="fas fa-atom fs-4"></i>
                 </div>
-              </div>
+              </a>
               <div
                 className={`dropdown-menu dropdown-notification dropdown-menu-end pc-h-dropdown ${
                   notifOpen ? "show" : ""
@@ -141,7 +144,7 @@ export default function Sidebar({isOpen, onToggle }) {
                 aria-haspopup="true"
                 aria-expanded={notifOpen}
               >
-                <svg className="pc-icon">
+                <svg className="">
                   <use xlinkHref="#custom-notification" />
                 </svg>
                 <span className="badge bg-success pc-h-badge">3</span>
@@ -167,7 +170,7 @@ export default function Sidebar({isOpen, onToggle }) {
                     <div className="card-body">
                       <div className="d-flex">
                         <div className="flex-shrink-0">
-                          <svg className="pc-icon text-primary">
+                          <svg className=" text-primary">
                             <use xlinkHref="#custom-layer" />
                           </svg>
                         </div>
@@ -245,7 +248,7 @@ export default function Sidebar({isOpen, onToggle }) {
                       <div className="card-body py-3">
                         <div className="d-flex align-items-center justify-content-between">
                           <h5 className="mb-0 d-inline-flex align-items-center">
-                            <svg className="pc-icon text-muted me-2">
+                            <svg className=" text-muted me-2">
                               <use xlinkHref="#custom-notification-outline" />
                             </svg>
                             Notification
@@ -263,7 +266,7 @@ export default function Sidebar({isOpen, onToggle }) {
                     <p className="text-span">Manage</p>
                     <NavLink to="/Admin/myprofile" className="dropdown-item">
                       <span>
-                        <svg className="pc-icon text-muted me-2">
+                        <svg className=" text-muted me-2">
                           <use xlinkHref="#custom-setting-outline" />
                         </svg>{" "}
                         <span>Settings</span>{" "}
@@ -271,7 +274,7 @@ export default function Sidebar({isOpen, onToggle }) {
                     </NavLink>
                     <a href="#" className="dropdown-item">
                       <span>
-                        <svg className="pc-icon text-muted me-2">
+                        <svg className=" text-muted me-2">
                           <use xlinkHref="#custom-share-bold" />
                         </svg>{" "}
                         <span>Share</span>{" "}
@@ -282,7 +285,7 @@ export default function Sidebar({isOpen, onToggle }) {
                       className="dropdown-item"
                     >
                       <span>
-                        <svg className="pc-icon text-muted me-2">
+                        <svg className=" text-muted me-2">
                           <use xlinkHref="#custom-lock-outline" />
                         </svg>{" "}
                         <span>Change Password</span>
@@ -294,7 +297,7 @@ export default function Sidebar({isOpen, onToggle }) {
                         className="btn btn-primary"
                         onClick={handlelogout}
                       >
-                        <svg className="pc-icon me-2">
+                        <svg className=" me-2">
                           <use xlinkHref="#custom-logout-1-outline" />
                         </svg>
                         Logout
