@@ -362,6 +362,7 @@ export default function Pharmacy() {
                           <th>Cost</th>
                           <th>Price</th>
                           <th>Control</th>
+                          <th>Barcode</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
@@ -390,7 +391,7 @@ export default function Pharmacy() {
                             <td>{item.cost}</td>
                             <td>{item.price}</td>
                             <td>{item.control === 1 ? "Yes" : "No"}</td>
-
+                            <td>{item.barcode}</td>
                             <td>
                               <NavLink
                                 to={`/Admin/ViewInventory/${item.id}`}

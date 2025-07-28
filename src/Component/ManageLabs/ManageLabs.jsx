@@ -12,10 +12,7 @@ export default function ManageLabs() {
   const [selectedTab, setSelectedTab] = useState("Not Sent"); 
   const [resultInputs, setResultInputs] = useState({}); 
   const [attachments, setAttachments] = useState({}); 
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editData, setEditData] = useState({ request_id: null, lab_id: '', description: '' });
-  const [showViewModal, setShowViewModal] = useState(false);
-  const [viewData, setViewData] = useState(null);
+
   const [labs, setLabs] = useState([]);
   const [refreshFlag, setRefreshFlag] = useState(0);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -24,6 +21,9 @@ export default function ManageLabs() {
   const [reportFile, setReportFile] = useState(null);
   const [reportName, setReportName] = useState("");
   const [reportStatus, setReportStatus] = useState("");
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editData, setEditData] = useState({ request_id: null, lab_id: '', description: '' });
+
 
   useEffect(() => {
     setLoading(true);
@@ -81,6 +81,21 @@ export default function ManageLabs() {
     });
   };
 
+
+
+
+
+
+  
+
+  const handleAddReportClick = (labId) => {
+    setReportLabId(labId);
+    setShowReportModal(true);
+    setReportFile(null);
+    setReportName("");
+    setReportStatus("");
+  };
+
   const handleEditClick = (lab) => {
     setEditData({
       request_id: lab.request_id,
@@ -118,19 +133,6 @@ export default function ManageLabs() {
     }
   };
 
-  const handleViewClick = (lab) => {
-    setViewData(lab);
-    setShowViewModal(true);
-  };
-
-  const handleAddReportClick = (labId) => {
-    setReportLabId(labId);
-    setShowReportModal(true);
-    setReportFile(null);
-    setReportName("");
-    setReportStatus("");
-  };
-
   const handleReportFileChange = (e) => {
     setReportFile(e.target.files[0] || null);
   };
@@ -162,9 +164,9 @@ export default function ManageLabs() {
   return (
     <div className="pc-container">
       <div className="pc-content">
-        <div className="d-flex justify-content-between">
+        <div className="d-flex gap-2" >
           <div>
-            <button className="btn btn-primary ml-5 px-4 my-3" onClick={() => navigate("/Admin/newrequest")}>
+            <button className="btn btn-primary ml-15 px-4 my-3" style={{ marginLeft: "120px" }} onClick={() => navigate("/Admin/newrequest")}>
               {" "}
               New Request
             </button>
@@ -313,7 +315,7 @@ export default function ManageLabs() {
                                     </select>
                                   </td>
                                   <td>
-                                    <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); handleViewClick(lab); }}>
+                                    <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); navigate(`/Admin/ViewLab/${lab.request_id}`); }}>
                                       <i className="ti ti-eye f-20" />{" "}
                                     </a>
                                     <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); handleEditClick(lab); }}>
@@ -410,7 +412,7 @@ export default function ManageLabs() {
                                   </select>
                                 </td>
                                 <td>
-                                  <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); handleViewClick(lab); }}>
+                                  <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); navigate(`/Admin/ViewLab/${lab.request_id}`); }}>
                                     <i className="ti ti-eye f-20" />{" "}
                                   </a>
                                   <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); handleEditClick(lab); }}>
@@ -507,7 +509,7 @@ export default function ManageLabs() {
                                   </select>
                                 </td>
                                 <td>
-                                  <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); handleViewClick(lab); }}>
+                                  <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); navigate(`/Admin/ViewLab/${lab.request_id}`); }}>
                                     <i className="ti ti-eye f-20" />{" "}
                                   </a>
                                   <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); handleEditClick(lab); }}>
@@ -554,16 +556,15 @@ export default function ManageLabs() {
                             <th>Description</th>
                             <th>Days</th>
                             <th>Sent By</th>
-                            <th>Status</th>
                             <th>Attachments</th>
                             <th>Actions</th>
                           </tr>
                         </thead>
                         <tbody>
                           {loading ? (
-                            <tr><td colSpan="13">Loading...</td></tr>
+                            <tr><td colSpan="12">Loading...</td></tr>
                           ) : error ? (
-                            <tr><td colSpan="13" className="text-danger">{error}</td></tr>
+                            <tr><td colSpan="12" className="text-danger">{error}</td></tr>
                           ) : (
                             labRequests.map((lab) => (
                               <tr key={lab.request_id}>
@@ -577,33 +578,6 @@ export default function ManageLabs() {
                                 <td>{lab.days_since_request ?? ''}</td>
                                 <td>{lab.sent_by}</td>
                                 <td>
-                                  <select
-                                    id={`status-select-result-${lab.request_id}`}
-                                    className="form-select form-select-sm border-primary shadow-sm px-1 py-0"
-                                    style={{ minWidth: 90, fontWeight: 500, fontSize: '0.85em', height: '1.8em', backgroundColor: '#f8f9fa' }}
-                                    value={lab.status}
-                                    title="Change status"
-                                    onChange={async e => {
-                                      const newStatus = e.target.value === 'Cancel' ? 'Cancelled' : e.target.value;
-                                      try {
-                                        const res = await axios.post(`${baseurl}updateLabRequestStatus/${lab.request_id}`, { status: newStatus });
-                                        if (res.data.success) {
-                                          setRefreshFlag(f => f + 1);
-                                          Swal.fire('Success', 'Status updated successfully', 'success');
-                                        } else {
-                                          Swal.fire('Error', res.data.message || 'Failed to update status', 'error');
-                                        }
-                                      } catch {
-                                        Swal.fire('Error', 'Server error while updating status', 'error');
-                                      }
-                                    }}
-                                  >
-                                    <option value="Positive">Positive</option>
-                                    <option value="Negative">Negative</option>
-                                    <option value="Cancel">Cancel</option>
-                                  </select>
-                                </td>
-                                <td>
                                   <button
                                     className="btn btn-sm btn-outline-primary"
                                     style={{ minWidth: 90, fontSize: '0.85em', padding: '2px 8px', height: '1.8em' }}
@@ -613,7 +587,7 @@ export default function ManageLabs() {
                                   </button>
                                 </td>
                                 <td>
-                                  <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); handleViewClick(lab); }}>
+                                  <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); navigate(`/Admin/ViewLab/${lab.request_id}`); }}>
                                     <i className="ti ti-eye f-20" />{" "}
                                   </a>
                                   <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); handleEditClick(lab); }}>
@@ -636,7 +610,69 @@ export default function ManageLabs() {
           </div>
         </div>
       </div>
-      {showEditModal && (
+
+
+{showReportModal && (
+  <div
+    className="modal fade show"
+    style={{ backgroundColor: "rgba(0,0,0,0.5)", display: "block" }}
+  >
+    <div className="modal-dialog modal-md">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h5 className="modal-title">Add Report Attachment</h5>
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setShowReportModal(false)}
+          ></button>
+        </div>
+        <div className="modal-body">
+          <div className="mb-3">
+            <label className="form-label">Select File</label>
+            <input
+              type="file"
+              className="form-control form-control-sm"
+              onChange={handleReportFileChange}
+              accept="image/*,application/pdf"
+            />
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Name</label>
+            <input
+              type="text"
+              className="form-control form-control-sm"
+              value={reportName}
+              onChange={e => setReportName(e.target.value)}
+              placeholder="Report Name"
+            />
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Status</label>
+            <select
+              className="form-select form-select-sm"
+              value={reportStatus}
+              onChange={e => setReportStatus(e.target.value)}
+            >
+              <option value="">Select Status</option>
+              <option value="Positive">Positive</option>
+              <option value="Negative">Negative</option>
+            </select>
+          </div>
+        </div>
+        <div className="modal-footer">
+          <button type="button" className="btn btn-secondary" onClick={() => setShowReportModal(false)}>
+            Cancel
+          </button>
+          <button type="button" className="btn btn-primary" onClick={handleReportUpload}>
+            Upload
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+{showEditModal && (
   <div
     className="modal fade show"
     style={{
@@ -694,107 +730,6 @@ export default function ManageLabs() {
               </button>
             </div>
           </form>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-{showViewModal && viewData && (
-  <div
-    className="modal fade show"
-    style={{
-      backgroundColor: "rgba(0,0,0,0.5)",
-      display: "block",
-    }}
-  >
-    <div className="modal-dialog modal-lg">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h5 className="modal-title">Lab Request Details</h5>
-          <button
-            type="button"
-            className="btn-close"
-            onClick={() => setShowViewModal(false)}
-          ></button>
-        </div>
-        <div className="modal-body">
-          <div className="mb-2"><strong>ID:</strong> {viewData.request_id}</div>
-          <div className="mb-2"><strong>Date:</strong> {viewData.request_date ? viewData.request_date.split('T')[0] : ''}</div>
-          <div className="mb-2"><strong>Patient:</strong> {viewData.patient_name}</div>
-          <div className="mb-2"><strong>Patient ID:</strong> {viewData.patient_civil_id}</div>
-          <div className="mb-2"><strong>Lab ID:</strong> {viewData.lab_id}</div>
-          <div className="mb-2"><strong>Lab Name:</strong> {viewData.lab_name}</div>
-          <div className="mb-2"><strong>Doctor:</strong> {viewData.doctor_name}</div>
-          <div className="mb-2"><strong>Title:</strong> {viewData.title}</div>
-          <div className="mb-2"><strong>Description:</strong> {viewData.description}</div>
-          <div className="mb-2"><strong>Days Since Request:</strong> {viewData.days_since_request ?? ''}</div>
-          <div className="mb-2"><strong>Sent By:</strong> {viewData.sent_by}</div>
-          <div className="mb-2"><strong>Status:</strong> {viewData.status}</div>
-        </div>
-        <div className="modal-footer">
-          <button type="button" className="btn btn-secondary" onClick={() => setShowViewModal(false)}>
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-{showReportModal && (
-  <div
-    className="modal fade show"
-    style={{ backgroundColor: "rgba(0,0,0,0.5)", display: "block" }}
-  >
-    <div className="modal-dialog modal-md">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h5 className="modal-title">Add Report Attachment</h5>
-          <button
-            type="button"
-            className="btn-close"
-            onClick={() => setShowReportModal(false)}
-          ></button>
-        </div>
-        <div className="modal-body">
-          <div className="mb-3">
-            <label className="form-label">Select File</label>
-            <input
-              type="file"
-              className="form-control form-control-sm"
-              onChange={handleReportFileChange}
-              accept="image/*,application/pdf"
-            />
-          </div>
-          <div className="mb-3">
-            <label className="form-label">Name</label>
-            <input
-              type="text"
-              className="form-control form-control-sm"
-              value={reportName}
-              onChange={e => setReportName(e.target.value)}
-              placeholder="Report Name"
-            />
-          </div>
-          <div className="mb-3">
-            <label className="form-label">Status</label>
-            <select
-              className="form-select form-select-sm"
-              value={reportStatus}
-              onChange={e => setReportStatus(e.target.value)}
-            >
-              <option value="">Select Status</option>
-              <option value="Positive">Positive</option>
-              <option value="Negative">Negative</option>
-            </select>
-          </div>
-        </div>
-        <div className="modal-footer">
-          <button type="button" className="btn btn-secondary" onClick={() => setShowReportModal(false)}>
-            Cancel
-          </button>
-          <button type="button" className="btn btn-primary" onClick={handleReportUpload}>
-            Upload
-          </button>
         </div>
       </div>
     </div>

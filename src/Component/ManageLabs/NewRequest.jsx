@@ -22,6 +22,8 @@ export default function NewRequest() {
     sent_by: "",
   });
 
+  const [selectedPatientId, setSelectedPatientId] = useState("");
+
   useEffect(() => {
      
     axios.get(`${baseurl}getAllPatients`)
@@ -50,7 +52,7 @@ export default function NewRequest() {
   },[]);
 
   useEffect(() => {
-    axios.get("https://sisccltd.com/medical_app/api/getAllDoctors")
+    axios.get(`${baseurl}getAllDoctors`)
       .then(res => {
         if (res.data.success && Array.isArray(res.data.data)) {
           setDoctors(res.data.data);
@@ -73,10 +75,11 @@ export default function NewRequest() {
   const handlePatientChange = (e) => {
     const selectedId = e.target.value;
     const selectedPatient = patients.find(p => String(p.id) === selectedId);
+    setSelectedPatientId(selectedId);
     setFormData((prev) => ({
       ...prev,
       patient: selectedPatient ? `${selectedPatient.firstName} ${selectedPatient.lastName}` : "",
-      patient_id: selectedPatient ? selectedPatient.fileNumber : "",
+      patient_id: selectedPatient ? selectedPatient.civilIdNumber : "",
     }));
   };
 
@@ -102,7 +105,7 @@ export default function NewRequest() {
     }
     try {
       const response = await axios.post(
-        "https://sisccltd.com/medical_app/api/addLabRequest",
+        `${baseurl}addLabRequest`,
         formData
       );
       if (response.data.success) {
@@ -116,6 +119,7 @@ export default function NewRequest() {
           description: "",
           sent_by: "",
         });
+        setSelectedPatientId("");
         setErrors({});
       } else {
         Swal.fire("Error", response.data.message || "Something went wrong", "error");
@@ -176,13 +180,13 @@ export default function NewRequest() {
                 <select
                   className="form-control"
                   name="patient_id"
-                  value={formData.patient_id}
-                  onChange={handleChange}
+                  value={selectedPatientId}
+                  onChange={handlePatientChange}
                 >
                   <option value="">Select Patient</option>
                   {patients.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.firstName} {p.lastName} ({p.fileNumber})
+                      {p.firstName} {p.lastName}
                     </option>
                   ))}
                 </select>
