@@ -4,3 +4,6 @@
 
 export const baseurl = 'https://sisccltd.com/medical_app/api/'
 export const baseurImage = 'https://sisccltd.com/medical_app/'
+
+
+    

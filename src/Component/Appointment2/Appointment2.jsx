@@ -1,4 +1,4 @@
-import axios, { Axios } from "axios";
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { baseurl } from "../../Baseurl";
@@ -13,6 +13,7 @@ export default function Appointment2() {
   const [waitngData, setWaitngData] = useState([]);
   const [openmodal, setOpenmodal] = useState(false);
   const [selectedDoctors, setSelectedDoctors] = useState([]);
+  const [arrayuser, setArrayuser] = useState([]);
   const [showModalDoctor, setShowModalDoctor] = useState(false);
   const [showModaledit, setShowModaledit] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,8 +28,7 @@ export default function Appointment2() {
   const [datamodalappointment, setDatamodalappointment] = useState("");
   const [doctors, setDoctors] = useState("");
   const [appointmentdata, setAppointmentdata] = useState([]);
-  const [modaldatauser, setModaldatauser] = useState([]);
-  const [arrayuser, setArrayuser] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
   const navigate = useNavigate();
   const handleclickmodal = () => {
     setModalOpen(true);
@@ -89,19 +89,51 @@ export default function Appointment2() {
     const { name, value } = e.target;
     setDataConfirm({ ...dataConfirm, [name]: value });
   };
-  const handlechange11 = (e) => {
+ const handlechange11 = (e) => {
     const value = e.target.value;
     const checked = e.target.checked;
 
     setSelectedDoctors((prevSelected) => {
-      const updated = checked
-        ? [...prevSelected, value]
-        : prevSelected.filter((id) => id !== value);
+      let updated;
+      if (checked) {
+        updated = [...prevSelected, value];
+      } else {
+        updated = prevSelected.filter((id) => id !== value);
+      }
 
+      // Update selectAll checkbox state
+      setSelectAll(updated.length === doctors.length);
       setArrayuser(updated);
       return updated;
     });
   };
+    // Handle "Select All" checkbox
+  const handleSelectAll = (e) => {
+    const checked = e.target.checked;
+    setSelectAll(checked);
+
+    if (checked) {
+      const allDoctorIds = doctors.map((doc) => String(doc.id));
+      setSelectedDoctors(allDoctorIds);
+      setArrayuser(allDoctorIds);
+    } else {
+      setSelectedDoctors([]);
+      setArrayuser([]);
+    }
+  };
+  // const handlechange11 = (e) => {
+  //   const value = e.target.value;
+  //   const checked = e.target.checked;
+
+  //   setSelectedDoctors((prevSelected) => {
+  //     const updated = checked
+  //       ? [...prevSelected, value]
+  //       : prevSelected.filter((id) => id !== value);
+
+  //     setArrayuser(updated);
+  //     return updated;
+  //   });
+  // };
   // };
   const setFunction = async () => {
     try {
@@ -188,7 +220,7 @@ export default function Appointment2() {
   };
 
   const handlechangeDropdownData = (e, id) => {
-    const { name, value } = e.target;
+    const { value } = e.target;
     uctioncall(value, id);
   };
   const uctioncall = async (value, id) => {
@@ -268,7 +300,6 @@ export default function Appointment2() {
   useEffect(() => {
     getCalendarData();
   }, []);
-  const [value, setValue] = React.useState(dayjs());
   const doctorNames = getUniqueDoctors(appointmentpatiemt);
   // pratima
   const [showCalendarModal, setShowCalendarModal] = useState(false);
@@ -419,10 +450,6 @@ export default function Appointment2() {
     navigate("/Admin/viewappointment", { state: { data: item } });
   };
 
-  const handldelete = (item) => {
-    console.log(item);
-  };
-
   //   const handleupdateconfirm =async(item)=>{
   // console.log(item)
   // const response = await axios.post(`${baseurl}changeAppointmentStatus/${item.id}`,{
@@ -474,7 +501,7 @@ export default function Appointment2() {
     setShowModaledit(false);
   };
   const handleChange23 = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     console.log(e.target);
     setAppointmentdata1({ ...appointmentdata1, [name]: value });
   };
@@ -788,7 +815,7 @@ export default function Appointment2() {
                         onClick={handleclose111}
                       ></button>
                     </div>
-                    <div className="modal-body appointmentDetails">
+                    {/* <div className="modal-body appointmentDetails">
                       <div className="row">
                         {doctors && doctors.length > 0 ? (
                           doctors.map((item, index) => (
@@ -817,7 +844,62 @@ export default function Appointment2() {
                           </div>
                         )}
                       </div>
+                    </div> */}
+                       <div className="modal-body appointmentDetails">
+          <div className="row">
+            {doctors && doctors.length > 0 ? (
+              <>
+                {/* Select All */}
+                <div className="col-12 mb-3">
+                  <div className="form-check">
+                    <input
+                      type="checkbox"
+                      id="selectAllDoctors"
+                      className="form-check-input bg-secondary"
+                      checked={selectAll}
+                      onChange={handleSelectAll}
+                      style={{ cursor: "pointer" }}
+                    />
+                    <label
+                      className="form-check-label ms-2"
+                      htmlFor="selectAllDoctors"
+                    >
+                      Select All Doctors
+                    </label>
+                  </div>
+                </div>
+
+                {/* List of Doctor Checkboxes */}
+                {doctors.map((item, index) => (
+                  <div className="col-md-4 mb-3" key={index}>
+                    <div className="form-check">
+                      <input
+                        type="checkbox"
+                        // style={{ cursor: "pointer", backgroundColor: "#0d6efd" }}
+                        id={`doctor-${item.id}`}
+                        value={item.id}
+                        name="doctorIds"
+                        checked={selectedDoctors.includes(String(item.id))}
+                        onChange={handlechange11}
+                      />
+                      <label
+                        className="form-check-label ms-2  bg-blue-important"
+                        htmlFor={`doctor-${item.id}`}
+                      >
+                        {item.fullName}
+                      </label>
                     </div>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <div className="col-12">
+                <p>No doctors available</p>
+              </div>
+            )}
+          </div>
+        </div>
+       
                     <siv className="d-flex justify-content-center">
                       <button
                         className=" my-3 bgBtn"
@@ -830,7 +912,9 @@ export default function Appointment2() {
                     </siv>
                   </div>
                 </div>
-              </div>
+                
+     
+      </div>
             )}
             {showdata ? (
               <div className="card-body tableAppoint">
