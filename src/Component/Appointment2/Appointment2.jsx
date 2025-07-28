@@ -1207,12 +1207,18 @@ export default function Appointment2() {
                     <div className="d-flex iconTab">
                       <i
                         className="ti ti-edit f-20"
+                        style={{cursor:"pointer"}}
                         onClick={() => {
+                          
                           handledopencllick(datamodalappointment);
                         }}
                       ></i>
                       <i className="ti ti-bell"></i>
-                      <i class="ti ti-file"></i>
+                      <i class="ti ti-file" onClick={()=>{
+                        handleclick11111111(datamodalappointment)
+                      }}
+                          style={{cursor:"pointer"}}
+                      ></i>
                     </div>
                   </div>
                   <hr />
