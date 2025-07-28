@@ -77,6 +77,7 @@ export default function ViewInventory() {
                   ["Expiry", formatDate(inventory.expiration_date)],
                   ["Cost", inventory.cost],
                   ["Price", inventory.price],
+                  ["Barcode", inventory.barcode],
                   ["Control", inventory.control === 1 ? "Yes" : "No"],
                 ].map(([label, value], idx) => (
                   <div className="col-md-6 mb-3" key={idx}>

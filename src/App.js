@@ -111,6 +111,8 @@ import ViewRx from "./Component/Pharmacy/ViewRxList";
 import AddInventory from './Component/Pharmacy/AddInventory';
 import AddRxList from './Component/Pharmacy/AddRxList';
 import NewRequest from './Component/ManageLabs/NewRequest';
+import ViewLab from './Component/ManageLabs/ViewLab';
+import EditLab from './Component/ManageLabs/EditLab';
 import SettingsDashboard from './Setting/SettingsDashboard';
 
 // import SettingsDashboard from './'
@@ -160,6 +162,8 @@ function App() {
 
              <Route path="/Admin/AddInventory" element={<AddInventory />} />
             <Route path="/Admin/AddRxList" element={<AddRxList />} />
+            <Route path="/Admin/ViewLab/:id" element={<ViewLab />} />
+            <Route path="/Admin/EditLab/:id" element={<EditLab />} />
              <Route path="/Admin/SettingsDashboard" element={<SettingsDashboard />} />
             
           </Route>
@@ -171,11 +175,4 @@ function App() {
 export default App;
 
 
-//  <Route path="/Admin/Category" element={<Category />} />
-//             <Route path="/Admin/EditInventory" element={<EditInventory />} />
-//             <Route path="/Admin/ViewInventory/:id" element={<ViewInventory/>} />
-//            <Route path="/Admin/ViewRx/:id" element={<ViewRx />} />
-
-//             <Route path="/Admin/AddInventory" element={<AddInventory />} />
-//             <Route path="/Admin/AddRxList" element={<AddRxList />} />
 
