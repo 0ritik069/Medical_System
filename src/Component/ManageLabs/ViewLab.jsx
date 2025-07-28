@@ -8,7 +8,7 @@ export default function ViewLab() {
   const navigate = useNavigate();
   const [labRequest, setLabRequest] = useState(null);
   const [attachments, setAttachments] = useState([]);
-
+// CONST [Ssetdtatafhjls;dkhvj , dskjfhwefh wf]
   useEffect(() => {
     // First fetch lab request details
     axios
@@ -19,7 +19,7 @@ export default function ViewLab() {
         }
       })
       .catch((err) => console.error("Fetch lab request error:", err));
-
+// sadddam hussai 
     // Then fetch attachments for this lab request
     axios
       .get(`${baseurl}getLabRequestAttachmentsByLabRequestId/${id}`)
