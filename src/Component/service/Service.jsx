@@ -2,8 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { baseurImage, baseurl } from "../../Baseurl";
-
+import { baseurl } from "../../Baseurl";
 export default function Service() {
   const navigate = useNavigate();
   const [patients, setPatients] = useState([]);
@@ -12,11 +11,9 @@ export default function Service() {
   const [inpval, setInpval] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-
   useEffect(() => {
     getdata();
   }, []);
-
   const getdata = async () => {
     try {
       const response = await axios.get(`${baseurl}getServices`);
@@ -30,7 +27,6 @@ export default function Service() {
       console.error("Error fetching patient data:", error.message);
     }
   };
-
   const handledelete = async (id) => {
     const confirm = await Swal.fire({
       title: "Are you sure?",
@@ -41,7 +37,6 @@ export default function Service() {
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
     });
-
     if (confirm.isConfirmed) {
       try {
         await axios.delete(`${baseurl}deletePatient/${id}`);
@@ -52,13 +47,10 @@ export default function Service() {
       }
     }
   };
-
   const handlechange = (e) => {
     const { name, value } = e.target;
     setInpval({ ...inpval, [name]: value });
   };
-
-  // Filter + Pagination Logic
   const filteredPatients = patients.filter(
     (item) =>
       item.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -68,24 +60,20 @@ export default function Service() {
       item.type?.toLowerCase().includes(searchTerm.toLowerCase() )||
       item.primaryDoctor?.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   const totalPages = Math.ceil(filteredPatients.length / itemsPerPage);
   const indexOfLast = currentPage * itemsPerPage;
   const indexOfFirst = indexOfLast - itemsPerPage;
   const currentPatients = filteredPatients.slice(indexOfFirst, indexOfLast);
-
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
-    setCurrentPage(1); // Reset to page 1 on search
+    setCurrentPage(1); 
   };
-
   const handleclickopenvital11 = () => {
     setOpenVital121(true);
   };
   const hndleclosemodalservice = () => {
     setOpenVital121(false);
   };
-
     const handlesavevital123 = async () => {
       try {
         const dataPost = {
@@ -99,8 +87,6 @@ export default function Service() {
           serviceCode: inpval.serviceCode,
         };
         const response = await axios.post(`${baseurl}addServices`, dataPost);
-  
-        // Optional: check status and show success
         if (response.status === 200 || response.status === 201) {
           hndleclosemodalservice();
           console.log(" recorded successfully:", response.data);
@@ -116,7 +102,6 @@ export default function Service() {
         }
       } catch (error) {
         if (error.response) {
-          // Backend responded with error
           console.error("Error response:", error.response.data);
         } else if (error.request) {
           console.error("No response received:", error.request);
@@ -220,12 +205,9 @@ export default function Service() {
                       <tr>
                         <th>Code</th>
                         <th>Service Name</th>
-                 
                         <th>Duration</th>
                         <th>Insurance Price</th>
                         <th>Type</th>
-                        {/* <th>Primary Doctor</th>
-                        <th>Balance</th> */}
                         <th className="text-center">Action</th>
                       </tr>
                     </thead>
@@ -275,7 +257,6 @@ export default function Service() {
                     </tbody>
                   </table>
                 </div>
-                {/* Pagination */}
                 {totalPages > 1 && (
                   <nav className="tablepagination">
                     <ul className="pagination justify-content-end mb-0 me-3">

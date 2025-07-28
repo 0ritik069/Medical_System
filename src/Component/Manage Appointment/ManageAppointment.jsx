@@ -243,10 +243,10 @@ export default function ManageAppointment() {
       }
       const dataPost = {
         patient_id: parseInt(location?.state?.patientid.id),
-        nurse: inpval.nurse,
+        // nurse: inpval.nurse,
         recorded_at: inpval.recorded_at,
         blood_pressure_systolic: inpval.blood_pressure_systolic,
-        blood_pressure_diastolic: inpval.blood_pressure_diastolic,
+        blood_pressure_blood_pressure_diastolic: inpval.blood_pressure_blood_pressure_diastolic,
         heart_rate: inpval.heart_rate,
         respiratory_rate: inpval.respiratory_rate,
         temperature: inpval.temperature,
@@ -483,18 +483,18 @@ export default function ManageAppointment() {
   }, []);
   ////////////////////////////////////// const vital form///////////////////////////
   const [formData, setFormData] = useState({
-    systolic: "",
-    diastolic: "",
-    bpPosition: [],
-    respiratoryRate: "",
+    blood_pressure_systolic: "",
+    blood_pressure_diastolic: "",
+    bp_position: "",
+    respiratory_rate: "",
     pulse: "",
     temperature: "",
-    spO2: "",
-    rbsMg: "",
-    rbsMmol: "",
+    spo2: "",
+    rbs_mg: "",
+    rbs_nmol: "",
     weight: "",
     height: "",
-    riskOfFall: "",
+    risk_of_fall: "",
     urgency: "",
     notes: "",
   });
@@ -509,67 +509,25 @@ export default function ManageAppointment() {
     if (!weight || !heightInMeters || heightInMeters === 0) return "";
     return (weight / (heightInMeters * heightInMeters)).toFixed(2);
   };
-  const getColorCode = (field, value) => {
-    const val = parseFloat(value);
-    switch (field) {
-      case "systolic":
-        if (val < 90) return "low";
-        if (val > 140) return "high";
-        return "normal";
-      case "diastolic":
-        if (val < 60) return "low";
-        if (val > 90) return "high";
-        return "normal";
-      case "respiratoryRate":
-        if (val < 12) return "low";
-        if (val > 20) return "high";
-        return "normal";
-      case "pulse":
-        if (val < 60) return "low";
-        if (val > 100) return "high";
-        return "normal";
-      case "temperature":
-        if (val < 36.1) return "low";
-        if (val > 37.8) return "high";
-        return "normal";
-      case "spO2":
-        if (val < 95) return "low";
-        return "normal";
-      default:
-        return "";
-    }
-  };
-  const getColorStyle = (status) => {
-    switch (status) {
-      case "low":
-        return { backgroundColor: "#d6eaffff" };
-      case "normal":
-        return { backgroundColor: "#d4edda" };
-      case "high":
-        return { backgroundColor: "#f8cfd1ff" };
-      default:
-        return {};
-    }
-  };
   const handleapisubmit = async () => {
     const now = new Date();
     const date = now.toISOString().split("T")[0];
     const time = now.toTimeString().split(" ")[0];
     const recordedAt = `${date} ${time}`;
     const validations = [
-      { name: "Systolic BP", value: formData.systolic, min: 40, max: 300 },
-      { name: "Diastolic BP", value: formData.diastolic, min: 20, max: 180 },
+      { name: "blood_pressure_systolic", value: formData.blood_pressure_systolic, min: 40, max: 300 },
+      { name: "blood_pressure_diastolic BP", value: formData.blood_pressure_diastolic, min: 20, max: 180 },
       {
         name: "Respiratory Rate",
-        value: formData.respiratoryRate,
+        value: formData.respiratory_rate,
         min: 5,
         max: 50,
       },
       { name: "Pulse", value: formData.pulse, min: 10, max: 400 },
       { name: "Temperature", value: formData.temperature, min: 10, max: 60 },
-      { name: "SpO2", value: formData.spO2, min: 0, max: 100 },
-      { name: "RBS mg/dl", value: formData.rbsMg, min: 10, max: 800 },
-      { name: "RBS mmol/l", value: formData.rbsMmol, min: 0.5, max: 50 },
+      { name: "spo2", value: formData.spo2, min: 0, max: 100 },
+      { name: "RBS mg/dl", value: formData.rbs_mg, min: 10, max: 800 },
+      { name: "RBS mmol/l", value: formData.rbs_nmol, min: 0.5, max: 50 },
       { name: "Weight", value: formData.weight, min: 0, max: 1000 },
       { name: "Height", value: formData.height, min: 0, max: 300 },
     ];
@@ -585,19 +543,19 @@ export default function ManageAppointment() {
     }
     const payload = {
       patient_id: location?.state?.patientid.id,
-      blood_pressure_systolic: parseInt(formData.systolic),
-      blood_pressure_diastolic: parseInt(formData.diastolic),
-      bp_position: formData.bpPosition,
-      respiratory_rate: parseInt(formData.respiratoryRate),
+      blood_pressure_systolic: parseInt(formData.blood_pressure_systolic),
+      blood_pressure_blood_pressure_diastolic: parseInt(formData.blood_pressure_diastolic),
+      bp_position: formData.bp_position,
+      respiratory_rate: parseInt(formData.respiratory_rate),
       pulse: parseInt(formData.pulse),
       age: location.state.patientid.age,
-      spo2: parseInt(formData.spO2),
-      rbs_mg: parseFloat(formData.rbsMg),
-      rbs_nmol: parseFloat(formData.rbsMmol),
+      spo2: parseInt(formData.spo2),
+      rbs_mg: parseFloat(formData.rbs_mg),
+      rbs_nmol: parseFloat(formData.rbs_nmol),
       temperature: parseFloat(formData.temperature),
       weight: parseFloat(formData.weight),
       height: parseFloat(formData.height),
-      risk_of_fall: formData.riskOfFall,
+      risk_of_fall: formData.risk_of_fall,
       urgency: formData.urgency,
       notes: formData.notes,
       recorded_at: recordedAt,
@@ -789,40 +747,37 @@ export default function ManageAppointment() {
       Swal.fire("Error", "Failed to fetch labs", "error");
     }
   };
-
-const handletest = async () => {
-  const obj = {
-    patient_id: location.state.patientid.id,
-    lab_id: inpval.category,
-    doctor_id: inpval.doctor_id,
-    title: inpval.title,
-    description: inpval.description,
-    sent_by: "nurse1",
-  };
-
-  console.log("Request Payload:", obj);
-
-  try {
-    const response = await axios.post(`${baseurl}addLabRequest`, obj);
-
-    if (response.data.success === true) {
-      closeModaladdtest()
-      getLabsbypatient()
-      console.log("Success:", response.data);
-      Swal.fire('success',"Add Lab Success","success")
-    } else {
-      console.log("Something went wrong:", response.data.message || response.data);
+  const handletest = async () => {
+    const obj = {
+      patient_id: location.state.patientid.id,
+      lab_id: inpval.category,
+      doctor_id: inpval.doctor_id,
+      title: inpval.title,
+      description: inpval.description,
+      sent_by: "nurse1",
+    };
+    console.log("Request Payload:", obj);
+    try {
+      const response = await axios.post(`${baseurl}addLabRequest`, obj);
+      if (response.data.success === true) {
+        closeModaladdtest();
+        getLabsbypatient();
+        console.log("Success:", response.data);
+        Swal.fire("success", "Add Lab Success", "success");
+      } else {
+        console.log(
+          "Something went wrong:",
+          response.data.message || response.data
+        );
+      }
+    } catch (error) {
+      console.error("API Error:", error.response?.data || error.message);
     }
-  } catch (error) {
-    console.error("API Error:", error.response?.data || error.message);
-  }
-};
-
+  };
   const handleclicknavi = (item) => {
     console.log(item);
     navigate("/Admin/viewappointment", { state: { data: item } });
   };
-
   const handleChange23 = (e) => {
     const { name, value, type, checked } = e.target;
     console.log(e.target);
@@ -830,89 +785,105 @@ const handletest = async () => {
   };
   const handlimodalopen = (item) => {
     setAppointmentdata(item);
-    // openmodalappointment(true)
     setShowModalDoctor(true);
   };
   const handleclose111 = () => {
     setShowModalDoctor(false);
   };
-
-
-  // get labs
- useEffect(() => {
-  getLabsbypatient();
-}, []);
-
-const getLabsbypatient = async () => {
-  try {
-    const response = await axios.get(`${baseurl}getLabRequestsByPatient/${location.state.patientid.id}`);
-
-    if (response.data.success === true) {
-      console.log("Lab Requests:", response.data.data);
-      setLabData(response.data.data); // if you want to store in state
-    } else {
-      console.log("Something went wrong:", response.data.message || response.data);
+  useEffect(() => {
+    getLabsbypatient();
+  }, []);
+  const getLabsbypatient = async () => {
+    try {
+      const response = await axios.get(
+        `${baseurl}getLabRequestsByPatient/${location.state.patientid.id}`
+      );
+      if (response.data.success === true) {
+        console.log("Lab Requests:", response.data.data);
+        setLabData(response.data.data); // if you want to store in state
+      } else {
+        console.log(
+          "Something went wrong:",
+          response.data.message || response.data
+        );
+      }
+    } catch (error) {
+      console.error("API Error:", error.response?.data || error.message);
     }
-  } catch (error) {
-    console.error("API Error:", error.response?.data || error.message);
-  }
-};
-// const handleclickddappointment =async () =>{
-//   console.log("a")
-//   const objedit = {
-  
-//   appointmentDate: appointmentdata.appointmentDate,
-//   startTime: appointmentdata.startTime,
-//   endTime: appointmentdata.endTime,
-//   reason: appointmentdata.reason
-// }
-//   console.log(objedit)
-//   const reponse = await axios.put(`${baseurl}editAppointmentByPatientId/${appointmentdata.id}/${location.state.patientid.id}`,objedit)
-//   if(reponse.data.success===true){
-//    handleclose111()
-//     Swal.fire('success',"Appointmentadded Successfuly","Success")
-
-//   }else{
-//     console.log("false")
-//   }
-
-// }
-const handleclickddappointment = async () => {
-  console.log("Editing appointment...");
-
-  const objedit = {
-    appointmentDate: appointmentdata.appointmentDate,
-    startTime: appointmentdata.startTime,
-    endTime: appointmentdata.endTime,
-    reason: appointmentdata.reason,
   };
 
-  console.log("Payload:", objedit);
-
-  try {
-    const response = await axios.put(
-      `${baseurl}editAppointmentByPatientId/${appointmentdata.id}/${location.state.patientid.id}`,
-      objedit
-    );
-
-    if (response.data.success === true) {
-      handleclose111(); // Close the modal or form
-       getdata();
-      Swal.fire("Success", "Appointment updated successfully", "success");
-    } else {
-      console.log("Update failed:", response.data.message || response.data);
-      Swal.fire("Error", "Failed to update appointment", "error");
+  const handleclickddappointment = async () => {
+    console.log("Editing appointment...");
+    const objedit = {
+      appointmentDate: appointmentdata.appointmentDate,
+      startTime: appointmentdata.startTime,
+      endTime: appointmentdata.endTime,
+      reason: appointmentdata.reason,
+    };
+    console.log("Payload:", objedit);
+    try {
+      const response = await axios.put(
+        `${baseurl}editAppointmentByPatientId/${appointmentdata.id}/${location.state.patientid.id}`,
+        objedit
+      );
+      if (response.data.success === true) {
+        handleclose111(); // Close the modal or form
+        getdata();
+        Swal.fire("Success", "Appointment updated successfully", "success");
+      } else {
+        console.log("Update failed:", response.data.message || response.data);
+        Swal.fire("Error", "Failed to update appointment", "error");
+      }
+    } catch (error) {
+      console.error("API Error:", error.response?.data || error.message);
+      Swal.fire(
+        "Error",
+        "An error occurred while updating appointment",
+        "error"
+      );
     }
-  } catch (error) {
-    console.error("API Error:", error.response?.data || error.message);
-    Swal.fire("Error", "An error occurred while updating appointment", "error");
+  };
+  const handleclickpen = (item) => {
+    setOpenmodalforvital(true);
+    console.log(item);
+    setFormData(item);
+  };
+  const handlecloseVitaledit = () => {
+    setOpenmodalforvital(false);
+    setFormData({
+      blood_pressure_systolic: "",
+      blood_pressure_diastolic: "",
+      bp_position: [],
+      respiratory_rate: "",
+      pulse: "",
+      temperature: "",
+      spo2: "",
+      rbs_mg: "",
+      rbs_nmol: "",
+      weight: "",
+      height: "",
+      risk_of_fall: "",
+      urgency: "",
+      notes: "",
+    });
+  };
+  const handdeditvital = async() => {
+   try {
+     const respnse=await axios.put(
+      `${baseurl}updatePatientVitals/${formData.id}`,formData)
+      if(respnse.data.success===true){
+        getDataa();
+        Swal.fire("Success", "Vitals updated successfully", "success");
+        handlecloseVitaledit();
+      }else{
+        Swal.fire("Error", "Failed to update vitals", "error");
+      }
+   } catch (error) {
+      console.error("Error updating vitals:", error);
+      Swal.fire("Error", "Failed to update vitals", "error");
+      return;
+   }
   }
-};
-
-const handleclickpen =(item) =>{
-  setOpenmodalforvital(true)
-}
-
   return (
     <div className="pc-container">
       <div className="pc-content">
@@ -1144,7 +1115,6 @@ const handleclickpen =(item) =>{
                                   </tbody>
                                 </table>
                               </div>
-
                               {/* Table Footer Action */}
                               <div className="d-flex justify-content-end align-items-center px-3 py-2">
                                 <div>
@@ -2043,7 +2013,6 @@ const handleclickpen =(item) =>{
                                           </option>
                                         ))}
                                       </select>
-                                     
                                     </div>
                                     <div className="col-lg-6">
                                       <label className="form-label">
@@ -2077,7 +2046,6 @@ const handleclickpen =(item) =>{
                                             : ""
                                         }
                                       />
-                                     
                                     </div>
                                     <div className="col-lg-6">
                                       <label className="form-label">
@@ -2110,7 +2078,7 @@ const handleclickpen =(item) =>{
                                           <input
                                             type="radio"
                                             name="apptype"
-                                                   style={{ cursor: "pointer" }}
+                                            style={{ cursor: "pointer" }}
                                             value="Emergency"
                                             onChange={handleChange23}
                                             checked={
@@ -2138,7 +2106,6 @@ const handleclickpen =(item) =>{
                                         value={appointmentdata.startTime}
                                         onChange={handleChange23}
                                       />
-                                     
                                     </div>
                                     <div className="col-md-6">
                                       <label className="form-label">
@@ -2153,7 +2120,6 @@ const handleclickpen =(item) =>{
                                         value={appointmentdata.endTime}
                                         onChange={handleChange23}
                                       />
-                                      
                                     </div>
                                     <div className="col-lg-12">
                                       <label className="form-label">
@@ -2169,10 +2135,14 @@ const handleclickpen =(item) =>{
                                         value={appointmentdata.reason}
                                         onChange={handleChange23}
                                       />
-                                     
                                     </div>
                                     <div className="text-center">
-                                      <button className="bgBtn" onClick={()=>{handleclickddappointment()}}>
+                                      <button
+                                        className="bgBtn"
+                                        onClick={() => {
+                                          handleclickddappointment();
+                                        }}
+                                      >
                                         Add Appointment
                                       </button>
                                     </div>
@@ -2576,61 +2546,58 @@ const handleclickpen =(item) =>{
                                 </tr>
                               </thead>
                               <tbody>
-                                            {labData.length > 0 ? (
-                                              labData.map((item, index) => {
-                                                console.log(item)
-                                                return(
-                                                  <>
-                                                <tr key={index}>
-                                                  <td>{item.patient_name}</td>
-                                                  <td>{item.lab_name}</td>
-                                                  <td>{item.doctor_name}</td>
-                                                  <td>{item.title}</td>
-                                                  <td>{item.description}</td>
-                                                  <td>
-                                                    <div
-                                                      // to="/Admin/Manageappointment"
-                                                      state={{ patientid: item }}
-                                                      className="avtar avtar-xs btn-link-secondary viewIcon"
-                                                    >
-                                                      <i className="ti ti-eye f-20" />
-                                                      <span>View</span>
-                                                    </div>
-                                                    <div
-                                                      className="avtar avtar-xs btn-link-secondary editIcon"
-                                                    >
-                                                      <i className="ti ti-edit f-20" />
-                                                    <span>Edit</span>
-                                                    </div>
-                                                    <div
-                                                      style={{ cursor: "pointer" }}
-                                                      className="avtar avtar-xs btn-link-secondary deleteIcon"
-                                                      // onClick={() => handledeletevital(item.id)}
-                                                    >
-                                                      <i className="ti ti-trash f-20" />
-                                                      <span>Delete</span>
-                                                    </div>
-                                                  </td>
-                                                </tr>
-                                                  </>
-                                                )
-                                              }
-                                              )
-                                            ) : (
-                                              <tr>
-                                                <td colSpan="10" className="text-center">
-                                                  No patients found.
-                                                </td>
-                                              </tr>
-                                            )}
-                                          </tbody>
+                                {labData.length > 0 ? (
+                                  labData.map((item, index) => {
+                                    console.log(item);
+                                    return (
+                                      <>
+                                        <tr key={index}>
+                                          <td>{item.patient_name}</td>
+                                          <td>{item.lab_name}</td>
+                                          <td>{item.doctor_name}</td>
+                                          <td>{item.title}</td>
+                                          <td>{item.description}</td>
+                                          <td>
+                                            <div
+                                              // to="/Admin/Manageappointment"
+                                              state={{ patientid: item }}
+                                              className="avtar avtar-xs btn-link-secondary viewIcon"
+                                            >
+                                              <i className="ti ti-eye f-20" />
+                                              <span>View</span>
+                                            </div>
+                                            <div className="avtar avtar-xs btn-link-secondary editIcon">
+                                              <i className="ti ti-edit f-20" />
+                                              <span>Edit</span>
+                                            </div>
+                                            <div
+                                              style={{ cursor: "pointer" }}
+                                              className="avtar avtar-xs btn-link-secondary deleteIcon"
+                                              // onClick={() => handledeletevital(item.id)}
+                                            >
+                                              <i className="ti ti-trash f-20" />
+                                              <span>Delete</span>
+                                            </div>
+                                          </td>
+                                        </tr>
+                                      </>
+                                    );
+                                  })
+                                ) : (
+                                  <tr>
+                                    <td colSpan="10" className="text-center">
+                                      No patients found.
+                                    </td>
+                                  </tr>
+                                )}
+                              </tbody>
                             </table>
                           </div>
                           {/* Pagination */}
                           {/* {totalPages > 1 && (
-                                        <nav className="tablepagination">
+                                        <nav className="tablpagination">
                                           <ul className="pagination justify-content-end mb-0 me-3">
-                                            <li
+                                            <lie
                                               className={`page-item ${
                                                 currentPage === 1 ? "disabled" : ""
                                               }`}
@@ -2737,31 +2704,31 @@ const handleclickpen =(item) =>{
                                           })}
                                       </select>
                                     </div>
-                                     <div className="col-md-6">
-                                       <label className="form-label">
-                                        Select Doctor 
-                                                                              </label> 
-                                        <select
-                                              name="doctor_id"
-                                              onChange={handlechange}
-                                              className="form-control"
-                                            >
-                                              <option>Select</option>
-                                              {doctors &&
-                                                doctors.length > 0 &&
-                                                doctors.map((items, index) => {
-                                                  console.log(items);
-                                                  return (
-                                                    <option
-                                                      key={index}
-                                                      value={items.id}
-                                                    >
-                                                      {items.fullName}
-                                                    </option>
-                                                  );
-                                                })}
-                                            </select>
-                                  </div>
+                                    <div className="col-md-6">
+                                      <label className="form-label">
+                                        Select Doctor
+                                      </label>
+                                      <select
+                                        name="doctor_id"
+                                        onChange={handlechange}
+                                        className="form-control"
+                                      >
+                                        <option>Select</option>
+                                        {doctors &&
+                                          doctors.length > 0 &&
+                                          doctors.map((items, index) => {
+                                            console.log(items);
+                                            return (
+                                              <option
+                                                key={index}
+                                                value={items.id}
+                                              >
+                                                {items.fullName}
+                                              </option>
+                                            );
+                                          })}
+                                      </select>
+                                    </div>
                                   </div>
                                   <div className="modal-footer my-3 justify-content-center">
                                     <button
@@ -2857,7 +2824,9 @@ const handleclickpen =(item) =>{
                                           <span>View</span>
                                         </a> */}
                                         <div
-                                        onClick={()=>{handleclickpen(item)}}
+                                          onClick={() => {
+                                            handleclickpen(item);
+                                          }}
                                           className="avtar avtar-xs btn-link-secondary editIcon"
                                         >
                                           <i className="ti ti-edit f-20" />{" "}
@@ -2883,7 +2852,7 @@ const handleclickpen =(item) =>{
                     </div>
                   </div>
                 </div>
-                {openVital && (
+                {openmodalforvital && (
                   <div
                     className="modal fade show"
                     style={{
@@ -2897,17 +2866,17 @@ const handleclickpen =(item) =>{
                     >
                       <div className="modal-content">
                         <div className="modal-header">
-                          <h5 className="modal-title">Add Vital</h5>
+                          <h5 className="modal-title">Edit Vital</h5>
                           <button
                             type="button"
                             className="btn-close"
-                            onClick={handlecloseVital}
+                            onClick={handlecloseVitaledit}
                           ></button>
                         </div>
                         <div className="container mt-4">
                           <div className="row">
-                            <div className="d-flex justify-content-center">
-                              <div className="col-3">
+                            {/* <div className="d-flex justify-content-center"> */}
+                            {/* <div className="col-3">
                                 Name:{" "}
                                 {location?.state?.patientid?.firstName +
                                   " " +
@@ -2924,34 +2893,34 @@ const handleclickpen =(item) =>{
                               Date:{date}
                               <br />
                               Time:{time}
-                            </div>
+                            </div> */}
                             <div className="col-md-6 mb-3">
                               <label className="form-label">
-                                Systolic (40-300):
+                                blood_pressure_systolic (40-300):
                               </label>
                               <input
                                 type="number"
-                                name="systolic"
+                                name="blood_pressure_systolic"
                                 min={40}
                                 max={200}
-                                value={formData?.systolic}
+                                value={formData?.blood_pressure_systolic}
                                 onChange={handleChange}
                                 className="form-control"
                               />
                             </div>
                             <div className="col-md-6 mb-3">
                               <label className="form-label">
-                                Diastolic (20-180):
+                                blood_pressure_diastolic (20-180):
                               </label>
                               <input
                                 type="number"
-                                name="diastolic"
-                                value={formData?.diastolic}
+                                name="blood_pressure_diastolic"
+                                value={formData?.blood_pressure_diastolic}
                                 onChange={handleChange}
                                 min={20}
                                 max={180}
                                 // style={getColorStyle(
-                                //   getColorCode("diastolic", formData.diastolic)
+                                //   getColorCode("blood_pressure_diastolic", formData.blood_pressure_diastolic)
                                 // )}
                                 className="form-control"
                               />
@@ -2968,11 +2937,11 @@ const handleclickpen =(item) =>{
                                 <label className="me-3" key={pos}>
                                   <input
                                     type="radio"
-                                    name="bpPosition" // All radios must share the same name
+                                    name="bp_position" // All radios must share the same name
                                     value={pos}
                                     style={{ cursor: "pointer" }}
                                     // className="form-label"
-                                    checked={formData?.bpPosition === pos}
+                                    checked={formData?.bp_position === pos}
                                     onChange={handleChange}
                                   />{" "}
                                   <span className="form-label">{pos}</span>
@@ -2985,8 +2954,8 @@ const handleclickpen =(item) =>{
                               </label>
                               <input
                                 type="number"
-                                name="respiratoryRate"
-                                value={formData.respiratoryRate}
+                                name="respiratory_rate"
+                                value={formData.respiratory_rate}
                                 onChange={handleChange}
                                 className="form-control"
                                 min="5"
@@ -2994,8 +2963,8 @@ const handleclickpen =(item) =>{
                                 step="1"
                                 // style={getColorStyle(
                                 //   getColorCode(
-                                //     "respiratoryRate",
-                                //     formData.respiratoryRate
+                                //     "respiratory_rate",
+                                //     formData.respiratory_rate
                                 //   )
                                 // )}
                               />
@@ -3043,19 +3012,19 @@ const handleclickpen =(item) =>{
 
                             <div className="col-md-6 mb-3">
                               <label className="form-label">
-                                SpO2 (0-100) (%):
+                                spo2 (0-100) (%):
                               </label>
                               <input
                                 type="number"
-                                name="spO2"
-                                value={formData.spO2}
+                                name="spo2"
+                                value={formData.spo2}
                                 onChange={handleChange}
                                 className="form-control"
                                 min="0"
                                 max="100"
                                 step="1"
                                 // style={getColorStyle(
-                                //   getColorCode("spO2", formData.spO2)
+                                //   getColorCode("spo2", formData.spo2)
                                 // )}
                               />
                             </div>
@@ -3066,15 +3035,15 @@ const handleclickpen =(item) =>{
                               </label>
                               <input
                                 type="number"
-                                name="rbsMg"
-                                value={formData.rbsMg}
+                                name="rbs_mg"
+                                value={formData.rbs_mg}
                                 onChange={handleChange}
                                 className="form-control"
                                 min="10"
                                 max="800"
                                 step="1"
                                 // style={getColorStyle(
-                                //   getColorCode("rbsMg", formData.rbsMg)
+                                //   getColorCode("rbs_mg", formData.rbs_mg)
                                 // )}
                               />
                             </div>
@@ -3085,15 +3054,15 @@ const handleclickpen =(item) =>{
                               </label>
                               <input
                                 type="number"
-                                name="rbsMmol"
-                                value={formData.rbsMmol}
+                                name="rbs_nmol"
+                                value={formData.rbs_nmol}
                                 onChange={handleChange}
                                 className="form-control"
                                 min="0.5"
                                 max="50"
                                 step="0.1"
                                 // style={getColorStyle(
-                                //   getColorCode("rbsMmol", formData.rbsMmol)
+                                //   getColorCode("rbs_nmol", formData.rbs_nmol)
                                 // )}
                               />
                             </div>
@@ -3154,9 +3123,9 @@ const handleclickpen =(item) =>{
                                 <label className="me-3" key={option}>
                                   <input
                                     type="radio"
-                                    name="riskOfFall"
+                                    name="risk_of_fall"
                                     value={option}
-                                    checked={formData.riskOfFall === option}
+                                    checked={formData.risk_of_fall === option}
                                     onChange={handleChange}
                                   />{" "}
                                   {option}
@@ -3171,7 +3140,8 @@ const handleclickpen =(item) =>{
                               {["Low", "Medium", "High"].map((option) => {
                                 // Determine color class based on the option and selection
                                 const getColorClass = () => {
-                                  if (formData.riskOfFall !== option) return "";
+                                  if (formData.risk_of_fall !== option)
+                                    return "";
                                   if (option === "High") return "text-danger"; // Red
                                   if (option === "Medium")
                                     return "text-success"; // Green
@@ -3185,10 +3155,10 @@ const handleclickpen =(item) =>{
                                   >
                                     <input
                                       type="radio"
-                                      name="riskOfFall"
+                                      name="risk_of_fall"
                                       value={option}
-                                      checked={formData.riskOfFall === option}
-                                             style={{ cursor: "pointer" }}
+                                      checked={formData.risk_of_fall === option}
+                                      style={{ cursor: "pointer" }}
                                       onChange={handleChange}
                                     />{" "}
                                     <span className="form-label">{option}</span>
@@ -3236,7 +3206,396 @@ const handleclickpen =(item) =>{
                                       type="radio"
                                       name="urgency"
                                       value={option}
-                                             style={{ cursor: "pointer" }}
+                                      style={{ cursor: "pointer" }}
+                                      checked={formData.urgency === option}
+                                      onChange={handleChange}
+                                    />{" "}
+                                    {option}
+                                  </label>
+                                );
+                              })}
+                            </div>
+
+                            <div className="col-12 mb-3">
+                              <label className="form-label">Notes:</label>
+                              <textarea
+                                name="notes"
+                                rows="3"
+                                className="form-control"
+                                value={formData?.notes}
+                                onChange={handleChange}
+                              />
+                            </div>
+                          </div>
+                          <div className="d-flex justify-content-center">
+                            <button
+                              type="submit"
+                              onClick={handdeditvital}
+                              className="btn btn-primary"
+                            >
+                              Add Vital
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {openVital && (
+                  <div
+                    className="modal fade show"
+                    style={{
+                      backgroundColor: "rgba(0,0,0,0.5)",
+                      display: "block",
+                    }}
+                  >
+                    <div
+                      className="modal-dialog modal-lg"
+                      style={{ height: "650px" }}
+                    >
+                      <div className="modal-content">
+                        <div className="modal-header">
+                          <h5 className="modal-title">Add Vital</h5>
+                          <button
+                            type="button"
+                            className="btn-close"
+                            onClick={handlecloseVital}
+                          ></button>
+                        </div>
+                        <div className="container mt-4">
+                          <div className="row">
+                            <div className="d-flex justify-content-center">
+                              <div className="col-3">
+                                Name:{" "}
+                                {location?.state?.patientid?.firstName +
+                                  " " +
+                                  location?.state?.patientid?.lastName}
+                                <br />
+                                Nurse:{userddertails?.role}
+                                <br />
+                                Doctor:
+                                {location?.state?.patientid?.Primary_Doctor}
+                              </div>
+                              <div className="col-7"></div>
+                              Age:{location?.state?.patientid?.age}
+                              <br />
+                              Date:{date}
+                              <br />
+                              Time:{time}
+                            </div>
+                            <div className="col-md-6 mb-3">
+                              <label className="form-label">
+                                blood_pressure_systolic (40-300):
+                              </label>
+                              <input
+                                type="number"
+                                name="blood_pressure_systolic"
+                                min={40}
+                                max={200}
+                                value={formData?.blood_pressure_systolic}
+                                onChange={handleChange}
+                                className="form-control"
+                              />
+                            </div>
+                            <div className="col-md-6 mb-3">
+                              <label className="form-label">
+                                blood_pressure_diastolic (20-180):
+                              </label>
+                              <input
+                                type="number"
+                                name="blood_pressure_diastolic"
+                                value={formData?.blood_pressure_diastolic}
+                                onChange={handleChange}
+                                min={20}
+                                max={180}
+                                // style={getColorStyle(
+                                //   getColorCode("blood_pressure_diastolic", formData.blood_pressure_diastolic)
+                                // )}
+                                className="form-control"
+                              />
+                            </div>
+                            <div className="col-12 mb-3">
+                              <label className="form-label">BP Position:</label>
+                              <br />
+                              {[
+                                "Right Arm",
+                                "Left Arm",
+                                "Right Leg",
+                                "Left Leg",
+                              ].map((pos) => (
+                                <label className="me-3" key={pos}>
+                                  <input
+                                    type="radio"
+                                    name="bp_position" // All radios must share the same name
+                                    value={pos}
+                                    style={{ cursor: "pointer" }}
+                                    // className="form-label"
+                                    checked={formData?.bp_position === pos}
+                                    onChange={handleChange}
+                                  />{" "}
+                                  <span className="form-label">{pos}</span>
+                                </label>
+                              ))}
+                            </div>
+                            <div className="col-md-6 mb-3">
+                              <label className="form-label">
+                                Respiratory Rate (5-50):
+                              </label>
+                              <input
+                                type="number"
+                                name="respiratory_rate"
+                                value={formData.respiratory_rate}
+                                onChange={handleChange}
+                                className="form-control"
+                                min="5"
+                                max="50"
+                                step="1"
+                                // style={getColorStyle(
+                                //   getColorCode(
+                                //     "respiratory_rate",
+                                //     formData.respiratory_rate
+                                //   )
+                                // )}
+                              />
+                            </div>
+                            <div className="col-md-6 mb-3">
+                              <label className="form-label">
+                                Pulse (10-400 BPM):
+                              </label>
+                              <input
+                                type="number"
+                                name="pulse"
+                                value={formData.pulse}
+                                onChange={handleChange}
+                                className="form-control"
+                                min="10"
+                                max="400"
+                                step="1"
+                                // style={getColorStyle(
+                                //   getColorCode("pulse", formData.pulse)
+                                // )}
+                              />
+                            </div>
+
+                            <div className="col-md-6 mb-3">
+                              <label className="form-label">
+                                Temperature (10-600) (°C):
+                              </label>
+                              <input
+                                type="number"
+                                name="temperature"
+                                value={formData.temperature}
+                                onChange={handleChange}
+                                className="form-control"
+                                min="10"
+                                max="60"
+                                step="0.1"
+                                // style={getColorStyle(
+                                //   getColorCode(
+                                //     "temperature",
+                                //     formData.temperature
+                                //   )
+                                // )}
+                              />
+                            </div>
+
+                            <div className="col-md-6 mb-3">
+                              <label className="form-label">
+                                spo2 (0-100) (%):
+                              </label>
+                              <input
+                                type="number"
+                                name="spo2"
+                                value={formData.spo2}
+                                onChange={handleChange}
+                                className="form-control"
+                                min="0"
+                                max="100"
+                                step="1"
+                                // style={getColorStyle(
+                                //   getColorCode("spo2", formData.spo2)
+                                // )}
+                              />
+                            </div>
+
+                            <div className="col-md-6 mb-3">
+                              <label className="form-label">
+                                RBS (10-800) (mg/dl):
+                              </label>
+                              <input
+                                type="number"
+                                name="rbs_mg"
+                                value={formData.rbs_mg}
+                                onChange={handleChange}
+                                className="form-control"
+                                min="10"
+                                max="800"
+                                step="1"
+                                // style={getColorStyle(
+                                //   getColorCode("rbs_mg", formData.rbs_mg)
+                                // )}
+                              />
+                            </div>
+
+                            <div className="col-md-6 mb-3">
+                              <label className="form-label">
+                                RBS (0.5-50) (mmol/l):
+                              </label>
+                              <input
+                                type="number"
+                                name="rbs_nmol"
+                                value={formData.rbs_nmol}
+                                onChange={handleChange}
+                                className="form-control"
+                                min="0.5"
+                                max="50"
+                                step="0.1"
+                                // style={getColorStyle(
+                                //   getColorCode("rbs_nmol", formData.rbs_nmol)
+                                // )}
+                              />
+                            </div>
+
+                            <div className="col-md-6 mb-3">
+                              <label className="form-label">
+                                Weight (0-1000) (kg):
+                              </label>
+                              <input
+                                type="number"
+                                name="weight"
+                                value={formData.weight}
+                                onChange={handleChange}
+                                className="form-control"
+                                min="0"
+                                max="1000"
+                                step="0.1"
+                                // style={getColorStyle(
+                                // getColorCode("weight", formData.weight)
+                                // )}
+                              />
+                            </div>
+
+                            <div className="col-md-6 mb-3">
+                              <label className="form-label">
+                                Height (0-300) (cm):
+                              </label>
+                              <input
+                                type="number"
+                                name="height"
+                                value={formData.height}
+                                onChange={handleChange}
+                                className="form-control"
+                                min="0"
+                                max="300"
+                                step="0.1"
+                                // style={getColorStyle(
+                                //   getColorCode("height", formData.height)
+                                // )}
+                              />
+                            </div>
+
+                            <div className="col-md-6 mb-3">
+                              <label className="form-label">
+                                BMI (auto-calculated):
+                              </label>
+                              <input
+                                type="text"
+                                value={calculateBMI()}
+                                readOnly
+                                className="form-control bg-light"
+                              />
+                            </div>
+                            {/* <div className="col-md-6 mb-3">
+                              <label>Risk of Fall:</label>
+                              <br />
+                              {["Low", "Medium", "High"].map((option) => (
+                                <label className="me-3" key={option}>
+                                  <input
+                                    type="radio"
+                                    name="risk_of_fall"
+                                    value={option}
+                                    checked={formData.risk_of_fall === option}
+                                    onChange={handleChange}
+                                  />{" "}
+                                  {option}
+                                </label>
+                              ))}
+                            </div> */}
+                            <div className="col-md-6 mb-3">
+                              <label className="form-label form-label">
+                                Risk of Fall:
+                              </label>
+                              <br />
+                              {["Low", "Medium", "High"].map((option) => {
+                                // Determine color class based on the option and selection
+                                const getColorClass = () => {
+                                  if (formData.risk_of_fall !== option)
+                                    return "";
+                                  if (option === "High") return "text-danger"; // Red
+                                  if (option === "Medium")
+                                    return "text-success"; // Green
+                                  if (option === "Low") return "text-warning"; // Yellow
+                                };
+
+                                return (
+                                  <label
+                                    className={`me-3 form-label ${getColorClass()}`}
+                                    key={option}
+                                  >
+                                    <input
+                                      type="radio"
+                                      name="risk_of_fall"
+                                      value={option}
+                                      checked={formData.risk_of_fall === option}
+                                      style={{ cursor: "pointer" }}
+                                      onChange={handleChange}
+                                    />{" "}
+                                    <span className="form-label">{option}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+
+                            {/* <div className="col-md-6 mb-3">
+                              <label>Urgency:</label>
+                              <br />
+                              {["Normal", "Moderate", "High"].map((option) => (
+                                <label className="me-3" key={option}>
+                                  <input
+                                    type="radio"
+                                    name="urgency"
+                                    value={option}
+                                    checked={formData.urgency === option}
+                                    onChange={handleChange}
+                                  />{" "}
+                                  {option}
+                                </label>
+                              ))}
+                            </div> */}
+                            <div className="col-md-6 mb-3">
+                              <label className="form-label">Urgency:</label>
+                              <br />
+                              {["Normal", "Moderate", "High"].map((option) => {
+                                // Determine color class for selected option
+                                const getColorClass = () => {
+                                  if (formData.urgency !== option) return "";
+                                  if (option === "High") return "text-danger"; // Red
+                                  if (option === "Moderate")
+                                    return "text-warning"; // Yellow
+                                  if (option === "Normal")
+                                    return "text-success"; // Green
+                                };
+
+                                return (
+                                  <label
+                                    className={`me-3 form-label ${getColorClass()}`}
+                                    key={option}
+                                  >
+                                    <input
+                                      type="radio"
+                                      name="urgency"
+                                      value={option}
+                                      style={{ cursor: "pointer" }}
                                       checked={formData.urgency === option}
                                       onChange={handleChange}
                                     />{" "}

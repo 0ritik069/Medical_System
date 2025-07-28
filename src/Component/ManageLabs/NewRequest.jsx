@@ -6,13 +6,11 @@ import { useState, useEffect } from "react";
 
 export default function NewRequest() {
   const navigate = useNavigate();
-
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
   const [patients, setPatients] = useState([]);
   const [labs, setLabs] = useState([]);
   const [doctors, setDoctors] = useState([]);
-
   const [formData, setFormData] = useState({
     patient_id: "",
     lab_id: "",
@@ -22,10 +20,10 @@ export default function NewRequest() {
     sent_by: "",
   });
 
+
   const [selectedPatientId, setSelectedPatientId] = useState("");
 
   useEffect(() => {
-     
     axios.get(`${baseurl}getAllPatients`)
       .then(res => {
         if (res.data.success && Array.isArray(res.data.data)) {
@@ -37,9 +35,7 @@ export default function NewRequest() {
       });
   }, []);
 
-
   useEffect(() =>{
-   
     axios.get(`${baseurl}getAllLabs`)
     .then(res => {
         if(res.data.success && Array.isArray(res.data.data)) {
@@ -70,7 +66,6 @@ export default function NewRequest() {
       [name]: value,
     }));
   };
-
  
   const handlePatientChange = (e) => {
     const selectedId = e.target.value;
@@ -82,7 +77,6 @@ export default function NewRequest() {
       patient_id: selectedPatient ? selectedPatient.civilIdNumber : "",
     }));
   };
-
 
   const validate = () => {
     const err = {};
@@ -129,7 +123,6 @@ export default function NewRequest() {
       console.error(error);
     }
   };
-
   return (
     <div className="pc-container">
       <div className="pc-content">
@@ -147,34 +140,15 @@ export default function NewRequest() {
                 Add New Request
               </h5>
             </div>
-
             {submitted && (
               <div className="alert alert-success">
                 New Request added successfully!
               </div>
             )}
-
             <form
               onSubmit={handleSubmit}
               className="row g-3 px-3 py-2 mb-3"
             >
-              {/* Date field */}
-              {/* <div className="col-md-6">
-                <label className="form-label">Date</label>
-                <input
-                  type="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleChange}
-                  className="form-control"
-                  placeholder="Date"
-                />
-                {errors && errors.date && (
-                  <p className="text-danger">{errors.date}</p>
-                )}
-              </div> */}
-
-              {/* Patient dropdown */}
               <div className="col-md-6">
                 <label className="form-label">Patient</label>
                 <select
@@ -194,8 +168,6 @@ export default function NewRequest() {
                   <p className="text-danger">{errors.patient_id}</p>
                 )}
               </div>
-
-              {/* Patient ID (readonly) */}
               <div className="col-md-6">
                 <label className="form-label">Patient ID</label>
                 <input
@@ -210,8 +182,6 @@ export default function NewRequest() {
                   <p className="text-danger">{errors.patient_id}</p>
                 )}
               </div>
-
-              {/* Lab dropdown */}
               <div className="col-md-6">
                 <label className="form-label">Lab</label>
                 <select
