@@ -416,107 +416,194 @@ export default function Staff() {
                       </div>
                     </div>
                   </div>
-                  <div className="container mt-4">
-                    <div className="row">
-                      {Array.from({ length: cardCount }).map((_, index) => (
-                        <div className="col-md-4 mb-4" key={index}>
-                          <div className="card shadow-sm">
-                            {/* Header */}
-                            <div className="card-header d-flex justify-content-between align-items-center bg-primary text-white">
-                              <span>{`ID_${101 + index}`}</span>
-                              <div>
-                                <button className="btn btn-sm btn-warning me-1">
-                                  <i className="bi bi-pencil-fill" />
-                                </button>
-                                <button className="btn btn-sm btn-info me-1">
-                                  <i className="bi bi-eye-fill" />
-                                </button>
-                                <button className="btn btn-sm btn-danger">
-                                  <i className="bi bi-trash-fill" />
-                                </button>
-                              </div>
-                            </div>
-
-                            {/* Body */}
-                            <div className="card-body p-2">
-                              <div className="row g-3 ">
-                                {/* Profile Image */}
-                                <div className="col-12 d-flex justify-content-center ">
-                                  <div
-                                    className="rounded-circle bg-light border"
-                                    style={{ width: "70px", height: "70px" }}
-                                  ></div>
-                                </div>
-
-                                {/* Inputs */}
-                                <div className="col-12 ">
-                                  <label className="form-label">Name</label>
-                                  <input type="text" className="form-control" />
-                                </div>
-
-                                <div className="col-12">
-                                  <label className="form-label">Gender</label>
-                                  <br />
-                                  <div className="form-check form-check-inline">
-                                    <input
-                                      className="form-check-input"
-                                      type="radio"
-                                      name={`gender_${index}`}
-                                      value="male"
-                                    />
-                                    <label className="form-check-label">
-                                      Male
-                                    </label>
-                                  </div>
-                                  <div className="form-check form-check-inline">
-                                    <input
-                                      className="form-check-input"
-                                      type="radio"
-                                      name={`gender_${index}`}
-                                      value="female"
-                                    />
-                                    <label className="form-check-label">
-                                      Female
-                                    </label>
-                                  </div>
-                                </div>
-
-                                <div className="col-md-6">
-                                  <label className="form-label">Age</label>
-                                  <select className="form-select">
-                                    {Array.from({ length: 60 }, (_, i) => (
-                                      <option key={i}>{18 + i}</option>
-                                    ))}
-                                  </select>
-                                </div>
-
-                                <div className="col-md-6">
-                                  <label className="form-label">Role</label>
-                                  <input type="text" className="form-control" />
-                                </div>
-
-                                <div className="col-md-6">
-                                  <label className="form-label">Special</label>
-                                  <input type="text" className="form-control" />
-                                </div>
-
-                                <div className="col-md-6">
-                                  <label className="form-label">Phone</label>
-                                  <input type="text" className="form-control" />
-                                </div>
-
-                                <div className="col-12">
-                                  <label className="form-label">Email</label>
-                                  <input
-                                    type="email"
-                                    className="form-control"
+                  <div className="card-body pt-3">
+                    <div className="table-responsive">
+                      <table className="table table-hover" id="pc-dt-simple">
+                        <thead>
+                          <tr>
+                            <th>Name</th>
+                            <th>DOB</th>
+                            <th>License Id</th>
+                            <th>Gender</th>
+                            <th>Specialty</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>
+                              <div className="d-flex align-items-center">
+                                <div className="flex-shrink-0">
+                                  <img
+                                    src="../assets/images/user/avatar-1.jpg"
+                                    alt="user image"
+                                    className="img-radius wid-40"
                                   />
                                 </div>
+                                <div className="flex-grow-1 ms-3">
+                                  <h6 className="mb-0">John Smith</h6>
+                                </div>
                               </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                            </td>
+                            <td>1990/05/15</td>
+                            <td>STAFF001</td>
+                            <td>Male</td>
+                            <td>Administration</td>
+                            <td>
+                              <div className="form-check form-switch">
+                                <input
+                                  className="form-check-input"
+                                  type="checkbox"
+                                  role="switch"
+                                  id="toggle-staff-1"
+                                  checked={true}
+                                />
+                                <label
+                                  className="form-check-label ms-2"
+                                  htmlFor="toggle-staff-1"
+                                >
+                                  Active
+                                </label>
+                              </div>
+                            </td>
+                            <td>
+                              <a
+                                href="#"
+                                className="avtar avtar-xs btn-link-secondary"
+                              >
+                                <i className="ti ti-eye f-20" />{" "}
+                              </a>
+                              <a
+                                href="#"
+                                className="avtar avtar-xs btn-link-secondary"
+                              >
+                                <i className="ti ti-edit f-20" />{" "}
+                              </a>
+                              <a
+                                href="#"
+                                className="avtar avtar-xs btn-link-secondary"
+                              >
+                                <i className="ti ti-trash f-20" />
+                              </a>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <div className="d-flex align-items-center">
+                                <div className="flex-shrink-0">
+                                  <img
+                                    src="../assets/images/user/avatar-2.jpg"
+                                    alt="user image"
+                                    className="img-radius wid-40"
+                                  />
+                                </div>
+                                <div className="flex-grow-1 ms-3">
+                                  <h6 className="mb-0">Sarah Johnson</h6>
+                                </div>
+                              </div>
+                            </td>
+                            <td>1985/12/20</td>
+                            <td>STAFF002</td>
+                            <td>Female</td>
+                            <td>Reception</td>
+                            <td>
+                              <div className="form-check form-switch">
+                                <input
+                                  className="form-check-input"
+                                  type="checkbox"
+                                  role="switch"
+                                  id="toggle-staff-2"
+                                  checked={true}
+                                />
+                                <label
+                                  className="form-check-label ms-2"
+                                  htmlFor="toggle-staff-2"
+                                >
+                                  Active
+                                </label>
+                              </div>
+                            </td>
+                            <td>
+                              <a
+                                href="#"
+                                className="avtar avtar-xs btn-link-secondary"
+                              >
+                                <i className="ti ti-eye f-20" />{" "}
+                              </a>
+                              <a
+                                href="#"
+                                className="avtar avtar-xs btn-link-secondary"
+                              >
+                                <i className="ti ti-edit f-20" />{" "}
+                              </a>
+                              <a
+                                href="#"
+                                className="avtar avtar-xs btn-link-secondary"
+                              >
+                                <i className="ti ti-trash f-20" />
+                              </a>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <div className="d-flex align-items-center">
+                                <div className="flex-shrink-0">
+                                  <img
+                                    src="../assets/images/user/avatar-3.jpg"
+                                    alt="user image"
+                                    className="img-radius wid-40"
+                                  />
+                                </div>
+                                <div className="flex-grow-1 ms-3">
+                                  <h6 className="mb-0">Mike Wilson</h6>
+                                </div>
+                              </div>
+                            </td>
+                            <td>1988/08/10</td>
+                            <td>STAFF003</td>
+                            <td>Male</td>
+                            <td>IT Support</td>
+                            <td>
+                              <div className="form-check form-switch">
+                                <input
+                                  className="form-check-input"
+                                  type="checkbox"
+                                  role="switch"
+                                  id="toggle-staff-3"
+                                  checked={false}
+                                />
+                                <label
+                                  className="form-check-label ms-2"
+                                  htmlFor="toggle-staff-3"
+                                >
+                                  Inactive
+                                </label>
+                              </div>
+                            </td>
+                            <td>
+                              <a
+                                href="#"
+                                className="avtar avtar-xs btn-link-secondary"
+                              >
+                                <i className="ti ti-eye f-20" />{" "}
+                              </a>
+                              <a
+                                href="#"
+                                className="avtar avtar-xs btn-link-secondary"
+                              >
+                                <i className="ti ti-edit f-20" />{" "}
+                              </a>
+                              <a
+                                href="#"
+                                className="avtar avtar-xs btn-link-secondary"
+                              >
+                                <i className="ti ti-trash f-20" />
+                              </a>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 </div>

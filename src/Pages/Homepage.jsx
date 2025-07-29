@@ -86,6 +86,13 @@ const Homepage = () => {
       url: "/Admin/ReportsInc",
       iconClass: file,
     },
+    {
+      title: "Barcode Scanner",
+      subtitle: "Scan Inventory Items",
+      image: image4, // Using pharmacy image for now
+      url: "/Admin/BarcodeScanner",
+      iconClass: pharmacy,
+    },
   ];
   // const cards = [c
  const getUpComingAppointments = async () => {
