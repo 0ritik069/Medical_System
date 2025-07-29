@@ -23,7 +23,6 @@ export default function AddInventory() {
     price: "",
     category: "",
     strength: "",
-    barcode: "",
   });
 
   // Fetch categories on mount
@@ -53,6 +52,23 @@ export default function AddInventory() {
     setImageFile(e.target.files[0]);
   };
 
+  // Generate automatic barcode
+  const generateBarcode = () => {
+    // Add a small delay to ensure uniqueness
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 9999);
+    const year = new Date().getFullYear();
+    const month = String(new Date().getMonth() + 1).padStart(2, '0');
+    const day = String(new Date().getDate()).padStart(2, '0');
+    const hours = String(new Date().getHours()).padStart(2, '0');
+    const minutes = String(new Date().getMinutes()).padStart(2, '0');
+    const seconds = String(new Date().getSeconds()).padStart(2, '0');
+    const milliseconds = String(new Date().getMilliseconds()).padStart(3, '0');
+    
+    // Format: INV-YYYYMMDD-HHMMSS-MILLISECONDS-RANDOM
+    return `INV-${year}${month}${day}-${hours}${minutes}${seconds}-${milliseconds}-${random}`;
+  };
+
   const validate = () => {
     const err = {};
     if (!formData.name.trim()) err.name = "Name is required";
@@ -65,7 +81,6 @@ export default function AddInventory() {
     if (!formData.price || isNaN(formData.price)) err.price = "Price must be a number";
     if (!formData.category) err.category = "Category is required";
     if (!formData.strength.trim()) err.strength = "Strength is required";
-    if (!formData.barcode.trim()) err.barcode = "Barcode is required";
     return err;
   };
 
@@ -81,6 +96,10 @@ export default function AddInventory() {
 
     try {
       const data = new FormData();
+
+      // Generate automatic barcode
+      const barcode = generateBarcode();
+      data.append("barcode", barcode);
 
       // Append form fields
       Object.keys(formData).forEach((key) => {
@@ -145,7 +164,7 @@ export default function AddInventory() {
               className="row g-3 px-3 py-2 mb-3"
             >
               {/* Render all fields except category as before */}
-              {["name", "substance", "unit_of_measurement", "company", "quantity", "expiration_date", "cost", "price", "strength", "barcode"].map((field) => (
+              {["name", "substance", "unit_of_measurement", "company", "quantity", "expiration_date", "cost", "price", "strength"].map((field) => (
                 <div className="col-md-6" key={field}>
                   <label className="form-label">{field.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}</label>
                   <input

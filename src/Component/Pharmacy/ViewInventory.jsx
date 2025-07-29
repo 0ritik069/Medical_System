@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { baseurl, baseurImage } from "../../Baseurl";
+import BarcodeGenerator from "../BarcodeGenerator/BarcodeGenerator";
 
 export default function ViewInventory() {
   const { id } = useParams();
@@ -77,7 +78,6 @@ export default function ViewInventory() {
                   ["Expiry", formatDate(inventory.expiration_date)],
                   ["Cost", inventory.cost],
                   ["Price", inventory.price],
-                  ["Barcode", inventory.barcode],
                   ["Control", inventory.control === 1 ? "Yes" : "No"],
                 ].map(([label, value], idx) => (
                   <div className="col-md-6 mb-3" key={idx}>
@@ -90,6 +90,16 @@ export default function ViewInventory() {
                     />
                   </div>
                 ))}
+                
+                {/* Barcode Display */}
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Barcode</label>
+                  {inventory.barcode && (
+                    <div className="text-center">
+                      <BarcodeGenerator value={inventory.barcode} width={3} height={120} />
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="text-end">

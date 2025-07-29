@@ -113,6 +113,8 @@ import NewRequest from './Component/ManageLabs/NewRequest';
 import ViewLab from './Component/ManageLabs/ViewLab';
 import EditLab from './Component/ManageLabs/EditLab';
 import SettingsDashboard from './Setting/SettingsDashboard';
+import SettingNew from './Component/SettingNew/SettingNew';
+import BarcodeScanner from './Component/BarcodeScanner/BarcodeScanner';
 
 // import SettingsDashboard from './'
 function App() {
@@ -164,7 +166,8 @@ function App() {
             <Route path="/Admin/ViewLab/:id" element={<ViewLab />} />
             <Route path="/Admin/EditLab/:id" element={<EditLab />} />
              <Route path="/Admin/SettingsDashboard" element={<SettingsDashboard />} />
-            
+              <Route path="/Admin/setting" element={<SettingNew />} />
+              <Route path="/Admin/BarcodeScanner" element={<BarcodeScanner />} />
           </Route>
         </Routes>
       </BrowserRouter>
