@@ -7,6 +7,7 @@ import axios from "axios";
 import { baseurImage, baseurl } from "../../Baseurl";
 import Swal from "sweetalert2";
 import perImg from "../../../src/assests/profile.jpg";
+import human from "../../../src/assests/humanBody.png";
 export default function ManageAppointment() {
   const tableCell = (value) => <td>{value}</td>;
   const location = useLocation();
@@ -246,7 +247,8 @@ export default function ManageAppointment() {
         // nurse: inpval.nurse,
         recorded_at: inpval.recorded_at,
         blood_pressure_systolic: inpval.blood_pressure_systolic,
-        blood_pressure_blood_pressure_diastolic: inpval.blood_pressure_blood_pressure_diastolic,
+        blood_pressure_blood_pressure_diastolic:
+          inpval.blood_pressure_blood_pressure_diastolic,
         heart_rate: inpval.heart_rate,
         respiratory_rate: inpval.respiratory_rate,
         temperature: inpval.temperature,
@@ -515,8 +517,18 @@ export default function ManageAppointment() {
     const time = now.toTimeString().split(" ")[0];
     const recordedAt = `${date} ${time}`;
     const validations = [
-      { name: "blood_pressure_systolic", value: formData.blood_pressure_systolic, min: 40, max: 300 },
-      { name: "blood_pressure_diastolic BP", value: formData.blood_pressure_diastolic, min: 20, max: 180 },
+      {
+        name: "blood_pressure_systolic",
+        value: formData.blood_pressure_systolic,
+        min: 40,
+        max: 300,
+      },
+      {
+        name: "blood_pressure_diastolic BP",
+        value: formData.blood_pressure_diastolic,
+        min: 20,
+        max: 180,
+      },
       {
         name: "Respiratory Rate",
         value: formData.respiratory_rate,
@@ -542,9 +554,8 @@ export default function ManageAppointment() {
       }
     }
     const payload = {
-      patient_id: location?.state?.patientid.id,
       blood_pressure_systolic: parseInt(formData.blood_pressure_systolic),
-      blood_pressure_blood_pressure_diastolic: parseInt(formData.blood_pressure_diastolic),
+      blood_pressure_diastolic: parseInt(formData.blood_pressure_diastolic),
       bp_position: formData.bp_position,
       respiratory_rate: parseInt(formData.respiratory_rate),
       pulse: parseInt(formData.pulse),
@@ -558,6 +569,7 @@ export default function ManageAppointment() {
       risk_of_fall: formData.risk_of_fall,
       urgency: formData.urgency,
       notes: formData.notes,
+      patient_id: location?.state?.patientid?.id,
       recorded_at: recordedAt,
       doctor_id: location.state.patientid.defaultDoctorId,
     };
@@ -566,7 +578,6 @@ export default function ManageAppointment() {
         `${baseurl}recordPatientVitals`,
         payload
       );
-
       if (response.data.success === true) {
         getDataa();
         Swal.fire("Success", "Vitals added successfully", "success");
@@ -615,27 +626,41 @@ export default function ManageAppointment() {
       }
     }
   };
+
   const handleclikdeleteapp = async (item) => {
-    console.log(item);
-    try {
-      const response = await axios.delete(
-        `${baseurl}deleteAppointments/${item.id}`
-      );
-      if (response.data.success === true) {
-        getdata();
-        Swal.fire(
-          "success",
-          "Patient Appointment delete successfully",
-          "success"
+    const confirmResult = await Swal.fire({
+      title: "Are you sure?",
+      text: `Do you really want to delete the appointment of ${item.patientName}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (confirmResult.isConfirmed) {
+      try {
+        const response = await axios.delete(
+          `${baseurl}deleteAppointments/${item.id}`
         );
-      } else {
-        Swal.fire("error", "Something went Wrong", "error");
+
+        if (response.data.success === true) {
+          getdata(); // Refresh the data
+          Swal.fire(
+            "Deleted!",
+            "Patient appointment deleted successfully.",
+            "success"
+          );
+        } else {
+          Swal.fire("Error", "Something went wrong.", "error");
+        }
+      } catch (error) {
+        const err = error.response?.data?.message || "Server error";
+        Swal.fire("Error", err, "error");
       }
-    } catch (error) {
-      const err = error.response.data.message;
-      Swal.fire("error", err, "error");
     }
   };
+
   const handleclickpopusopenn = () => {
     setAddpatinemodal(true);
   };
@@ -694,20 +719,57 @@ export default function ManageAppointment() {
     const { name, value } = e.target;
     setFormData1((prev) => ({ ...prev, [name]: value }));
   };
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const validationErrors = validate();
+  //   if (Object.keys(validationErrors).length > 0) return;
+  //   console.log(formData1);
+  //   try {
+  //     const response = await axios.post(
+  //       `${baseurl}createAppointment`,
+  //       formData1
+  //     );
+  //     if (response.data.success) {
+  //       handleclickpopusopenn11();
+  //       getdata();
+  //       Swal.fire("Success", "Appointment Added Successfuly", "success");
+  //       setFormData1({
+  //         doctorId: "",
+  //         appointmentDate: "",
+  //         startTime: "",
+  //         endTime: "",
+  //         reason: "",
+  //         status: "Scheduled",
+  //         apptype: "",
+  //       });
+  //       setErrors({});
+  //     }
+  //   } catch (error) {
+  //     console.error("Error creating appointment:", error);
+  //   }
+  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) return;
-    console.log(formData1);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    console.log("Submitting form:", formData1);
+
     try {
       const response = await axios.post(
         `${baseurl}createAppointment`,
         formData1
       );
+
       if (response.data.success) {
         handleclickpopusopenn11();
         getdata();
-        Swal.fire("Success", "Appointment Added Successfuly", "success");
+        Swal.fire("Success", "Appointment added successfully!", "success");
+
         setFormData1({
           doctorId: "",
           appointmentDate: "",
@@ -718,12 +780,43 @@ export default function ManageAppointment() {
           apptype: "",
         });
         setErrors({});
+      } else {
+        // When API returns success: false
+        Swal.fire(
+          "Error",
+          response.data.message || "Unknown error occurred.",
+          "error"
+        );
       }
     } catch (error) {
       console.error("Error creating appointment:", error);
+
+      // Network or server errors
+      if (error.response) {
+        // Server responded with a status code outside 2xx
+        const errMessage =
+          error.response.data?.message || "Server error occurred.";
+        Swal.fire("Error", errMessage, "error");
+      } else if (error.request) {
+        // Request made but no response
+        Swal.fire(
+          "Error",
+          "No response from server. Please check your internet.",
+          "error"
+        );
+      } else {
+        // Something else triggered the error
+        Swal.fire(
+          "Error",
+          "Something went wrong while sending the request.",
+          "error"
+        );
+      }
     }
   };
-  ////////////////////////////////////////////////// labs code////////////////////////////////////////////////////////
+
+  /////
+  // ///////////////////////////////////////////// labs code////////////////////////////////////////////////////////
   const handleclickopentestadd = () => {
     setOpenmodaltest(true);
   };
@@ -867,23 +960,25 @@ export default function ManageAppointment() {
       notes: "",
     });
   };
-  const handdeditvital = async() => {
-   try {
-     const respnse=await axios.put(
-      `${baseurl}updatePatientVitals/${formData.id}`,formData)
-      if(respnse.data.success===true){
+  const handdeditvital = async () => {
+    try {
+      const respnse = await axios.put(
+        `${baseurl}updatePatientVitals/${formData.id}`,
+        formData
+      );
+      if (respnse.data.success === true) {
         getDataa();
         Swal.fire("Success", "Vitals updated successfully", "success");
         handlecloseVitaledit();
-      }else{
+      } else {
         Swal.fire("Error", "Failed to update vitals", "error");
       }
-   } catch (error) {
+    } catch (error) {
       console.error("Error updating vitals:", error);
       Swal.fire("Error", "Failed to update vitals", "error");
       return;
-   }
-  }
+    }
+  };
   return (
     <div className="pc-container">
       <div className="pc-content">
@@ -2254,25 +2349,6 @@ export default function ManageAppointment() {
                                 </div>
                                 <div className="modal-body">
                                   <div className="row g-3 px-3 py-2 mb-3">
-                                    {/* <div className="col-lg-6">
-              <label className="form-label">Patient</label>
-              <select
-                className={`form-select ${
-                  errors.patientId ? "is-invalid" : ""
-                }`}
-                name="patientId"
-                value={formData.patientId}
-                onChange={handleChange}
-              >
-                <option value="">Select Patient</option>
-                {patientList.map((patient) => (
-                  <option key={patient.id} value={patient.id}>
-                    {patient.firstName} {patient.lastName}
-                  </option>
-                ))}
-              </select>
-              <div className="invalid-feedback">{errors.patientId}</div>
-            </div> */}
                                     <div className="col-lg-6">
                                       <label className="form-label">
                                         Doctor
@@ -2776,7 +2852,7 @@ export default function ManageAppointment() {
                             <tr>
                               <th>Date</th>
                               <th>Time</th>
-                              <th>Nurse</th>
+                              <th>Blood Pressure</th>
                               <th>Respiratory Rate</th>
                               <th>spo2</th>
                               <th>Temp </th>
@@ -2790,7 +2866,7 @@ export default function ManageAppointment() {
                             {vitaldatas &&
                               vitaldatas.length > 0 &&
                               vitaldatas.map((item, index) => {
-                                // console.log(item);
+                                console.log(item);
                                 return (
                                   <>
                                     <tr key={index}>
@@ -2808,9 +2884,14 @@ export default function ManageAppointment() {
                                           second: "2-digit",
                                         })}
                                       </td>
-                                      <td>{item.nurse}</td>
-                                      <td>{item.blood_pressure}</td>
+                                      <td>
+                                        {item.blood_pressure_diastolic +
+                                          "/" +
+                                          item.blood_pressure_systolic}
+                                      </td>
+                                      {/* <td>{item.blood_pressure}</td> */}
                                       <td>{item.respiratory_rate}</td>
+                                      <td>{item.spo2}</td>
                                       <td>{item.temperature}</td>
                                       <td>{item.respiratory_rate}</td>
                                       <td>{item.weight}</td>
@@ -2861,7 +2942,7 @@ export default function ManageAppointment() {
                     }}
                   >
                     <div
-                      className="modal-dialog modal-lg"
+                      className="modal-dialog modal-xl"
                       style={{ height: "650px" }}
                     >
                       <div className="modal-content">
@@ -2873,10 +2954,12 @@ export default function ManageAppointment() {
                             onClick={handlecloseVitaledit}
                           ></button>
                         </div>
-                        <div className="container mt-4">
+                        <div className="mt-4">
                           <div className="row">
-                            {/* <div className="d-flex justify-content-center"> */}
-                            {/* <div className="col-3">
+                            <div className="col-lg-8">
+                              <div className="row p20">
+                                {/* <div className="d-flex justify-content-center"> */}
+                                {/* <div className="col-3">
                                 Name:{" "}
                                 {location?.state?.patientid?.firstName +
                                   " " +
@@ -2894,230 +2977,232 @@ export default function ManageAppointment() {
                               <br />
                               Time:{time}
                             </div> */}
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                blood_pressure_systolic (40-300):
-                              </label>
-                              <input
-                                type="number"
-                                name="blood_pressure_systolic"
-                                min={40}
-                                max={200}
-                                value={formData?.blood_pressure_systolic}
-                                onChange={handleChange}
-                                className="form-control"
-                              />
-                            </div>
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                blood_pressure_diastolic (20-180):
-                              </label>
-                              <input
-                                type="number"
-                                name="blood_pressure_diastolic"
-                                value={formData?.blood_pressure_diastolic}
-                                onChange={handleChange}
-                                min={20}
-                                max={180}
-                                // style={getColorStyle(
-                                //   getColorCode("blood_pressure_diastolic", formData.blood_pressure_diastolic)
-                                // )}
-                                className="form-control"
-                              />
-                            </div>
-                            <div className="col-12 mb-3">
-                              <label className="form-label">BP Position:</label>
-                              <br />
-                              {[
-                                "Right Arm",
-                                "Left Arm",
-                                "Right Leg",
-                                "Left Leg",
-                              ].map((pos) => (
-                                <label className="me-3" key={pos}>
+                                <div className="col-md-6">
+                                  <label className="form-label">
+                                    Blood Pressure Systolic (40-300)
+                                  </label>
                                   <input
-                                    type="radio"
-                                    name="bp_position" // All radios must share the same name
-                                    value={pos}
-                                    style={{ cursor: "pointer" }}
-                                    // className="form-label"
-                                    checked={formData?.bp_position === pos}
+                                    type="number"
+                                    name="blood_pressure_systolic"
+                                    min={40}
+                                    max={200}
+                                    value={formData?.blood_pressure_systolic}
                                     onChange={handleChange}
-                                  />{" "}
-                                  <span className="form-label">{pos}</span>
-                                </label>
-                              ))}
-                            </div>
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                Respiratory Rate (5-50):
-                              </label>
-                              <input
-                                type="number"
-                                name="respiratory_rate"
-                                value={formData.respiratory_rate}
-                                onChange={handleChange}
-                                className="form-control"
-                                min="5"
-                                max="50"
-                                step="1"
-                                // style={getColorStyle(
-                                //   getColorCode(
-                                //     "respiratory_rate",
-                                //     formData.respiratory_rate
-                                //   )
-                                // )}
-                              />
-                            </div>
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                Pulse (10-400 BPM):
-                              </label>
-                              <input
-                                type="number"
-                                name="pulse"
-                                value={formData.pulse}
-                                onChange={handleChange}
-                                className="form-control"
-                                min="10"
-                                max="400"
-                                step="1"
-                                // style={getColorStyle(
-                                //   getColorCode("pulse", formData.pulse)
-                                // )}
-                              />
-                            </div>
+                                    className="form-control"
+                                  />
+                                </div>
+                                <div className="col-md-6 ">
+                                  <label className="form-label">
+                                    Blood Pressure Diastolic (20-180)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    name="blood_pressure_diastolic"
+                                    value={formData?.blood_pressure_diastolic}
+                                    onChange={handleChange}
+                                    min={20}
+                                    max={180}
+                                    // style={getColorStyle(
+                                    //   getColorCode("blood_pressure_diastolic", formData.blood_pressure_diastolic)
+                                    // )}
+                                    className="form-control"
+                                  />
+                                </div>
+                                <div className="col-12 ">
+                                  <label className="form-label">
+                                    BP Position
+                                  </label>
+                                  <br />
+                                  {[
+                                    "Right Arm",
+                                    "Left Arm",
+                                    "Right Leg",
+                                    "Left Leg",
+                                  ].map((pos) => (
+                                    <label className="me-3" key={pos}>
+                                      <input
+                                        type="radio"
+                                        name="bp_position" // All radios must share the same name
+                                        value={pos}
+                                        style={{ cursor: "pointer" }}
+                                        // className="form-label"
+                                        checked={formData?.bp_position === pos}
+                                        onChange={handleChange}
+                                      />{" "}
+                                      <span className="form-label">{pos}</span>
+                                    </label>
+                                  ))}
+                                </div>
+                                <div className="col-md-6 ">
+                                  <label className="form-label">
+                                    Respiratory Rate (5-50)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    name="respiratory_rate"
+                                    value={formData.respiratory_rate}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    min="5"
+                                    max="50"
+                                    step="1"
+                                    // style={getColorStyle(
+                                    //   getColorCode(
+                                    //     "respiratory_rate",
+                                    //     formData.respiratory_rate
+                                    //   )
+                                    // )}
+                                  />
+                                </div>
+                                <div className="col-md-6 ">
+                                  <label className="form-label">
+                                    Pulse (10-400 BPM)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    name="pulse"
+                                    value={formData.pulse}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    min="10"
+                                    max="400"
+                                    step="1"
+                                    // style={getColorStyle(
+                                    //   getColorCode("pulse", formData.pulse)
+                                    // )}
+                                  />
+                                </div>
 
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                Temperature (10-600) (°C):
-                              </label>
-                              <input
-                                type="number"
-                                name="temperature"
-                                value={formData.temperature}
-                                onChange={handleChange}
-                                className="form-control"
-                                min="10"
-                                max="60"
-                                step="0.1"
-                                // style={getColorStyle(
-                                //   getColorCode(
-                                //     "temperature",
-                                //     formData.temperature
-                                //   )
-                                // )}
-                              />
-                            </div>
+                                <div className="col-md-6">
+                                  <label className="form-label">
+                                    Temperature (10-600) (°C)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    name="temperature"
+                                    value={formData.temperature}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    min="10"
+                                    max="60"
+                                    step="0.1"
+                                    // style={getColorStyle(
+                                    //   getColorCode(
+                                    //     "temperature",
+                                    //     formData.temperature
+                                    //   )
+                                    // )}
+                                  />
+                                </div>
 
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                spo2 (0-100) (%):
-                              </label>
-                              <input
-                                type="number"
-                                name="spo2"
-                                value={formData.spo2}
-                                onChange={handleChange}
-                                className="form-control"
-                                min="0"
-                                max="100"
-                                step="1"
-                                // style={getColorStyle(
-                                //   getColorCode("spo2", formData.spo2)
-                                // )}
-                              />
-                            </div>
+                                <div className="col-md-6">
+                                  <label className="form-label">
+                                    spo2 (0-100) (%)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    name="spo2"
+                                    value={formData.spo2}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    min="0"
+                                    max="100"
+                                    step="1"
+                                    // style={getColorStyle(
+                                    //   getColorCode("spo2", formData.spo2)
+                                    // )}
+                                  />
+                                </div>
 
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                RBS (10-800) (mg/dl):
-                              </label>
-                              <input
-                                type="number"
-                                name="rbs_mg"
-                                value={formData.rbs_mg}
-                                onChange={handleChange}
-                                className="form-control"
-                                min="10"
-                                max="800"
-                                step="1"
-                                // style={getColorStyle(
-                                //   getColorCode("rbs_mg", formData.rbs_mg)
-                                // )}
-                              />
-                            </div>
+                                <div className="col-md-6  ">
+                                  <label className="form-label">
+                                    RBS (10-800) (mg/dl)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    name="rbs_mg"
+                                    value={formData.rbs_mg}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    min="10"
+                                    max="800"
+                                    step="1"
+                                    // style={getColorStyle(
+                                    //   getColorCode("rbs_mg", formData.rbs_mg)
+                                    // )}
+                                  />
+                                </div>
 
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                RBS (0.5-50) (mmol/l):
-                              </label>
-                              <input
-                                type="number"
-                                name="rbs_nmol"
-                                value={formData.rbs_nmol}
-                                onChange={handleChange}
-                                className="form-control"
-                                min="0.5"
-                                max="50"
-                                step="0.1"
-                                // style={getColorStyle(
-                                //   getColorCode("rbs_nmol", formData.rbs_nmol)
-                                // )}
-                              />
-                            </div>
+                                <div className="col-md-6  ">
+                                  <label className="form-label">
+                                    RBS (0.5-50) (mmol/l)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    name="rbs_nmol"
+                                    value={formData.rbs_nmol}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    min="0.5"
+                                    max="50"
+                                    step="0.1"
+                                    // style={getColorStyle(
+                                    //   getColorCode("rbs_nmol", formData.rbs_nmol)
+                                    // )}
+                                  />
+                                </div>
 
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                Weight (0-1000) (kg):
-                              </label>
-                              <input
-                                type="number"
-                                name="weight"
-                                value={formData.weight}
-                                onChange={handleChange}
-                                className="form-control"
-                                min="0"
-                                max="1000"
-                                step="0.1"
-                                // style={getColorStyle(
-                                // getColorCode("weight", formData.weight)
-                                // )}
-                              />
-                            </div>
+                                <div className="col-md-6">
+                                  <label className="form-label">
+                                    Weight (0-1000) (kg)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    name="weight"
+                                    value={formData.weight}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    min="0"
+                                    max="1000"
+                                    step="0.1"
+                                    // style={getColorStyle(
+                                    // getColorCode("weight", formData.weight)
+                                    // )}
+                                  />
+                                </div>
 
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                Height (0-300) (cm):
-                              </label>
-                              <input
-                                type="number"
-                                name="height"
-                                value={formData.height}
-                                onChange={handleChange}
-                                className="form-control"
-                                min="0"
-                                max="300"
-                                step="0.1"
-                                // style={getColorStyle(
-                                //   getColorCode("height", formData.height)
-                                // )}
-                              />
-                            </div>
+                                <div className="col-md-6">
+                                  <label className="form-label">
+                                    Height (0-300) (cm)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    name="height"
+                                    value={formData.height}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    min="0"
+                                    max="300"
+                                    step="0.1"
+                                    // style={getColorStyle(
+                                    //   getColorCode("height", formData.height)
+                                    // )}
+                                  />
+                                </div>
 
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                BMI (auto-calculated):
-                              </label>
-                              <input
-                                type="text"
-                                value={calculateBMI()}
-                                readOnly
-                                className="form-control bg-light"
-                              />
-                            </div>
-                            {/* <div className="col-md-6 mb-3">
-                              <label>Risk of Fall:</label>
+                                <div className="col-md-6">
+                                  <label className="form-label">
+                                    BMI (auto-calculated)
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={calculateBMI()}
+                                    readOnly
+                                    className="form-control bg-light"
+                                  />
+                                </div>
+                                {/* <div className="col-md-6 mb-3">
+                              <label>Risk of Fall</label>
                               <br />
                               {["Low", "Medium", "High"].map((option) => (
                                 <label className="me-3" key={option}>
@@ -3132,43 +3217,49 @@ export default function ManageAppointment() {
                                 </label>
                               ))}
                             </div> */}
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label form-label">
-                                Risk of Fall:
-                              </label>
-                              <br />
-                              {["Low", "Medium", "High"].map((option) => {
-                                // Determine color class based on the option and selection
-                                const getColorClass = () => {
-                                  if (formData.risk_of_fall !== option)
-                                    return "";
-                                  if (option === "High") return "text-danger"; // Red
-                                  if (option === "Medium")
-                                    return "text-success"; // Green
-                                  if (option === "Low") return "text-warning"; // Yellow
-                                };
-
-                                return (
-                                  <label
-                                    className={`me-3 form-label ${getColorClass()}`}
-                                    key={option}
-                                  >
-                                    <input
-                                      type="radio"
-                                      name="risk_of_fall"
-                                      value={option}
-                                      checked={formData.risk_of_fall === option}
-                                      style={{ cursor: "pointer" }}
-                                      onChange={handleChange}
-                                    />{" "}
-                                    <span className="form-label">{option}</span>
+                                <div className="col-md-6 ">
+                                  <label className="form-label form-label">
+                                    Risk of Fall
                                   </label>
-                                );
-                              })}
-                            </div>
+                                  <br />
+                                  {["Low", "Medium", "High"].map((option) => {
+                                    // Determine color class based on the option and selection
+                                    const getColorClass = () => {
+                                      if (formData.risk_of_fall !== option)
+                                        return "";
+                                      if (option === "High")
+                                        return "text-danger"; // Red
+                                      if (option === "Medium")
+                                        return "text-success"; // Green
+                                      if (option === "Low")
+                                        return "text-warning"; // Yellow
+                                    };
 
-                            {/* <div className="col-md-6 mb-3">
-                              <label>Urgency:</label>
+                                    return (
+                                      <label
+                                        className={`me-3 form-label ${getColorClass()}`}
+                                        key={option}
+                                      >
+                                        <input
+                                          type="radio"
+                                          name="risk_of_fall"
+                                          value={option}
+                                          checked={
+                                            formData.risk_of_fall === option
+                                          }
+                                          style={{ cursor: "pointer" }}
+                                          onChange={handleChange}
+                                        />{" "}
+                                        <span className="form-label">
+                                          {option}
+                                        </span>
+                                      </label>
+                                    );
+                                  })}
+                                </div>
+
+                                {/* <div className="col-md-6 ">
+                              <label>Urgency</label>
                               <br />
                               {["Normal", "Moderate", "High"].map((option) => (
                                 <label className="me-3" key={option}>
@@ -3183,58 +3274,73 @@ export default function ManageAppointment() {
                                 </label>
                               ))}
                             </div> */}
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">Urgency:</label>
-                              <br />
-                              {["Normal", "Moderate", "High"].map((option) => {
-                                // Determine color class for selected option
-                                const getColorClass = () => {
-                                  if (formData.urgency !== option) return "";
-                                  if (option === "High") return "text-danger"; // Red
-                                  if (option === "Moderate")
-                                    return "text-warning"; // Yellow
-                                  if (option === "Normal")
-                                    return "text-success"; // Green
-                                };
+                                <div className="col-md-6 ">
+                                  <label className="form-label">Urgency</label>
+                                  <br />
+                                  {["Normal", "Moderate", "High"].map(
+                                    (option) => {
+                                      // Determine color class for selected option
+                                      const getColorClass = () => {
+                                        if (formData.urgency !== option)
+                                          return "";
+                                        if (option === "High")
+                                          return "text-danger"; // Red
+                                        if (option === "Moderate")
+                                          return "text-warning"; // Yellow
+                                        if (option === "Normal")
+                                          return "text-success"; // Green
+                                      };
 
-                                return (
-                                  <label
-                                    className={`me-3 form-label ${getColorClass()}`}
-                                    key={option}
-                                  >
-                                    <input
-                                      type="radio"
-                                      name="urgency"
-                                      value={option}
-                                      style={{ cursor: "pointer" }}
-                                      checked={formData.urgency === option}
-                                      onChange={handleChange}
-                                    />{" "}
-                                    {option}
-                                  </label>
-                                );
-                              })}
-                            </div>
+                                      return (
+                                        <label
+                                          className={`me-3 form-label ${getColorClass()}`}
+                                          key={option}
+                                        >
+                                          <input
+                                            type="radio"
+                                            name="urgency"
+                                            value={option}
+                                            style={{ cursor: "pointer" }}
+                                            checked={
+                                              formData.urgency === option
+                                            }
+                                            onChange={handleChange}
+                                          />{" "}
+                                          {option}
+                                        </label>
+                                      );
+                                    }
+                                  )}
+                                </div>
 
-                            <div className="col-12 mb-3">
-                              <label className="form-label">Notes:</label>
-                              <textarea
-                                name="notes"
-                                rows="3"
-                                className="form-control"
-                                value={formData?.notes}
-                                onChange={handleChange}
-                              />
+                                <div className="col-12 ">
+                                  <label className="form-label">Notes</label>
+                                  <textarea
+                                    name="notes"
+                                    rows="3"
+                                    className="form-control"
+                                    value={formData?.notes}
+                                    onChange={handleChange}
+                                  />
+                                </div>
+                              </div>
+                              <div className="d-flex justify-content-center mb-3 mt-3">
+                                <button
+                                  type="submit"
+                                  onClick={handdeditvital}
+                                  className="bgBtn"
+                                >
+                                  Add Vital
+                                </button>
+                              </div>
                             </div>
-                          </div>
-                          <div className="d-flex justify-content-center">
-                            <button
-                              type="submit"
-                              onClick={handdeditvital}
-                              className="btn btn-primary"
-                            >
-                              Add Vital
-                            </button>
+                            <div className="col-lg-4">
+                              <div className="d-flex align-items-center h-100">
+                                <div className="humanBody">
+                                  <img src={human} alt="" />
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -3250,7 +3356,7 @@ export default function ManageAppointment() {
                     }}
                   >
                     <div
-                      className="modal-dialog modal-lg"
+                      className="modal-dialog modal-xl"
                       style={{ height: "650px" }}
                     >
                       <div className="modal-content">
@@ -3262,251 +3368,259 @@ export default function ManageAppointment() {
                             onClick={handlecloseVital}
                           ></button>
                         </div>
-                        <div className="container mt-4">
-                          <div className="row">
-                            <div className="d-flex justify-content-center">
-                              <div className="col-3">
+                        <div>
+                          <div className="row p20">
+                            <div className="d-flex">
+                              <div className="col-md-5">
                                 Name:{" "}
                                 {location?.state?.patientid?.firstName +
                                   " " +
                                   location?.state?.patientid?.lastName}
                                 <br />
-                                Nurse:{userddertails?.role}
+                                Nurse: {userddertails?.role}
                                 <br />
-                                Doctor:
+                                Doctor:{" "}
                                 {location?.state?.patientid?.Primary_Doctor}
                               </div>
-                              <div className="col-7"></div>
-                              Age:{location?.state?.patientid?.age}
-                              <br />
-                              Date:{date}
-                              <br />
-                              Time:{time}
+                              <div className="col-md-6">
+                                Age: {location?.state?.patientid?.age}
+                                <br />
+                                Date: {date}
+                                <br />
+                                Time: {time}
+                              </div>
                             </div>
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                blood_pressure_systolic (40-300):
-                              </label>
-                              <input
-                                type="number"
-                                name="blood_pressure_systolic"
-                                min={40}
-                                max={200}
-                                value={formData?.blood_pressure_systolic}
-                                onChange={handleChange}
-                                className="form-control"
-                              />
-                            </div>
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                blood_pressure_diastolic (20-180):
-                              </label>
-                              <input
-                                type="number"
-                                name="blood_pressure_diastolic"
-                                value={formData?.blood_pressure_diastolic}
-                                onChange={handleChange}
-                                min={20}
-                                max={180}
-                                // style={getColorStyle(
-                                //   getColorCode("blood_pressure_diastolic", formData.blood_pressure_diastolic)
-                                // )}
-                                className="form-control"
-                              />
-                            </div>
-                            <div className="col-12 mb-3">
-                              <label className="form-label">BP Position:</label>
-                              <br />
-                              {[
-                                "Right Arm",
-                                "Left Arm",
-                                "Right Leg",
-                                "Left Leg",
-                              ].map((pos) => (
-                                <label className="me-3" key={pos}>
+                          </div>
+                          <hr className="hrLine" />
+                          <div className="row">
+                            <div className="col-lg-8">
+                              <div className="row p20">
+                                <div className="col-md-6">
+                                  <label className="form-label">
+                                    Blood Pressure Systolic (40-300)
+                                  </label>
                                   <input
-                                    type="radio"
-                                    name="bp_position" // All radios must share the same name
-                                    value={pos}
-                                    style={{ cursor: "pointer" }}
-                                    // className="form-label"
-                                    checked={formData?.bp_position === pos}
+                                    type="number"
+                                    name="blood_pressure_systolic"
+                                    min={40}
+                                    max={200}
+                                    value={formData?.blood_pressure_systolic}
                                     onChange={handleChange}
-                                  />{" "}
-                                  <span className="form-label">{pos}</span>
-                                </label>
-                              ))}
-                            </div>
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                Respiratory Rate (5-50):
-                              </label>
-                              <input
-                                type="number"
-                                name="respiratory_rate"
-                                value={formData.respiratory_rate}
-                                onChange={handleChange}
-                                className="form-control"
-                                min="5"
-                                max="50"
-                                step="1"
-                                // style={getColorStyle(
-                                //   getColorCode(
-                                //     "respiratory_rate",
-                                //     formData.respiratory_rate
-                                //   )
-                                // )}
-                              />
-                            </div>
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                Pulse (10-400 BPM):
-                              </label>
-                              <input
-                                type="number"
-                                name="pulse"
-                                value={formData.pulse}
-                                onChange={handleChange}
-                                className="form-control"
-                                min="10"
-                                max="400"
-                                step="1"
-                                // style={getColorStyle(
-                                //   getColorCode("pulse", formData.pulse)
-                                // )}
-                              />
-                            </div>
+                                    className="form-control"
+                                  />
+                                </div>
+                                <div className="col-md-6">
+                                  <label className="form-label">
+                                    blood Pressure Diastolic (20-180)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    name="blood_pressure_diastolic"
+                                    value={formData?.blood_pressure_diastolic}
+                                    onChange={handleChange}
+                                    min={20}
+                                    max={180}
+                                    // style={getColorStyle(
+                                    //   getColorCode("blood_pressure_diastolic", formData.blood_pressure_diastolic)
+                                    // )}
+                                    className="form-control"
+                                  />
+                                </div>
+                                <div className="col-12">
+                                  <label className="form-label">
+                                    BP Position
+                                  </label>
+                                  <br />
+                                  {[
+                                    "Right Arm",
+                                    "Left Arm",
+                                    "Right Leg",
+                                    "Left Leg",
+                                  ].map((pos) => (
+                                    <label className="me-3" key={pos}>
+                                      <input
+                                        type="radio"
+                                        name="bp_position" // All radios must share the same name
+                                        value={pos}
+                                        style={{ cursor: "pointer" }}
+                                        // className="form-label"
+                                        checked={formData?.bp_position === pos}
+                                        onChange={handleChange}
+                                      />{" "}
+                                      <span className="form-label">{pos}</span>
+                                    </label>
+                                  ))}
+                                </div>
+                                <div className="col-md-6">
+                                  <label className="form-label">
+                                    Respiratory Rate (5-50)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    name="respiratory_rate"
+                                    value={formData.respiratory_rate}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    min="5"
+                                    max="50"
+                                    step="1"
+                                    // style={getColorStyle(
+                                    //   getColorCode(
+                                    //     "respiratory_rate",
+                                    //     formData.respiratory_rate
+                                    //   )
+                                    // )}
+                                  />
+                                </div>
+                                <div className="col-md-6">
+                                  <label className="form-label">
+                                    Pulse (10-400 BPM)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    name="pulse"
+                                    value={formData.pulse}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    min="10"
+                                    max="400"
+                                    step="1"
+                                    // style={getColorStyle(
+                                    //   getColorCode("pulse", formData.pulse)
+                                    // )}
+                                  />
+                                </div>
 
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                Temperature (10-600) (°C):
-                              </label>
-                              <input
-                                type="number"
-                                name="temperature"
-                                value={formData.temperature}
-                                onChange={handleChange}
-                                className="form-control"
-                                min="10"
-                                max="60"
-                                step="0.1"
-                                // style={getColorStyle(
-                                //   getColorCode(
-                                //     "temperature",
-                                //     formData.temperature
-                                //   )
-                                // )}
-                              />
-                            </div>
+                                <div className="col-md-6">
+                                  <label className="form-label">
+                                    Temperature (10-600) (°C)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    name="temperature"
+                                    value={formData.temperature}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    min="10"
+                                    max="60"
+                                    step="0.1"
+                                    // style={getColorStyle(
+                                    //   getColorCode(
+                                    //     "temperature",
+                                    //     formData.temperature
+                                    //   )
+                                    // )}
+                                  />
+                                </div>
 
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                spo2 (0-100) (%):
-                              </label>
-                              <input
-                                type="number"
-                                name="spo2"
-                                value={formData.spo2}
-                                onChange={handleChange}
-                                className="form-control"
-                                min="0"
-                                max="100"
-                                step="1"
-                                // style={getColorStyle(
-                                //   getColorCode("spo2", formData.spo2)
-                                // )}
-                              />
-                            </div>
+                                <div className="col-md-6">
+                                  <label className="form-label">
+                                    spo2 (0-100) (%)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    name="spo2"
+                                    value={formData.spo2}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    min="0"
+                                    max="100"
+                                    step="1"
+                                    // style={getColorStyle(
+                                    //   getColorCode("spo2", formData.spo2)
+                                    // )}
+                                  />
+                                </div>
 
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                RBS (10-800) (mg/dl):
-                              </label>
-                              <input
-                                type="number"
-                                name="rbs_mg"
-                                value={formData.rbs_mg}
-                                onChange={handleChange}
-                                className="form-control"
-                                min="10"
-                                max="800"
-                                step="1"
-                                // style={getColorStyle(
-                                //   getColorCode("rbs_mg", formData.rbs_mg)
-                                // )}
-                              />
-                            </div>
+                                <div className="col-md-6">
+                                  <label className="form-label">
+                                    RBS (10-800) (mg/dl)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    name="rbs_mg"
+                                    value={formData.rbs_mg}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    min="10"
+                                    max="800"
+                                    step="1"
+                                    // style={getColorStyle(
+                                    //   getColorCode("rbs_mg", formData.rbs_mg)
+                                    // )}
+                                  />
+                                </div>
 
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                RBS (0.5-50) (mmol/l):
-                              </label>
-                              <input
-                                type="number"
-                                name="rbs_nmol"
-                                value={formData.rbs_nmol}
-                                onChange={handleChange}
-                                className="form-control"
-                                min="0.5"
-                                max="50"
-                                step="0.1"
-                                // style={getColorStyle(
-                                //   getColorCode("rbs_nmol", formData.rbs_nmol)
-                                // )}
-                              />
-                            </div>
+                                <div className="col-md-6">
+                                  <label className="form-label">
+                                    RBS (0.5-50) (mmol/l)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    name="rbs_nmol"
+                                    value={formData.rbs_nmol}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    min="0.5"
+                                    max="50"
+                                    step="0.1"
+                                    // style={getColorStyle(
+                                    //   getColorCode("rbs_nmol", formData.rbs_nmol)
+                                    // )}
+                                  />
+                                </div>
 
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                Weight (0-1000) (kg):
-                              </label>
-                              <input
-                                type="number"
-                                name="weight"
-                                value={formData.weight}
-                                onChange={handleChange}
-                                className="form-control"
-                                min="0"
-                                max="1000"
-                                step="0.1"
-                                // style={getColorStyle(
-                                // getColorCode("weight", formData.weight)
-                                // )}
-                              />
-                            </div>
+                                <div className="col-md-6">
+                                  <label className="form-label">
+                                    Weight (0-1000) (kg)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    name="weight"
+                                    value={formData.weight}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    min="0"
+                                    max="1000"
+                                    step="0.1"
+                                    // style={getColorStyle(
+                                    // getColorCode("weight", formData.weight)
+                                    // )}
+                                  />
+                                </div>
 
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                Height (0-300) (cm):
-                              </label>
-                              <input
-                                type="number"
-                                name="height"
-                                value={formData.height}
-                                onChange={handleChange}
-                                className="form-control"
-                                min="0"
-                                max="300"
-                                step="0.1"
-                                // style={getColorStyle(
-                                //   getColorCode("height", formData.height)
-                                // )}
-                              />
-                            </div>
+                                <div className="col-md-6">
+                                  <label className="form-label">
+                                    Height (0-300) (cm)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    name="height"
+                                    value={formData.height}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    min="0"
+                                    max="300"
+                                    step="0.1"
+                                    // style={getColorStyle(
+                                    //   getColorCode("height", formData.height)
+                                    // )}
+                                  />
+                                </div>
 
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">
-                                BMI (auto-calculated):
-                              </label>
-                              <input
-                                type="text"
-                                value={calculateBMI()}
-                                readOnly
-                                className="form-control bg-light"
-                              />
-                            </div>
-                            {/* <div className="col-md-6 mb-3">
-                              <label>Risk of Fall:</label>
+                                <div className="col-md-6">
+                                  <label className="form-label">
+                                    BMI (auto-calculated)
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={calculateBMI()}
+                                    readOnly
+                                    className="form-control bg-light"
+                                  />
+                                </div>
+                                {/* <div className="col-md-6 mb-3">
+                              <label>Risk of Fall</label>
                               <br />
                               {["Low", "Medium", "High"].map((option) => (
                                 <label className="me-3" key={option}>
@@ -3521,43 +3635,49 @@ export default function ManageAppointment() {
                                 </label>
                               ))}
                             </div> */}
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label form-label">
-                                Risk of Fall:
-                              </label>
-                              <br />
-                              {["Low", "Medium", "High"].map((option) => {
-                                // Determine color class based on the option and selection
-                                const getColorClass = () => {
-                                  if (formData.risk_of_fall !== option)
-                                    return "";
-                                  if (option === "High") return "text-danger"; // Red
-                                  if (option === "Medium")
-                                    return "text-success"; // Green
-                                  if (option === "Low") return "text-warning"; // Yellow
-                                };
-
-                                return (
-                                  <label
-                                    className={`me-3 form-label ${getColorClass()}`}
-                                    key={option}
-                                  >
-                                    <input
-                                      type="radio"
-                                      name="risk_of_fall"
-                                      value={option}
-                                      checked={formData.risk_of_fall === option}
-                                      style={{ cursor: "pointer" }}
-                                      onChange={handleChange}
-                                    />{" "}
-                                    <span className="form-label">{option}</span>
+                                <div className="col-md-6">
+                                  <label className="form-label form-label">
+                                    Risk of Fall
                                   </label>
-                                );
-                              })}
-                            </div>
+                                  <br />
+                                  {["Low", "Medium", "High"].map((option) => {
+                                    // Determine color class based on the option and selection
+                                    const getColorClass = () => {
+                                      if (formData.risk_of_fall !== option)
+                                        return "";
+                                      if (option === "High")
+                                        return "text-danger"; // Red
+                                      if (option === "Medium")
+                                        return "text-success"; // Green
+                                      if (option === "Low")
+                                        return "text-warning"; // Yellow
+                                    };
 
-                            {/* <div className="col-md-6 mb-3">
-                              <label>Urgency:</label>
+                                    return (
+                                      <label
+                                        className={`me-3 form-label ${getColorClass()}`}
+                                        key={option}
+                                      >
+                                        <input
+                                          type="radio"
+                                          name="risk_of_fall"
+                                          value={option}
+                                          checked={
+                                            formData.risk_of_fall === option
+                                          }
+                                          style={{ cursor: "pointer" }}
+                                          onChange={handleChange}
+                                        />{" "}
+                                        <span className="form-label">
+                                          {option}
+                                        </span>
+                                      </label>
+                                    );
+                                  })}
+                                </div>
+
+                                {/* <div className="col-md-6 mb-3">
+                              <label>Urgency</label>
                               <br />
                               {["Normal", "Moderate", "High"].map((option) => (
                                 <label className="me-3" key={option}>
@@ -3572,58 +3692,73 @@ export default function ManageAppointment() {
                                 </label>
                               ))}
                             </div> */}
-                            <div className="col-md-6 mb-3">
-                              <label className="form-label">Urgency:</label>
-                              <br />
-                              {["Normal", "Moderate", "High"].map((option) => {
-                                // Determine color class for selected option
-                                const getColorClass = () => {
-                                  if (formData.urgency !== option) return "";
-                                  if (option === "High") return "text-danger"; // Red
-                                  if (option === "Moderate")
-                                    return "text-warning"; // Yellow
-                                  if (option === "Normal")
-                                    return "text-success"; // Green
-                                };
+                                <div className="col-md-6">
+                                  <label className="form-label">Urgency</label>
+                                  <br />
+                                  {["Normal", "Moderate", "High"].map(
+                                    (option) => {
+                                      // Determine color class for selected option
+                                      const getColorClass = () => {
+                                        if (formData.urgency !== option)
+                                          return "";
+                                        if (option === "High")
+                                          return "text-danger"; // Red
+                                        if (option === "Moderate")
+                                          return "text-warning"; // Yellow
+                                        if (option === "Normal")
+                                          return "text-success"; // Green
+                                      };
 
-                                return (
-                                  <label
-                                    className={`me-3 form-label ${getColorClass()}`}
-                                    key={option}
-                                  >
-                                    <input
-                                      type="radio"
-                                      name="urgency"
-                                      value={option}
-                                      style={{ cursor: "pointer" }}
-                                      checked={formData.urgency === option}
-                                      onChange={handleChange}
-                                    />{" "}
-                                    {option}
-                                  </label>
-                                );
-                              })}
-                            </div>
+                                      return (
+                                        <label
+                                          className={`me-3 form-label ${getColorClass()}`}
+                                          key={option}
+                                        >
+                                          <input
+                                            type="radio"
+                                            name="urgency"
+                                            value={option}
+                                            style={{ cursor: "pointer" }}
+                                            checked={
+                                              formData.urgency === option
+                                            }
+                                            onChange={handleChange}
+                                          />{" "}
+                                          {option}
+                                        </label>
+                                      );
+                                    }
+                                  )}
+                                </div>
 
-                            <div className="col-12 mb-3">
-                              <label className="form-label">Notes:</label>
-                              <textarea
-                                name="notes"
-                                rows="3"
-                                className="form-control"
-                                value={formData?.notes}
-                                onChange={handleChange}
-                              />
+                                <div className="col-12">
+                                  <label className="form-label">Notes</label>
+                                  <textarea
+                                    name="notes"
+                                    rows="3"
+                                    className="form-control"
+                                    value={formData?.notes}
+                                    onChange={handleChange}
+                                  />
+                                </div>
+                              </div>
+                              <div className="d-flex justify-content-center mt-3 mb-3">
+                                <button
+                                  type="submit"
+                                  onClick={handleapisubmit}
+                                  className="btn btn-primary"
+                                >
+                                  Add Vital
+                                </button>
+                              </div>
                             </div>
-                          </div>
-                          <div className="d-flex justify-content-center">
-                            <button
-                              type="submit"
-                              onClick={handleapisubmit}
-                              className="btn btn-primary"
-                            >
-                              Add Vital
-                            </button>
+                            <div className="col-lg-4">
+                              <div className="d-flex align-items-center h-100">
+                                <div className="humanBody">
+                                  <img src={human} alt="" />
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>

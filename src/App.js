@@ -1,4 +1,4 @@
-// import './App.css';
+ // import './App.css';
 // import { BrowserRouter, Routes, Route } from 'react-router-dom';
 // import Dashboard from './Pages/Dashboard';
 // import Login from './Component/Header/Login/Login';
@@ -115,6 +115,10 @@ import ViewLab from './Component/ManageLabs/ViewLab';
 import EditLab from './Component/ManageLabs/EditLab';
 import SettingsDashboard from './Setting/SettingsDashboard';
 import SettingNew from './Component/SettingNew/SettingNew';
+import BusinessSetting from './Component/SettingNew/BusinessSetting';
+import FinanceSetting from './Component/SettingNew/FinanceSetting';
+import NotificationCenter from './Component/SettingNew/NotificationCenter';
+import Security from './Component/SettingNew/Security';
 
 // import SettingsDashboard from './'
 function App() {
@@ -167,6 +171,10 @@ function App() {
             <Route path="/Admin/EditLab/:id" element={<EditLab />} />
              <Route path="/Admin/SettingsDashboard" element={<SettingsDashboard />} />
               <Route path="/Admin/setting" element={<SettingNew />} />
+              <Route path="/Admin/business_setting" element={<BusinessSetting />} />
+              <Route path="/Admin/finance" element={<FinanceSetting />} />
+              <Route path="/Admin/notification_center" element={<NotificationCenter />} />
+              <Route path="/Admin/security" element={<Security />} />
           </Route>
         </Routes>
       </BrowserRouter>

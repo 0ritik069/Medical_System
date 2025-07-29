@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { baseurl, baseurImage } from "../../Baseurl";
 import Swal from "sweetalert2";
 import { useNavigate, NavLink } from "react-router-dom";
+import BarcodeGenerator from "../BarcodeGenerator/BarcodeGenerator";
 
 
 export default function Pharmacy() {
@@ -362,7 +363,7 @@ export default function Pharmacy() {
                           <th>Cost</th>
                           <th>Price</th>
                           <th>Control</th>
-                          <th>Barcode</th>
+                          <th style={{ minWidth: '200px' }}>Barcode</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
@@ -391,7 +392,15 @@ export default function Pharmacy() {
                             <td>{item.cost}</td>
                             <td>{item.price}</td>
                             <td>{item.control === 1 ? "Yes" : "No"}</td>
-                            <td>{item.barcode}</td>
+                            <td style={{ minWidth: '200px' }}>
+                              <div className="text-center">
+                                {item.barcode && (
+                                  <div style={{ transform: 'scale(1.2)', transformOrigin: 'center', margin: '0 auto' }}>
+                                    <BarcodeGenerator value={item.barcode} width={3} height={60} />
+                                  </div>
+                                )}
+                              </div>
+                            </td>
                             <td>
                               <NavLink
                                 to={`/Admin/ViewInventory/${item.id}`}

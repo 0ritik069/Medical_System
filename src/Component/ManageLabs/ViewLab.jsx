@@ -42,7 +42,7 @@ export default function ViewLab() {
   };
 
   if (!labRequest) return <div>Loading...</div>;
-
+  
   return (
     <div className="pc-container">
       <div className="pc-content">

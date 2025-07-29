@@ -21,7 +21,6 @@ export default function EditInventory() {
     price: "",
     category: "",
     strength: "",
-    barcode: "",
     image: "", 
   });
 
@@ -70,7 +69,6 @@ export default function EditInventory() {
     if (!formData.price || isNaN(formData.price)) err.price = "Price must be a number";
     if (!formData.category) err.category = "Category is required";
     if (!formData.strength.trim()) err.strength = "Strength is required";
-    if (!formData.barcode.trim()) err.barcode = "Barcode is required";
     return err;
   };
 
@@ -87,9 +85,11 @@ export default function EditInventory() {
     try {
       const data = new FormData();
 
-      // Append all text fields
+      // Append all text fields except barcode (barcode should not be editable)
       Object.keys(formData).forEach((key) => {
-        data.append(key, formData[key]);
+        if (key !== 'barcode') {
+          data.append(key, formData[key]);
+        }
       });
 
       // Append image only if selected
@@ -141,7 +141,7 @@ export default function EditInventory() {
 
             <form onSubmit={handleSubmit} className="row g-3 px-3 py-2 mb-3">
               {/* Render all fields except category as before */}
-              {["name", "substance", "unit_of_measurement", "company", "quantity", "expiration_date", "cost", "price", "strength", "barcode"].map((field) => (
+              {["name", "substance", "unit_of_measurement", "company", "quantity", "expiration_date", "cost", "price", "strength"].map((field) => (
                 <div className="col-md-6" key={field}>
                   <label className="form-label">{field.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}</label>
                   <input
