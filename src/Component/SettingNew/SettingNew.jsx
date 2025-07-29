@@ -1,7 +1,10 @@
 import React, { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 const SettingNew = () => {
   const modalRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const openModal = () => {
     const modal = new window.bootstrap.Modal(modalRef.current);
@@ -13,6 +16,10 @@ const SettingNew = () => {
     const modal = window.bootstrap.Modal.getInstance(modalRef.current);
     modal.hide();
     setIsModalOpen(false);
+  };
+
+  const handleUsersClick = () => {
+    navigate("/Admin/ManageStaff");
   };
   return (
     <div className="pc-container">
@@ -81,7 +88,7 @@ const SettingNew = () => {
             </div>
 
             <div className="col-lg-3">
-              <button className="settingCard w-100">
+              <button className="settingCard w-100" onClick={handleUsersClick}>
                 <div className="settingIocn">
                   <i className="fas fa-users"></i>
                 </div>

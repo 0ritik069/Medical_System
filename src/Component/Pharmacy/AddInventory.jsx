@@ -23,6 +23,7 @@ export default function AddInventory() {
     price: "",
     category: "",
     strength: "",
+    barcode: "",
   });
 
   // Fetch categories on mount
@@ -64,6 +65,7 @@ export default function AddInventory() {
     if (!formData.price || isNaN(formData.price)) err.price = "Price must be a number";
     if (!formData.category) err.category = "Category is required";
     if (!formData.strength.trim()) err.strength = "Strength is required";
+    if (!formData.barcode.trim()) err.barcode = "Barcode is required";
     return err;
   };
 
@@ -143,7 +145,7 @@ export default function AddInventory() {
               className="row g-3 px-3 py-2 mb-3"
             >
               {/* Render all fields except category as before */}
-              {["name", "substance", "unit_of_measurement", "company", "quantity", "expiration_date", "cost", "price", "strength"].map((field) => (
+              {["name", "substance", "unit_of_measurement", "company", "quantity", "expiration_date", "cost", "price", "strength", "barcode"].map((field) => (
                 <div className="col-md-6" key={field}>
                   <label className="form-label">{field.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}</label>
                   <input

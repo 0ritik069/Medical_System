@@ -111,8 +111,9 @@ import ViewRx from "./Component/Pharmacy/ViewRxList";
 import AddInventory from './Component/Pharmacy/AddInventory';
 import AddRxList from './Component/Pharmacy/AddRxList';
 import NewRequest from './Component/ManageLabs/NewRequest';
+import ViewLab from './Component/ManageLabs/ViewLab';
+import EditLab from './Component/ManageLabs/EditLab';
 import SettingsDashboard from './Setting/SettingsDashboard';
-import Setting from './Component/SettingNew/SettingNew';
 import SettingNew from './Component/SettingNew/SettingNew';
 
 // import SettingsDashboard from './'
@@ -136,7 +137,7 @@ function App() {
             <Route path="/Admin/addPatient" element={<Addpatient />} />
             <Route path="/Admin/EditPatient" element={<EditPatient />} />
             <Route path="/Admin/Changepassword" element={<Changepassword />} />
-            <Route path='/Admin/appointment2' element={<Appointment2 />} />
+              <Route  path='/Admin/appointment2' element={<Appointment2 />}  />
             {/* doctor routes */}
             <Route path="/Admin/newrequest" element={<NewRequest />} />
             <Route path="/Admin/ManageDoctors" element={<ManageDoctors />} />
@@ -154,16 +155,18 @@ function App() {
             <Route path="/Admin/viewappointment" element={<Vierappointment />} />
             <Route path="/Admin/DoctorDashboard" element={<DoctorDashboard />} />
             <Route path="/Admin/ReportsInc" element={<Reports />} />
-            <Route path="/Admin/setting" element={<SettingNew />} />
             <Route path="/Admin/addlabs" element={<Labs />} />
             <Route path="/Admin/Category" element={<Category />} />
             <Route path="/Admin/EditInventory" element={<EditInventory />} />
-            <Route path="/Admin/ViewInventory/:id" element={<ViewInventory />} />
+            <Route path="/Admin/ViewInventory/:id" element={<ViewInventory/>} />
             <Route path="/Admin/ViewRx/:id" element={<ViewRx />} />
-            <Route path="/Admin/AddInventory" element={<AddInventory />} />
-            <Route path="/Admin/AddRxList" element={<AddRxList />} />
-            <Route path="/Admin/SettingsDashboard" element={<SettingsDashboard />} />
 
+             <Route path="/Admin/AddInventory" element={<AddInventory />} />
+            <Route path="/Admin/AddRxList" element={<AddRxList />} />
+            <Route path="/Admin/ViewLab/:id" element={<ViewLab />} />
+            <Route path="/Admin/EditLab/:id" element={<EditLab />} />
+             <Route path="/Admin/SettingsDashboard" element={<SettingsDashboard />} />
+              <Route path="/Admin/setting" element={<SettingNew />} />
           </Route>
         </Routes>
       </BrowserRouter>
@@ -172,5 +175,5 @@ function App() {
 }
 export default App;
 
- 
+
 

@@ -6,13 +6,11 @@ import { useState, useEffect } from "react";
 
 export default function NewRequest() {
   const navigate = useNavigate();
-
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
   const [patients, setPatients] = useState([]);
   const [labs, setLabs] = useState([]);
   const [doctors, setDoctors] = useState([]);
-
   const [formData, setFormData] = useState({
     patient_id: "",
     lab_id: "",
@@ -22,8 +20,10 @@ export default function NewRequest() {
     sent_by: "",
   });
 
+
+  const [selectedPatientId, setSelectedPatientId] = useState("");
+
   useEffect(() => {
-     
     axios.get(`${baseurl}getAllPatients`)
       .then(res => {
         if (res.data.success && Array.isArray(res.data.data)) {
@@ -35,9 +35,7 @@ export default function NewRequest() {
       });
   }, []);
 
-
   useEffect(() =>{
-   
     axios.get(`${baseurl}getAllLabs`)
     .then(res => {
         if(res.data.success && Array.isArray(res.data.data)) {
@@ -50,7 +48,7 @@ export default function NewRequest() {
   },[]);
 
   useEffect(() => {
-    axios.get("https://sisccltd.com/medical_app/api/getAllDoctors")
+    axios.get(`${baseurl}getAllDoctors`)
       .then(res => {
         if (res.data.success && Array.isArray(res.data.data)) {
           setDoctors(res.data.data);
@@ -68,18 +66,17 @@ export default function NewRequest() {
       [name]: value,
     }));
   };
-
  
   const handlePatientChange = (e) => {
     const selectedId = e.target.value;
     const selectedPatient = patients.find(p => String(p.id) === selectedId);
+    setSelectedPatientId(selectedId);
     setFormData((prev) => ({
       ...prev,
       patient: selectedPatient ? `${selectedPatient.firstName} ${selectedPatient.lastName}` : "",
-      patient_id: selectedPatient ? selectedPatient.fileNumber : "",
+      patient_id: selectedPatient ? selectedPatient.civilIdNumber : "",
     }));
   };
-
 
   const validate = () => {
     const err = {};
@@ -102,7 +99,7 @@ export default function NewRequest() {
     }
     try {
       const response = await axios.post(
-        "https://sisccltd.com/medical_app/api/addLabRequest",
+        `${baseurl}addLabRequest`,
         formData
       );
       if (response.data.success) {
@@ -116,6 +113,7 @@ export default function NewRequest() {
           description: "",
           sent_by: "",
         });
+        setSelectedPatientId("");
         setErrors({});
       } else {
         Swal.fire("Error", response.data.message || "Something went wrong", "error");
@@ -125,7 +123,6 @@ export default function NewRequest() {
       console.error(error);
     }
   };
-
   return (
     <div className="pc-container">
       <div className="pc-content">
@@ -143,46 +140,27 @@ export default function NewRequest() {
                 Add New Request
               </h5>
             </div>
-
             {submitted && (
               <div className="alert alert-success">
                 New Request added successfully!
               </div>
             )}
-
             <form
               onSubmit={handleSubmit}
               className="row g-3 px-3 py-2 mb-3"
             >
-              {/* Date field */}
-              {/* <div className="col-md-6">
-                <label className="form-label">Date</label>
-                <input
-                  type="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleChange}
-                  className="form-control"
-                  placeholder="Date"
-                />
-                {errors && errors.date && (
-                  <p className="text-danger">{errors.date}</p>
-                )}
-              </div> */}
-
-              {/* Patient dropdown */}
               <div className="col-md-6">
                 <label className="form-label">Patient</label>
                 <select
                   className="form-control"
                   name="patient_id"
-                  value={formData.patient_id}
-                  onChange={handleChange}
+                  value={selectedPatientId}
+                  onChange={handlePatientChange}
                 >
                   <option value="">Select Patient</option>
                   {patients.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.firstName} {p.lastName} ({p.fileNumber})
+                      {p.firstName} {p.lastName}
                     </option>
                   ))}
                 </select>
@@ -190,8 +168,6 @@ export default function NewRequest() {
                   <p className="text-danger">{errors.patient_id}</p>
                 )}
               </div>
-
-              {/* Patient ID (readonly) */}
               <div className="col-md-6">
                 <label className="form-label">Patient ID</label>
                 <input
@@ -206,8 +182,6 @@ export default function NewRequest() {
                   <p className="text-danger">{errors.patient_id}</p>
                 )}
               </div>
-
-              {/* Lab dropdown */}
               <div className="col-md-6">
                 <label className="form-label">Lab</label>
                 <select

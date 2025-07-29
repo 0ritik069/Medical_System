@@ -22,6 +22,16 @@ export default function Sidebar({isOpen, onToggle }) {
   return (
     <header className="pc-header" >
       <div className="header-wrapper  bg-light">
+        <div className="d-flex justify-content-between align-items-center mb-2">
+          <div></div>
+          {/* <button
+            className="btn btn-outline-primary fw-bold me-2"
+            style={{ borderRadius: '20px', padding: '4px 18px', fontSize: '15px' }}
+            onClick={() => navigate('/Admin/ManageStaff')}
+          >
+            Users
+          </button> */}
+        </div>
         <div className="me-auto pc-mob-drp">
           <ul className="list-unstyled">
             {/* <li className="pc-h-item pc-sidebar-collapse"  onClick={onToggle}>
@@ -48,6 +58,7 @@ export default function Sidebar({isOpen, onToggle }) {
                 <i className="ti ti-menu-2" />
               </a>
             </li>
+            {/* Users button removed from sidebar as it should only appear in the main content area */}
             <li className="d-flex align-items-center ps-3">
               <div style={{ position: "relative", width: "220px" }}>
                 <svg
@@ -93,7 +104,7 @@ export default function Sidebar({isOpen, onToggle }) {
             <li  className="dropdown pc-h-item">
               <a
                 className="pc-head-link"
-              onClick={()=>{navigate('/Admin/ManageStaff')}}
+                onClick={()=>{navigate('/Admin/setting')}}
                 role="button"
                 aria-haspopup="true"
               >
