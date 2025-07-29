@@ -119,6 +119,7 @@ import BusinessSetting from './Component/SettingNew/BusinessSetting';
 import FinanceSetting from './Component/SettingNew/FinanceSetting';
 import NotificationCenter from './Component/SettingNew/NotificationCenter';
 import Security from './Component/SettingNew/Security';
+import BarcodeScanner from './Component/BarcodeScanner/BarcodeScanner';
 
 // import SettingsDashboard from './'
 function App() {
@@ -175,6 +176,7 @@ function App() {
               <Route path="/Admin/finance" element={<FinanceSetting />} />
               <Route path="/Admin/notification_center" element={<NotificationCenter />} />
               <Route path="/Admin/security" element={<Security />} />
+              <Route path="/Admin/BarcodeScanner" element={<BarcodeScanner />} />
           </Route>
         </Routes>
       </BrowserRouter>
