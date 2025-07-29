@@ -104,7 +104,7 @@ export default function Sidebar({isOpen, onToggle }) {
             <li  className="dropdown pc-h-item">
               <a
                 className="pc-head-link"
-                onClick={()=>{navigate('/Admin/ManageStaff')}}
+                onClick={()=>{navigate('/Admin/setting')}}
                 role="button"
                 aria-haspopup="true"
               >

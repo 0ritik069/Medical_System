@@ -33959,3 +33959,48 @@ input [type="chekbox"]{
     padding: 14px !important;
 }
  
+.settingIocn {
+  background: linear-gradient(5deg, rgb(70 128 255) 0%, rgb(155 187 255) 100%);
+  padding:20px;
+  position:absolute;
+  height: 50px;
+  width: 50px;
+  margin-top: 10px;
+  margin: auto;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+      top: -22px;
+    left: 43%;
+}
+.settingIocn i {
+  color: #ffff;
+  font-size: 20px;
+}
+.settingCard {
+  border: 1px solid #bec8d0;
+  border-radius: 10px;
+   text-align: center;
+  background-color: #fff;
+   position: relative;
+  transition: 0.7s;
+  min-height:150px
+ 
+}
+.settingCard h5 {
+  margin-top: 15px;
+  font-size:16px
+}
+ 
+.settingCard:hover .settingIocn{
+  background: #fff;
+  border: 1px solid var(--green)
+}
+.settingCard:hover .settingIocn i,.settingCard:hover h5{
+  color: var(--green);
+}
+ 
+ .settingCard:hover{
+  border-color: var(--green);
+ }
