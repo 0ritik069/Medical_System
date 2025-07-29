@@ -615,27 +615,42 @@ export default function ManageAppointment() {
       }
     }
   };
-  const handleclikdeleteapp = async (item) => {
-    console.log(item);
+
+
+const handleclikdeleteapp = async (item) => {
+  const confirmResult = await Swal.fire({
+    title: "Are you sure?",
+    text: `Do you really want to delete the appointment of ${item.patientName}?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, delete it!",
+  });
+
+  if (confirmResult.isConfirmed) {
     try {
       const response = await axios.delete(
         `${baseurl}deleteAppointments/${item.id}`
       );
+
       if (response.data.success === true) {
-        getdata();
+        getdata(); // Refresh the data
         Swal.fire(
-          "success",
-          "Patient Appointment delete successfully",
+          "Deleted!",
+          "Patient appointment deleted successfully.",
           "success"
         );
       } else {
-        Swal.fire("error", "Something went Wrong", "error");
+        Swal.fire("Error", "Something went wrong.", "error");
       }
     } catch (error) {
-      const err = error.response.data.message;
-      Swal.fire("error", err, "error");
+      const err = error.response?.data?.message || "Server error";
+      Swal.fire("Error", err, "error");
     }
-  };
+  }
+};
+
   const handleclickpopusopenn = () => {
     setAddpatinemodal(true);
   };
@@ -694,36 +709,92 @@ export default function ManageAppointment() {
     const { name, value } = e.target;
     setFormData1((prev) => ({ ...prev, [name]: value }));
   };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) return;
-    console.log(formData1);
-    try {
-      const response = await axios.post(
-        `${baseurl}createAppointment`,
-        formData1
-      );
-      if (response.data.success) {
-        handleclickpopusopenn11();
-        getdata();
-        Swal.fire("Success", "Appointment Added Successfuly", "success");
-        setFormData1({
-          doctorId: "",
-          appointmentDate: "",
-          startTime: "",
-          endTime: "",
-          reason: "",
-          status: "Scheduled",
-          apptype: "",
-        });
-        setErrors({});
-      }
-    } catch (error) {
-      console.error("Error creating appointment:", error);
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const validationErrors = validate();
+  //   if (Object.keys(validationErrors).length > 0) return;
+  //   console.log(formData1);
+  //   try {
+  //     const response = await axios.post(
+  //       `${baseurl}createAppointment`,
+  //       formData1
+  //     );
+  //     if (response.data.success) {
+  //       handleclickpopusopenn11();
+  //       getdata();
+  //       Swal.fire("Success", "Appointment Added Successfuly", "success");
+  //       setFormData1({
+  //         doctorId: "",
+  //         appointmentDate: "",
+  //         startTime: "",
+  //         endTime: "",
+  //         reason: "",
+  //         status: "Scheduled",
+  //         apptype: "",
+  //       });
+  //       setErrors({});
+  //     }
+  //   } catch (error) {
+  //     console.error("Error creating appointment:", error);
+  //   }
+  // };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const validationErrors = validate();
+  if (Object.keys(validationErrors).length > 0) {
+    setErrors(validationErrors);
+    return;
+  }
+
+  console.log("Submitting form:", formData1);
+
+  try {
+    const response = await axios.post(`${baseurl}createAppointment`, formData1);
+
+    if (response.data.success) {
+      handleclickpopusopenn11();
+      getdata();
+      Swal.fire("Success", "Appointment added successfully!", "success");
+      
+      setFormData1({
+        doctorId: "",
+        appointmentDate: "",
+        startTime: "",
+        endTime: "",
+        reason: "",
+        status: "Scheduled",
+        apptype: "",
+      });
+      setErrors({});
+    } else {
+      // When API returns success: false
+      Swal.fire("Error", response.data.message || "Unknown error occurred.", "error");
     }
-  };
-  ////////////////////////////////////////////////// labs code////////////////////////////////////////////////////////
+  } catch (error) {
+    console.error("Error creating appointment:", error);
+
+    // Network or server errors
+    if (error.response) {
+      // Server responded with a status code outside 2xx
+      const errMessage = error.response.data?.message || "Server error occurred.";
+      Swal.fire("Error", errMessage, "error");
+
+    } else if (error.request) {
+      // Request made but no response
+      Swal.fire("Error", "No response from server. Please check your internet.", "error");
+
+    } else {
+      // Something else triggered the error
+      Swal.fire("Error", "Something went wrong while sending the request.", "error");
+    }
+  }
+};
+
+
+
+  /////
+  // ///////////////////////////////////////////// labs code////////////////////////////////////////////////////////
   const handleclickopentestadd = () => {
     setOpenmodaltest(true);
   };
@@ -2254,25 +2325,6 @@ export default function ManageAppointment() {
                                 </div>
                                 <div className="modal-body">
                                   <div className="row g-3 px-3 py-2 mb-3">
-                                    {/* <div className="col-lg-6">
-              <label className="form-label">Patient</label>
-              <select
-                className={`form-select ${
-                  errors.patientId ? "is-invalid" : ""
-                }`}
-                name="patientId"
-                value={formData.patientId}
-                onChange={handleChange}
-              >
-                <option value="">Select Patient</option>
-                {patientList.map((patient) => (
-                  <option key={patient.id} value={patient.id}>
-                    {patient.firstName} {patient.lastName}
-                  </option>
-                ))}
-              </select>
-              <div className="invalid-feedback">{errors.patientId}</div>
-            </div> */}
                                     <div className="col-lg-6">
                                       <label className="form-label">
                                         Doctor
@@ -2776,7 +2828,7 @@ export default function ManageAppointment() {
                             <tr>
                               <th>Date</th>
                               <th>Time</th>
-                              <th>Nurse</th>
+                              <th>Blood Pressure</th>
                               <th>Respiratory Rate</th>
                               <th>spo2</th>
                               <th>Temp </th>
@@ -2790,7 +2842,7 @@ export default function ManageAppointment() {
                             {vitaldatas &&
                               vitaldatas.length > 0 &&
                               vitaldatas.map((item, index) => {
-                                // console.log(item);
+                                console.log(item);
                                 return (
                                   <>
                                     <tr key={index}>
@@ -2808,9 +2860,10 @@ export default function ManageAppointment() {
                                           second: "2-digit",
                                         })}
                                       </td>
-                                      <td>{item.nurse}</td>
-                                      <td>{item.blood_pressure}</td>
+                                      <td>{item.blood_pressure_diastolic + "/"+ item.blood_pressure_systolic}</td>
+                                      {/* <td>{item.blood_pressure}</td> */}
                                       <td>{item.respiratory_rate}</td>
+                                      <td>{item.spo2}</td>
                                       <td>{item.temperature}</td>
                                       <td>{item.respiratory_rate}</td>
                                       <td>{item.weight}</td>

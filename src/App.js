@@ -104,7 +104,6 @@ import Calander from './Component/Header/calander/Calander';
 import Vierappointment from './Component/Appointment2/Vierappointment';
 import Category from './Component/Pharmacy/Category/Category';
 import Labs from './Component/addlabs/Labs';
-
 import EditInventory from './Component/Pharmacy/EditInventory';
 import ViewInventory from "./Component/Pharmacy/ViewInventory";
 import ViewRx from "./Component/Pharmacy/ViewRxList";
