@@ -113,7 +113,7 @@ import AddRxList from './Component/Pharmacy/AddRxList';
 import NewRequest from './Component/ManageLabs/NewRequest';
 import SettingsDashboard from './Setting/SettingsDashboard';
 import Setting from './Component/SettingNew/SettingNew';
-git
+import SettingNew from './Component/SettingNew/SettingNew';
 
 // import SettingsDashboard from './'
 function App() {
