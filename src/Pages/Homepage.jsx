@@ -94,19 +94,17 @@ const Homepage = () => {
       iconClass: pharmacy,
     },
   ];
-  // const cards = [c
  const getUpComingAppointments = async () => {
     try {
       const response = await axios.get(`${baseurl}getUpcomingAppointment`);
+      
       console.log("API Response:", response.data);
-
       if (response.data.success === true) {
-        if (response.data.appointments.length > 0) {
-          setAppointments(response.data.appointments);
-        } else {
-          console.log("No upcoming appointments returned from API.");
-        }
-      } else {
+        console.log(response.data.data)
+          setAppointments(response.data.data);
+
+        } 
+       else {
         console.log("API error:", response.data.message);
       }
     } catch (error) {
@@ -174,17 +172,19 @@ const Homepage = () => {
         </div>
          <div className="col-lg-4">
           <div className="card upcomingAppointments shadow-lg rounded-4 p-3">
-            <h5 className="fw-bold mb-3">Upcoming Appointments</h5>
+            <h5 className="fw-bold mb-3" style={{background:"f6f6f6"}} >Upcoming Appointments</h5>
 
-            {appointments && appointments.length > 0 ? (
-              appointments.map((item, index) => (
+            {appointments && appointments.length > 0 && appointments.slice(0,3).map((item, index) => {
+                console.log(item)
+                return(
+                  <>
                 <div
                   key={index}
                   className="mb-3 border-bottom pb-2"
                   style={{ backgroundColor: "#f8f9fa" }}
                 >
                   <strong>
-                    {item.doctorName} {item.lastName}
+                  Dr  {item.doctorName} {item.lastName}
                   </strong>
                   <br />
                   <span className="text-muted">{item.status}</span>
@@ -192,14 +192,15 @@ const Homepage = () => {
                   <span>{item.patientName}</span>
                   <br />
                   <span className="text-muted">
-                    {new Date(item.date).toLocaleDateString("en-GB")} |{" "}
+                    {new Date(item.appointmentDate).toLocaleDateString("en-GB")} |{" "}
                     {item.startTime}
                   </span>
                 </div>
-              ))
-            ) : (
-              <p className="text-muted">No upcoming appointments found.</p>
-            )}
+                  </>
+                )
+              }
+              )
+             }
 
             <div className="text-end mt-2">
               <button

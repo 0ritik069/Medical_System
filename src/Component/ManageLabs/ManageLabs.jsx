@@ -10,21 +10,16 @@ export default function ManageLabs() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedTab, setSelectedTab] = useState("Not Sent"); 
-  const [resultInputs, setResultInputs] = useState({}); 
-  const [attachments, setAttachments] = useState({}); 
-
   const [labs, setLabs] = useState([]);
   const [refreshFlag, setRefreshFlag] = useState(0);
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportLabId, setReportLabId] = useState(null);
-  const [reportFiles, setReportFiles] = useState([]);
   const [reportFile, setReportFile] = useState(null);
   const [reportName, setReportName] = useState("");
   const [reportStatus, setReportStatus] = useState("");
   const [showEditModal, setShowEditModal] = useState(false);
   const [editData, setEditData] = useState({ request_id: null, lab_id: '', title: '', description: '' });
   const [editAttachments, setEditAttachments] = useState([]);
-
 
   useEffect(() => {
     setLoading(true);
@@ -81,13 +76,6 @@ export default function ManageLabs() {
       }
     });
   };
-
-
-
-
-
-
-  
 
   const handleAddReportClick = (labId) => {
     setReportLabId(labId);
@@ -208,7 +196,7 @@ export default function ManageLabs() {
       <div className="pc-content">
         <div className="d-flex gap-2" >
           <div>
-            <button className="btn btn-primary ml-15 px-4 my-3" style={{ marginLeft: "120px" }} onClick={() => navigate("/Admin/newrequest")}>
+            <button className="btn btn-primary  px-4 my-3"  onClick={() => navigate("/Admin/newrequest")}>
               {" "}
               New Request
             </button>
