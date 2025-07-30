@@ -9,6 +9,12 @@ export default function Staff() {
   const [openmodal, setOpenmodal] = useState(false);
   const [openmodal2, setOpenmodal2] = useState(false);
   const [openmodal111, setOpenmodal111] = useState(false);
+  const [editModal, setEditModal] = useState(false);
+  const [editDoctor, setEditDoctor] = useState(null);
+  const [editStaffModal, setEditStaffModal] = useState(false);
+  const [editStaff, setEditStaff] = useState(null);
+  const [viewUserModal, setViewUserModal] = useState(false);
+  const [viewUser, setViewUser] = useState(null);
   const [allDoctors, setAllDoctors] = useState([]);
   const [allNurses, getAllNurses] = useState([]);
   const [allStaff, setAllStaff] = useState([]);
@@ -35,190 +41,283 @@ export default function Staff() {
     setOpenmodal2(false);
   };
 
+  const handleEditClick = (doctor) => {
+    setEditDoctor(doctor);
+    setEditModal(true);
+  };
+
+  const handleEditClose = () => {
+    setEditModal(false);
+    setEditDoctor(null);
+    setFiles1(null);
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditDoctor({ ...editDoctor, [name]: value });
+  };
+
+  const handleEditFileChange = (e) => {
+    const file = e.target.files[0];
+    setFiles1(file);
+  };
+
+  const UpdateDoctor = async () => {
+    try {
+      if (!editDoctor.email || !editDoctor.fullName) {
+        Swal.fire("Missing Fields", "Please fill all required fields", "warning");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("email", editDoctor.email);
+      formData.append("fullName", editDoctor.fullName);
+      formData.append("shortName", editDoctor.shortName || "");
+      formData.append("prefix", editDoctor.prefix || "");
+      formData.append("dateOfBirth", editDoctor.dateOfBirth || "");
+      formData.append("licenseId", editDoctor.licenseId || "");
+      formData.append("civilId", editDoctor.civilId || "");
+      formData.append("passport", editDoctor.passport || "");
+      formData.append("gender", editDoctor.gender || "");
+      formData.append("specialty", editDoctor.specialty || "");
+      formData.append("phoneNumber", editDoctor.phoneNumber || "");
+
+      if (files1) {
+        formData.append("personalPhoto", files1);
+      }
+
+      console.log("✅ Ready FormData for Update:");
+      for (let pair of formData.entries()) {
+        console.log(`${pair[0]}:`, pair[1]);
+      }
+
+      const response = await axios.put(
+        `${baseurl}updateDoctorDetails/${editDoctor.id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.data.success === true) {
+        Swal.fire("Success", "Doctor updated successfully!", "success");
+        console.log("✅ Doctor updated successfully:", response.data);
+        handleEditClose();
+        getalldoctor(); // Refresh the list
+      } else {
+        const msg = response.data.message || "Something went wrong";
+        Swal.fire("Error", msg, "error");
+        console.error("❌ Server Error:", msg);
+      }
+    } catch (error) {
+      console.error("🚨 Error while updating doctor:", error);
+      if (error.response) {
+        const errorData = error.response.data;
+        if (typeof errorData === "string") {
+          Swal.fire("Server Error", errorData, "error");
+        } else if (errorData.message) {
+          Swal.fire("Error", errorData.message, "error");
+        } else if (Array.isArray(errorData.errors)) {
+          for (const err of errorData.errors) {
+            Swal.fire("Validation Error", err.msg || err.message, "error");
+          }
+        } else {
+          Swal.fire("Error", "Unexpected server error occurred", "error");
+        }
+      } else if (error.request) {
+        Swal.fire("Network Error", "No response from server. Please check your connection.", "error");
+      } else {
+        Swal.fire("Error", error.message || "An unknown error occurred", "error");
+      }
+    }
+  };
+
   const handlefilechnage = (e) => {
     const file = e.target.files[0];
     setFiles1(file);
   };
 
- const AddNurse = async () => {
-  try {
-    if (!dataDoctor.email || !dataDoctor.fullName || !files1) {
-      Swal.fire("Missing Fields", "Please fill all required fields", "warning");
-      return;
-    }
-    const formData = new FormData();
-    formData.append("email", dataDoctor.email);
-    formData.append("password", dataDoctor.password);
-    formData.append("role", "nurse");
-    formData.append("fullName", dataDoctor.fullName);
-    formData.append("shortName", dataDoctor.shortName);
-    formData.append("prefix", dataDoctor.prefix);
-    formData.append("dateOfBirth", dataDoctor.dateOfBirth);
-    formData.append("licenseId", dataDoctor.licenseId);
-    formData.append("civilId", dataDoctor.civilId);
-    formData.append("phoneNumber", dataDoctor.phoneNumber);
-    formData.append("passport", dataDoctor.passport);
-    formData.append("gender", dataDoctor.gender);
-    formData.append("personalPhoto", files1);
-    console.log("✅ Ready FormData:");
-    for (let pair of formData.entries()) {
-      console.log(`${pair[0]}:`, pair[1]);
-    }
-    const response = await axios.post(
-      `${baseurl}addDoctorDetails`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+  const AddNurse = async () => {
+    try {
+      if (!dataDoctor.email || !dataDoctor.fullName || !files1) {
+        Swal.fire("Missing Fields", "Please fill all required fields", "warning");
+        return;
       }
-    );
-    if (response.data.success === true) {
-      Swal.fire("Success", "Nurse added successfully", "success");
-      getallNurse()
-      handleclicknurse123();
-      console.log("✅ Nurse added successfully:", response.data);
-      setOpenmodal(false);
-    } else {
-      const msg = response.data.message || "Something went wrong!";
-      Swal.fire("Error", msg, "error");
-      console.error("❌ Server Error:", response.data);
-    }
-  } catch (error) {
-    console.error("🚨 Error while adding nurse:", error);
-    if (error.response) {
-      const errorData = error.response.data;
-      if (typeof errorData === "string") {
-        Swal.fire("Server Error", errorData, "error");
-      } else if (errorData.message) {
-        Swal.fire("Error", errorData.message, "error");
-      } else if (Array.isArray(errorData.errors)) {
-        const allErrors = errorData.errors.map(err => `• ${err.msg || err.message}`).join('<br>');
-        Swal.fire({
-          title: "Validation Errors",
-          html: allErrors,
-          icon: "error"
-        });
-      } else {
-        Swal.fire("Error", "Unexpected server error occurred", "error");
+      const formData = new FormData();
+      formData.append("email", dataDoctor.email);
+      formData.append("password", dataDoctor.password);
+      formData.append("role", "nurse");
+      formData.append("fullName", dataDoctor.fullName);
+      formData.append("shortName", dataDoctor.shortName);
+      formData.append("prefix", dataDoctor.prefix);
+      formData.append("dateOfBirth", dataDoctor.dateOfBirth);
+      formData.append("licenseId", dataDoctor.licenseId);
+      formData.append("civilId", dataDoctor.civilId);
+      formData.append("phoneNumber", dataDoctor.phoneNumber);
+      formData.append("passport", dataDoctor.passport);
+      formData.append("gender", dataDoctor.gender);
+      formData.append("personalPhoto", files1);
+      console.log("✅ Ready FormData:");
+      for (let pair of formData.entries()) {
+        console.log(`${pair[0]}:`, pair[1]);
       }
-    } else if (error.request) {
-      Swal.fire("Network Error", "No response from server. Please check your connection.", "error");
-    } else {
-      Swal.fire("Error", error.message || "An unknown error occurred", "error");
-    }
-  }
-};
-
- const AddDocotor = async () => {
-  try {
-    if (!dataDoctor.email || !dataDoctor.fullName || !files1) {
-      Swal.fire("Missing Fields", "Please fill all required fields", "warning");
-      return;
-    }
-    const formData = new FormData();
-    formData.append("email", dataDoctor.email);
-    formData.append("password", dataDoctor.password);
-    formData.append("role", dataDoctor.role || "doctor");
-    formData.append("fullName", dataDoctor.fullName);
-    formData.append("shortName", dataDoctor.shortName);
-    formData.append("prefix", dataDoctor.prefix);
-    formData.append("dateOfBirth", dataDoctor.dateOfBirth);
-    formData.append("licenseId", dataDoctor.licenseId);
-    formData.append("civilId", dataDoctor.civilId);
-    formData.append("passport", dataDoctor.passport);
-    formData.append("gender", dataDoctor.gender);
-    formData.append("specialty", dataDoctor.specialty);
-    formData.append("phoneNumber", dataDoctor.phoneNumber);
-    formData.append("personalPhoto", files1);
-    console.log("✅ Ready FormData:");
-    for (let pair of formData.entries()) {
-      console.log(`${pair[0]}:`, pair[1]);
-    }
-    const response = await axios.post(
-      `${baseurl}addDoctorDetails`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-    if (response.data.success === true) {
-      Swal.fire("Success", response.data.message || "Doctor added successfully!", "success");
-      console.log("✅ Doctor added successfully:", response.data);
-      setOpenmodal(false);
-    } else {
-      const msg = response.data.message || "Something went wrong";
-      Swal.fire("Error", msg, "error");
-      console.error("❌ Server Error:", msg);
-    }
-  } catch (error) {
-    console.error("🚨 Error while adding doctor:", error);
-    if (error.response) {
-      const errorData = error.response.data;
-      if (typeof errorData === "string") {
-        Swal.fire("Server Error", errorData, "error");
-      } else if (errorData.message) {
-        Swal.fire("Error", errorData.message, "error");
-      } else if (Array.isArray(errorData.errors)) {
-        for (const err of errorData.errors) {
-          Swal.fire("Validation Error", err.msg || err.message, "error");
+      const response = await axios.post(
+        `${baseurl}addDoctorDetails`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
+      );
+      if (response.data.success === true) {
+        Swal.fire("Success", "Nurse added successfully", "success");
+        getallNurse()
+        handleclicknurse123();
+        console.log("✅ Nurse added successfully:", response.data);
+        setOpenmodal(false);
       } else {
-        Swal.fire("Error", "Unexpected server error occurred", "error");
+        const msg = response.data.message || "Something went wrong!";
+        Swal.fire("Error", msg, "error");
+        console.error("❌ Server Error:", response.data);
       }
-    } else if (error.request) {
-      Swal.fire("Network Error", "No response from server. Please check your connection.", "error");
-    } else {
-      Swal.fire("Error", error.message || "An unknown error occurred", "error");
+    } catch (error) {
+      console.error("🚨 Error while adding nurse:", error);
+      if (error.response) {
+        const errorData = error.response.data;
+        if (typeof errorData === "string") {
+          Swal.fire("Server Error", errorData, "error");
+        } else if (errorData.message) {
+          Swal.fire("Error", errorData.message, "error");
+        } else if (Array.isArray(errorData.errors)) {
+          const allErrors = errorData.errors.map(err => `• ${err.msg || err.message}`).join('<br>');
+          Swal.fire({
+            title: "Validation Errors",
+            html: allErrors,
+            icon: "error"
+          });
+        } else {
+          Swal.fire("Error", "Unexpected server error occurred", "error");
+        }
+      } else if (error.request) {
+        Swal.fire("Network Error", "No response from server. Please check your connection.", "error");
+      } else {
+        Swal.fire("Error", error.message || "An unknown error occurred", "error");
+      }
     }
-  }
-};
-//  const AddDocotor = async () => {
-//     try {
-//       if (!dataDoctor.email || !dataDoctor.fullName || !files1) {
-//         return alert("Please fill all required fields");
-//       }
-//       const formData = new FormData();
-//       formData.append("email", dataDoctor.email);
-//       formData.append("password", dataDoctor.password);
-//       formData.append("role", dataDoctor.role || "doctor");
-//       formData.append("fullName", dataDoctor.fullName);
-//       formData.append("shortName", dataDoctor.shortName);
-//       formData.append("prefix", dataDoctor.prefix);
-//       formData.append("dateOfBirth", dataDoctor.dateOfBirth);
-//       formData.append("licenseId", dataDoctor.licenseId);
-//       formData.append("civilId", dataDoctor.civilId);
-//       formData.append("passport", dataDoctor.passport);
-//       formData.append("gender", dataDoctor.gender);
-//       formData.append("specialty", dataDoctor.specialty);
-//       formData.append("phoneNumber", dataDoctor.phoneNumber);
-//       formData.append("personalPhoto", files1);
-//       console.log("✅ Ready FormData:");
-//       for (let pair of formData.entries()) {
-//         console.log(pair[0], pair[1]);
-//       }
-//       const response = await axios.post(
-//         `${baseurl}addDoctorDetails`,home
-//         formData,
-//         {
-//           headers: {
-//             "Content-Type": "multipart/form-data",
-//           },
-//         }
-//       );
-//       if (response.data.success === true) {
-//         toast.success(response.data.message);
-//         console.log("✅ Doctor added successfully:", response.data);
-//         setOpenmodal(false);
-//       } else {
-//         toast.error("❌ Something went wrong:", response.data.message);
-//       }
-//     } catch (error) {
-//       console.error("🚨 Error while adding doctor:", error);
-//     }
-//   };
+  };
+
+  const AddDocotor = async () => {
+    try {
+      if (!dataDoctor.email || !dataDoctor.fullName || !files1) {
+        Swal.fire("Missing Fields", "Please fill all required fields", "warning");
+        return;
+      }
+      const formData = new FormData();
+      formData.append("email", dataDoctor.email);
+      formData.append("password", dataDoctor.password);
+      formData.append("role", dataDoctor.role || "doctor");
+      formData.append("fullName", dataDoctor.fullName);
+      formData.append("shortName", dataDoctor.shortName);
+      formData.append("prefix", dataDoctor.prefix);
+      formData.append("dateOfBirth", dataDoctor.dateOfBirth);
+      formData.append("licenseId", dataDoctor.licenseId);
+      formData.append("civilId", dataDoctor.civilId);
+      formData.append("passport", dataDoctor.passport);
+      formData.append("gender", dataDoctor.gender);
+      formData.append("specialty", dataDoctor.specialty);
+      formData.append("phoneNumber", dataDoctor.phoneNumber);
+      formData.append("personalPhoto", files1);
+      console.log("✅ Ready FormData:");
+      for (let pair of formData.entries()) {
+        console.log(`${pair[0]}:`, pair[1]);
+      }
+      const response = await axios.post(
+        `${baseurl}addDoctorDetails`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      if (response.data.success === true) {
+        Swal.fire("Success", response.data.message || "Doctor added successfully!", "success");
+        console.log("✅ Doctor added successfully:", response.data);
+        setOpenmodal(false);
+      } else {
+        const msg = response.data.message || "Something went wrong";
+        Swal.fire("Error", msg, "error");
+        console.error("❌ Server Error:", msg);
+      }
+    } catch (error) {
+      console.error("🚨 Error while adding doctor:", error);
+      if (error.response) {
+        const errorData = error.response.data;
+        if (typeof errorData === "string") {
+          Swal.fire("Server Error", errorData, "error");
+        } else if (errorData.message) {
+          Swal.fire("Error", errorData.message, "error");
+        } else if (Array.isArray(errorData.errors)) {
+          for (const err of errorData.errors) {
+            Swal.fire("Validation Error", err.msg || err.message, "error");
+          }
+        } else {
+          Swal.fire("Error", "Unexpected server error occurred", "error");
+        }
+      } else if (error.request) {
+        Swal.fire("Network Error", "No response from server. Please check your connection.", "error");
+      } else {
+        Swal.fire("Error", error.message || "An unknown error occurred", "error");
+      }
+    }
+  };
+  //  const AddDocotor = async () => {
+  //     try {
+  //       if (!dataDoctor.email || !dataDoctor.fullName || !files1) {
+  //         return alert("Please fill all required fields");
+  //       }
+  //       const formData = new FormData();
+  //       formData.append("email", dataDoctor.email);
+  //       formData.append("password", dataDoctor.password);
+  //       formData.append("role", dataDoctor.role || "doctor");
+  //       formData.append("fullName", dataDoctor.fullName);
+  //       formData.append("shortName", dataDoctor.shortName);
+  //       formData.append("prefix", dataDoctor.prefix);
+  //       formData.append("dateOfBirth", dataDoctor.dateOfBirth);
+  //       formData.append("licenseId", dataDoctor.licenseId);
+  //       formData.append("civilId", dataDoctor.civilId);
+  //       formData.append("passport", dataDoctor.passport);
+  //       formData.append("gender", dataDoctor.gender);
+  //       formData.append("specialty", dataDoctor.specialty);
+  //       formData.append("phoneNumber", dataDoctor.phoneNumber);
+  //       formData.append("personalPhoto", files1);
+  //       console.log("✅ Ready FormData:");
+  //       for (let pair of formData.entries()) {
+  //         console.log(pair[0], pair[1]);
+  //       }
+  //       const response = await axios.post(
+  //         `${baseurl}addDoctorDetails`,home
+  //         formData,
+  //         {
+  //           headers: {
+  //             "Content-Type": "multipart/form-data",
+  //           },
+  //         }
+  //       );
+  //       if (response.data.success === true) {
+  //         toast.success(response.data.message);
+  //         console.log("✅ Doctor added successfully:", response.data);
+  //         setOpenmodal(false);
+  //       } else {
+  //         toast.error("❌ Something went wrong:", response.data.message);
+  //       }
+  //     } catch (error) {
+  //       console.error("🚨 Error while adding doctor:", error);
+  //     }
+  //   };
   const handlechaneg = (e) => {
     const { name, value } = e.target;
     setDataDoctor({ ...dataDoctor, [name]: value });
@@ -325,155 +424,257 @@ export default function Staff() {
     }
   };
 
-// const handleclickstaff = async () => {
-//   console.log("📤 Submitting doctor data...");
-//   console.log(dataDoctor);
+  // const handleclickstaff = async () => {
+  //   console.log("📤 Submitting doctor data...");
+  //   console.log(dataDoctor);
 
-//   try {
-//     const formData = new FormData();
-//     formData.append("email", dataDoctor.email);
-//     formData.append("password", dataDoctor.password);
-//     formData.append("role", dataDoctor.role);
-//     formData.append("fullName", dataDoctor.firstName);
-//     formData.append("shortName", dataDoctor.lastName);
-//     formData.append("prefix", dataDoctor.prefix);
-//     formData.append("dateOfBirth", dataDoctor.dateOfBirth);
-//     formData.append("licenseId", dataDoctor.licenseId);
-//     formData.append("civilId", dataDoctor.civilId);
-//     formData.append("passport", dataDoctor.passport);
-//     formData.append("gender", dataDoctor.gender);
-//     formData.append("phoneNumber", dataDoctor.phoneNumber);
-//     // formData.append("specialty", dataDoctor.specialty);
-//     formData.append("personalPhoto", files1);
+  //   try {
+  //     const formData = new FormData();
+  //     formData.append("email", dataDoctor.email);
+  //     formData.append("password", dataDoctor.password);
+  //     formData.append("role", dataDoctor.role);
+  //     formData.append("fullName", dataDoctor.firstName);
+  //     formData.append("shortName", dataDoctor.lastName);
+  //     formData.append("prefix", dataDoctor.prefix);
+  //     formData.append("dateOfBirth", dataDoctor.dateOfBirth);
+  //     formData.append("licenseId", dataDoctor.licenseId);
+  //     formData.append("civilId", dataDoctor.civilId);
+  //     formData.append("passport", dataDoctor.passport);
+  //     formData.append("gender", dataDoctor.gender);
+  //     formData.append("phoneNumber", dataDoctor.phoneNumber);
+  //     // formData.append("specialty", dataDoctor.specialty);
+  //     formData.append("personalPhoto", files1);
 
-//     console.log("✅ Ready FormData:");
-//     for (let pair of formData.entries()) {
-//       console.log(`${pair[0]}:`, pair[1]);
-//     }
+  //     console.log("✅ Ready FormData:");
+  //     for (let pair of formData.entries()) {
+  //       console.log(`${pair[0]}:`, pair[1]);
+  //     }
 
-//     const response = await axios.post(
-//       `${baseurl}addDoctorDetails`,
-//       formData,
-//       {
-//         headers: {
-//           "Content-Type": "multipart/form-data",
-//         },
-//       }
-//     );
+  //     const response = await axios.post(
+  //       `${baseurl}addDoctorDetails`,
+  //       formData,
+  //       {
+  //         headers: {
+  //           "Content-Type": "multipart/form-data",
+  //         },
+  //       }
+  //     );
 
-//     if (response.data.success === true) {
-//       Swal.fire("Success", "Staff added successfully", "success");
-//       console.log("✅ Doctor added successfully:", response.data);
-//       handleClose2();
-//     } else {
-//       const errorMessage = response.data.message || "Something went wrong!";
-//       toast.error(`❌ ${errorMessage}`);
-//       console.error("❌ Server responded with an error:", response.data);
-//     }
-//   } catch (error) {
-//     if (error.response) {
-//       // Server responded with a status other than 2xx
-//       const errorData = error.response.data;
-//       if (typeof errorData === "string") {
-//         toast.error(`❌ ${errorData}`);
-//       } else if (errorData.message) {
-//         toast.error(`❌ ${errorData.message}`);
-//       } else if (Array.isArray(errorData.errors)) {
-//         errorData.errors.forEach((err) => {
-//           toast.error(`❌ ${err.msg || err.message}`);
-//         });
-//       } else {
-//         toast.error("❌ Unexpected error occurred.");
-//       }
-//       console.error("🚨 Error response from server:", errorData);
-//     } else if (error.request) {
-//       toast.error("❌ No response from server. Please check your network.");
-//       console.error("📡 No response received:", error.request);
-//     } else {
-//       toast.error(`❌ Error: ${error.message}`);
-//       console.error("⚠️ Error setting up request:", error.message);
-//     }
-//   }
-// };
-const handleclickstaff = async () => {
-  console.log("📤 Submitting doctor data...");
-  console.log(dataDoctor);
+  //     if (response.data.success === true) {
+  //       Swal.fire("Success", "Staff added successfully", "success");
+  //       console.log("✅ Doctor added successfully:", response.data);
+  //       handleClose2();
+  //     } else {
+  //       const errorMessage = response.data.message || "Something went wrong!";
+  //       toast.error(`❌ ${errorMessage}`);
+  //       console.error("❌ Server responded with an error:", response.data);
+  //     }
+  //   } catch (error) {
+  //     if (error.response) {
+  //       // Server responded with a status other than 2xx
+  //       const errorData = error.response.data;
+  //       if (typeof errorData === "string") {
+  //         toast.error(`❌ ${errorData}`);
+  //       } else if (errorData.message) {
+  //         toast.error(`❌ ${errorData.message}`);
+  //       } else if (Array.isArray(errorData.errors)) {
+  //         errorData.errors.forEach((err) => {
+  //           toast.error(`❌ ${err.msg || err.message}`);
+  //         });
+  //       } else {
+  //         toast.error("❌ Unexpected error occurred.");
+  //       }
+  //       console.error("🚨 Error response from server:", errorData);
+  //     } else if (error.request) {
+  //       toast.error("❌ No response from server. Please check your network.");
+  //       console.error("📡 No response received:", error.request);
+  //     } else {
+  //       toast.error(`❌ Error: ${error.message}`);
+  //       console.error("⚠️ Error setting up request:", error.message);
+  //     }
+  //   }
+  // };
+  const handleclickstaff = async () => {
+    console.log("📤 Submitting doctor data...");
+    console.log(dataDoctor);
 
-  try {
-    const formData = new FormData();
-    formData.append("email", dataDoctor.email);
-    formData.append("password", dataDoctor.password);
-    formData.append("role", dataDoctor.role);
-    formData.append("fullName", dataDoctor.firstName);
-    formData.append("shortName", dataDoctor.lastName);
-    formData.append("prefix", dataDoctor.prefix);
-    formData.append("dateOfBirth", dataDoctor.dateOfBirth);
-    formData.append("licenseId", dataDoctor.licenseId);
-    formData.append("civilId", dataDoctor.civilId);
-    formData.append("passport", dataDoctor.passport);
-    formData.append("gender", dataDoctor.gender);
-    formData.append("phoneNumber", dataDoctor.phoneNumber);
-    // formData.append("specialty", dataDoctor.specialty);
-    formData.append("personalPhoto", files1);
+    try {
+      const formData = new FormData();
+      formData.append("email", dataDoctor.email);
+      formData.append("password", dataDoctor.password);
+      formData.append("role", dataDoctor.role);
+      formData.append("fullName", dataDoctor.firstName);
+      formData.append("shortName", dataDoctor.lastName);
+      formData.append("prefix", dataDoctor.prefix);
+      formData.append("dateOfBirth", dataDoctor.dateOfBirth);
+      formData.append("licenseId", dataDoctor.licenseId);
+      formData.append("civilId", dataDoctor.civilId);
+      formData.append("passport", dataDoctor.passport);
+      formData.append("gender", dataDoctor.gender);
+      formData.append("phoneNumber", dataDoctor.phoneNumber);
+      // formData.append("specialty", dataDoctor.specialty);
+      formData.append("personalPhoto", files1);
 
-    console.log("✅ Ready FormData:");
-    for (let pair of formData.entries()) {
-      console.log(`${pair[0]}:`, pair[1]);
-    }
-
-    const response = await axios.post(
-      `${baseurl}addDoctorDetails`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      console.log("✅ Ready FormData:");
+      for (let pair of formData.entries()) {
+        console.log(`${pair[0]}:`, pair[1]);
       }
-    );
 
-    if (response.data.success === true) {
-      Swal.fire("Success", "Staff added successfully", "success");
-      console.log("✅ Doctor added successfully:", response.data);
-      getallstaff()
-      handleClose2();
-    } else {
-      const errorMessage = response.data.message || "Something went wrong!";
-      Swal.fire("Error", errorMessage, "error");
-      console.error("❌ Server responded with an error:", response.data);
-    }
-  } catch (error) {
-    console.error("🚨 Error while adding doctor:", error);
+      const response = await axios.post(
+        `${baseurl}addDoctorDetails`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-    if (error.response) {
-      const errorData = error.response.data;
-
-      if (typeof errorData === "string") {
-        Swal.fire("Error", errorData, "error");
-      } else if (errorData.message) {
-        Swal.fire("Error", errorData.message, "error");
-      } else if (Array.isArray(errorData.errors)) {
-        // Show all errors in one alert
-        const allErrors = errorData.errors.map(err => `• ${err.msg || err.message}`).join('<br>');
-        Swal.fire({
-          title: "Validation Errors",
-          html: allErrors,
-          icon: "error"
-        });
+      if (response.data.success === true) {
+        Swal.fire("Success", "Staff added successfully", "success");
+        console.log("✅ Doctor added successfully:", response.data);
+        getallstaff()
+        handleClose2();
       } else {
-        Swal.fire("Error", "Unexpected server error occurred", "error");
+        const errorMessage = response.data.message || "Something went wrong!";
+        Swal.fire("Error", errorMessage, "error");
+        console.error("❌ Server responded with an error:", response.data);
       }
-    } else if (error.request) {
-      Swal.fire("Network Error", "No response from server. Please check your internet connection.", "error");
-    } else {
-      Swal.fire("Error", error.message || "An unknown error occurred", "error");
+    } catch (error) {
+      console.error("🚨 Error while adding doctor:", error);
+
+      if (error.response) {
+        const errorData = error.response.data;
+
+        if (typeof errorData === "string") {
+          Swal.fire("Error", errorData, "error");
+        } else if (errorData.message) {
+          Swal.fire("Error", errorData.message, "error");
+        } else if (Array.isArray(errorData.errors)) {
+          // Show all errors in one alert
+          const allErrors = errorData.errors.map(err => `• ${err.msg || err.message}`).join('<br>');
+          Swal.fire({
+            title: "Validation Errors",
+            html: allErrors,
+            icon: "error"
+          });
+        } else {
+          Swal.fire("Error", "Unexpected server error occurred", "error");
+        }
+      } else if (error.request) {
+        Swal.fire("Network Error", "No response from server. Please check your internet connection.", "error");
+      } else {
+        Swal.fire("Error", error.message || "An unknown error occurred", "error");
+      }
     }
-  }
-};
+  };
+
+  const handleStaffEditClick = (staff) => {
+    setEditStaff(staff);
+    setEditStaffModal(true);
+  };
+
+  const handleStaffEditClose = () => {
+    setEditStaffModal(false);
+    setEditStaff(null);
+    setFiles1(null);
+  };
+
+  const handleStaffEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditStaff({ ...editStaff, [name]: value });
+  };
+
+  const handleStaffEditFileChange = (e) => {
+    const file = e.target.files[0];
+    setFiles1(file);
+  };
+
+  const handleViewUserClick = (user) => {
+    setViewUser(user);
+    setViewUserModal(true);
+  };
+
+  const handleViewUserClose = () => {
+    setViewUserModal(false);
+    setViewUser(null);
+  };
+
+  const UpdateStaff = async () => {
+    try {
+      if (!editStaff.email || !editStaff.fullName) {
+        Swal.fire("Missing Fields", "Please fill all required fields", "warning");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("email", editStaff.email);
+      formData.append("fullName", editStaff.fullName);
+      formData.append("shortName", editStaff.shortName || "");
+      formData.append("prefix", editStaff.prefix || "");
+      formData.append("dateOfBirth", editStaff.dateOfBirth || "");
+      formData.append("licenseId", editStaff.licenseId || "");
+      formData.append("civilId", editStaff.civilId || "");
+      formData.append("passport", editStaff.passport || "");
+      formData.append("gender", editStaff.gender || "");
+      formData.append("phoneNumber", editStaff.phoneNumber || "");
+
+      if (files1) {
+        formData.append("personalPhoto", files1);
+      }
+
+      console.log("✅ Ready FormData for Staff Update:");
+      for (let pair of formData.entries()) {
+        console.log(`${pair[0]}:`, pair[1]);
+      }
+
+      const response = await axios.put(
+        `${baseurl}updateStaffDetails/${editStaff.id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.data.success === true) {
+        Swal.fire("Success", "Staff updated successfully!", "success");
+        console.log("✅ Staff updated successfully:", response.data);
+        handleStaffEditClose();
+        getallstaff(); // Refresh the list
+      } else {
+        const msg = response.data.message || "Something went wrong";
+        Swal.fire("Error", msg, "error");
+        console.error("❌ Server Error:", msg);
+      }
+    } catch (error) {
+      console.error("🚨 Error while updating staff:", error);
+      if (error.response) {
+        const errorData = error.response.data;
+        if (typeof errorData === "string") {
+          Swal.fire("Server Error", errorData, "error");
+        } else if (errorData.message) {
+          Swal.fire("Error", errorData.message, "error");
+        } else if (Array.isArray(errorData.errors)) {
+          for (const err of errorData.errors) {
+            Swal.fire("Validation Error", err.msg || err.message, "error");
+          }
+        } else {
+          Swal.fire("Error", "Unexpected server error occurred", "error");
+        }
+      } else if (error.request) {
+        Swal.fire("Network Error", "No response from server. Please check your connection.", "error");
+      } else {
+        Swal.fire("Error", error.message || "An unknown error occurred", "error");
+      }
+    }
+  };
 
   return (
     <div className="pc-container">
       <div className="pc-content">
-        <div className="container mt-5 border rounded p-3">
+        <div className="mt-5 border rounded p-3">
           <ul
             className="nav nav-pills nav-fill mb-3 hr"
             id="myTab"
@@ -568,59 +769,62 @@ const handleclickstaff = async () => {
                         <tbody>
 
 
-{
-  allUser   && allUser.length>0  && allUser.map((item,index)=>{
-    console.log(item)
-    return(
-      <>
-       <tr key={index}>
-                            <td >
-                              <div className="d-flex align-items-center">
-                                <div className="flex-shrink-0">
-                                  <img
-                                    src="../assets/images/user/avatar-2.jpg"
-                                    alt="user image"
-                                    className="img-radius wid-40"
-                                  />
-                                </div>
-                                <div className="flex-grow-1 ms-3">
-                                  <h6 className="mb-0">{item.fullName}</h6>
-                                </div>
-                              </div>
-                            </td>
-                            <td>
-                              {item.civilId}
-                            </td>
-                            <td>{new Date(item.dateOfBirth).toLocaleDateString("en-GB")}</td>
-                            <td>{item.email}</td>
-                            <td>{item.role}</td>
-                            <td>{item.phoneNumber}</td>
-                            <td>
-                              <a
-                                href="#"
-                                className="avtar avtar-xs btn-link-secondary"
-                              >
-                                <i className="ti ti-eye f-20" />{" "}
-                              </a>
-                              <a
+                          {
+                            allUser && allUser.length > 0 && allUser.map((item, index) => {
+                              console.log(item)
+                              return (
+                                <>
+                                  <tr key={index}>
+                                    <td >
+                                      <div className="d-flex align-items-center">
+                                        <div className="flex-shrink-0">
+                                          <img
+                                            src="../assets/images/user/avatar-2.jpg"
+                                            alt="user image"
+                                            className="img-radius wid-40"
+                                          />
+                                        </div>
+                                        <div className="flex-grow-1 ms-3">
+                                          <h6 className="mb-0">{item.fullName}</h6>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td>
+                                      {item.civilId}
+                                    </td>
+                                    <td>{new Date(item.dateOfBirth).toLocaleDateString("en-GB")}</td>
+                                    <td>{item.email}</td>
+                                    <td>{item.role}</td>
+                                    <td>{item.phoneNumber}</td>
+                                    <td>
+                                      <div
+                                        onClick={() => handleViewUserClick(item)}
+                                        className="avtar avtar-xs btn-link-secondary"
+                                        style={{ cursor: "pointer" }}
+                                        title="View User"
+                                      >
+                                        <i className="ti ti-eye f-20" />{" "}
+                                      </div>
+                                      {/* <a
                                 href="#"
                                 className="avtar avtar-xs btn-link-secondary"
                               >
                                 <i className="ti ti-edit f-20" />{" "}
-                              </a>
-                              <a
-                                href="#"
-                                className="avtar avtar-xs btn-link-secondary"
-                              >
-                                <i className="ti ti-trash f-20" />
-                              </a>
-                            </td>
-                          </tr>
-      </>
-    )
-  })
-}                         
-                         
+                              </a> */}
+                                      <div
+                                        className="avtar avtar-xs btn-link-secondary"
+                                        style={{ cursor: "pointer" }}
+                                        title="Delete User"
+                                      >
+                                        <i className="ti ti-trash f-20" />
+                                      </div>
+                                    </td>
+                                  </tr>
+                                </>
+                              )
+                            })
+                          }
+
                         </tbody>
                       </table>
                     </div>
@@ -666,30 +870,30 @@ const handleclickstaff = async () => {
                         </thead>
                         <tbody>
                           {
-                            allStaff && allStaff.length>0 && allStaff.map((item,index)=>{
-                             console.log(item)
-                              return(
+                            allStaff && allStaff.length > 0 && allStaff.map((item, index) => {
+                              console.log(item)
+                              return (
                                 <>
-                                 <tr   key={index}>
-                            <td>
-                              <div className="d-flex align-items-center">
-                                <div className="flex-shrink-0">
-                                  <img
-                                    src="../assets/images/user/avatar-1.jpg"
-                                    alt="user image"
-                                    className="img-radius wid-40"
-                                  />
-                                </div>
-                                <div className="flex-grow-1 ms-3">
-                                  <h6 className="mb-0">{item?.fullName}</h6>
-                                </div>
-                              </div>
-                            </td>
-                            <td>{new Date(item.dateOfBirth).toLocaleDateString('en-GB')}</td>
-                            <td>{item.licenseId}</td>
-                            <td>{item.gender}</td>
-                            <td>{item.civilId}</td>
-                            {/* <td>
+                                  <tr key={index}>
+                                    <td>
+                                      <div className="d-flex align-items-center">
+                                        <div className="flex-shrink-0">
+                                          <img
+                                            src="../assets/images/user/avatar-1.jpg"
+                                            alt="user image"
+                                            className="img-radius wid-40"
+                                          />
+                                        </div>
+                                        <div className="flex-grow-1 ms-3">
+                                          <h6 className="mb-0">{item?.fullName}</h6>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td>{new Date(item.dateOfBirth).toLocaleDateString('en-GB')}</td>
+                                    <td>{item.licenseId}</td>
+                                    <td>{item.gender}</td>
+                                    <td>{item.civilId}</td>
+                                    {/* <td>
                               <div className="form-check form-switch">
                                 <input
                                   className="form-check-input"
@@ -706,34 +910,38 @@ const handleclickstaff = async () => {
                                 </label>
                               </div>
                             </td> */}
-                            <td>{item.phoneNumber}</td>
-                            <td>
-                              <a
-                                href="#"
-                                className="avtar avtar-xs btn-link-secondary"
-                              >
-                                <i className="ti ti-eye f-20" />{" "}
-                              </a>
-                              <a
-                                href="#"
-                                className="avtar avtar-xs btn-link-secondary"
-                              >
-                                <i className="ti ti-edit f-20" />{" "}
-                              </a>
-                              <a
-                                href="#"
-                                className="avtar avtar-xs btn-link-secondary"
-                              >
-                                <i className="ti ti-trash f-20" />
-                              </a>
-                            </td>
-                          </tr>
+                                    <td>{item.phoneNumber}</td>
+                                    <td>
+                                      <div
+                                        onClick={() => handleStaffEditClick(item)}
+                                        className="avtar avtar-xs btn-link-secondary"
+                                        style={{ cursor: "pointer" }}
+                                        title="Edit Staff"
+                                      >
+                                        <i className="ti ti-edit f-20" />{" "}
+                                      </div>
+                                      <div
+                                        className="avtar avtar-xs btn-link-secondary"
+                                        style={{ cursor: "pointer" }}
+                                        title="View Staff"
+                                      >
+                                        <i className="ti ti-eye f-20" />{" "}
+                                      </div>
+                                      <div
+                                        className="avtar avtar-xs btn-link-secondary"
+                                        style={{ cursor: "pointer" }}
+                                        title="Delete Staff"
+                                      >
+                                        <i className="ti ti-trash f-20" />
+                                      </div>
+                                    </td>
+                                  </tr>
                                 </>
                               )
                             })
                           }
-                         
-                       
+
+
                         </tbody>
                       </table>
                     </div>
@@ -807,7 +1015,7 @@ const handleclickstaff = async () => {
                                     <input
                                       type="text"
                                       className="form-control"
-                                      onChange={handlechaneg}placeholder="last Name"
+                                      onChange={handlechaneg} placeholder="last Name"
                                       name="lastName"
                                     />
                                   </div>
@@ -819,7 +1027,7 @@ const handleclickstaff = async () => {
                                     <input
                                       type="text"
                                       onChange={handlechaneg}
-                                      name="civilId"placeholder="civilId"
+                                      name="civilId" placeholder="civilId"
                                       className="form-control"
                                     />
                                   </div>
@@ -829,7 +1037,7 @@ const handleclickstaff = async () => {
                                     </label>
                                     <input
                                       type="text"
-                                      onChange={handlechaneg}placeholder="passport"
+                                      onChange={handlechaneg} placeholder="passport"
                                       name="passport"
                                       className="form-control"
                                     />
@@ -893,24 +1101,24 @@ const handleclickstaff = async () => {
                                       type="text"
                                       name="phoneNumber"
                                       onChange={handlechaneg}
-                                      className="form-control"    placeholder="phoneNumber"
+                                      className="form-control" placeholder="phoneNumber"
                                     />
                                   </div>
- <div className="col-md-4">
+                                  <div className="col-md-4">
                                     <label className="form-label">
-                                    License Id
+                                      License Id
                                     </label>
                                     <input
                                       type="text"
-                                       name="licenseId"
-                                    onChange={handlechaneg}
+                                      name="licenseId"
+                                      onChange={handlechaneg}
                                       placeholder="licenseId"
                                       className="form-control"
                                     />
                                   </div>
-                                   <div className="mb-3 col-4">
+                                  <div className="mb-3 col-4">
                                     <label htmlFor="doctorName" className="form-label">
-                                          Role                                      
+                                      Role
                                     </label>
                                     <br />
                                     <select
@@ -923,7 +1131,7 @@ const handleclickstaff = async () => {
                                       <option value="receptionist">Receptionist</option>
                                     </select>
                                   </div>
-                                   <div className="col-md-4">
+                                  <div className="col-md-4">
                                     <label className="form-label">
                                       Password
                                     </label>
@@ -947,10 +1155,10 @@ const handleclickstaff = async () => {
                                       onChange={handlefilechnage}
                                     />
                                   </div>
-                                 
 
-                                   
-                                 
+
+
+
                                 </div>
                               </div>
                             </div>
@@ -962,7 +1170,7 @@ const handleclickstaff = async () => {
                               >
                                 Add
                               </button>
-                              <button type="button" className="btn btn-danger"  onClick={handleClose2}>
+                              <button type="button" className="btn btn-danger" onClick={handleClose2}>
                                 Cancel
                               </button>
                             </div>
@@ -1082,12 +1290,13 @@ const handleclickstaff = async () => {
                                       >
                                         <i className="ti ti-eye f-20" />{" "}
                                       </div>
-                                      <a
-                                        href="#"
+                                      <div
+                                        onClick={() => handleEditClick(item)}
                                         className="avtar avtar-xs btn-link-secondary"
+                                        style={{ cursor: "pointer" }}
                                       >
                                         <i className="ti ti-edit f-20" />{" "}
-                                      </a>
+                                      </div>
                                       <a
                                         href="#"
                                         className="avtar avtar-xs btn-link-secondary"
@@ -1347,7 +1556,7 @@ const handleclickstaff = async () => {
                       <div>
                         <button
                           className="btn btn-primary"
-                           onClick={handleclicknurse}
+                          onClick={handleclicknurse}
                         >
                           Add Nurse
                         </button>
@@ -1369,58 +1578,58 @@ const handleclickstaff = async () => {
                         </thead>
                         <tbody>
                           {
-                            allNurses && allNurses.length>0 && allNurses.map((item,index)=>{
+                            allNurses && allNurses.length > 0 && allNurses.map((item, index) => {
                               console.log(item)
-                              return(
+                              return (
                                 <>
-                                 <tr key={index}>
-                            <td>
-                              <div className="d-flex align-items-center">
-                                <div className="flex-shrink-0">
-                                  <img
-                                    src="../assets/images/user/avatar-1.jpg"
-                                    alt="user image"
-                                    className="img-radius wid-40"
-                                  />
-                                </div>
-                                <div className="flex-grow-1 ms-3">
-                                  <h6 className="mb-0">{item.fullName}</h6>
-                                </div>
-                              </div>
-                            </td>
-                            <td>{item.email}</td>
-                            <td>{item.civilId}</td>
-                            <td>{item.gender}</td>
-                            <td>{new Date(item.dateOfBirth).toLocaleDateString("en-GB")}</td>
-                            <td>
-                              <a
-                                href="#"
-                                className="avtar avtar-xs btn-link-secondary"
-                              >
-                                <i className="ti ti-eye f-20" />{" "}
-                              </a>
-                              <a
-                                href="#"
-                                className="avtar avtar-xs btn-link-secondary"
-                              >
-                                <i className="ti ti-edit f-20" />{" "}
-                              </a>
-                              <a
-                                href="#"
-                                className="avtar avtar-xs btn-link-secondary"
-                              >
-                                <i className="ti ti-trash f-20" />
-                              </a>
-                            </td>
-                          </tr>
-                                
+                                  <tr key={index}>
+                                    <td>
+                                      <div className="d-flex align-items-center">
+                                        <div className="flex-shrink-0">
+                                          <img
+                                            src="../assets/images/user/avatar-1.jpg"
+                                            alt="user image"
+                                            className="img-radius wid-40"
+                                          />
+                                        </div>
+                                        <div className="flex-grow-1 ms-3">
+                                          <h6 className="mb-0">{item.fullName}</h6>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td>{item.email}</td>
+                                    <td>{item.civilId}</td>
+                                    <td>{item.gender}</td>
+                                    <td>{new Date(item.dateOfBirth).toLocaleDateString("en-GB")}</td>
+                                    <td>
+                                      <a
+                                        href="#"
+                                        className="avtar avtar-xs btn-link-secondary"
+                                      >
+                                        <i className="ti ti-eye f-20" />{" "}
+                                      </a>
+                                      <a
+                                        href="#"
+                                        className="avtar avtar-xs btn-link-secondary"
+                                      >
+                                        <i className="ti ti-edit f-20" />{" "}
+                                      </a>
+                                      <a
+                                        href="#"
+                                        className="avtar avtar-xs btn-link-secondary"
+                                      >
+                                        <i className="ti ti-trash f-20" />
+                                      </a>
+                                    </td>
+                                  </tr>
+
                                 </>
                               )
 
                             })
                           }
-                         
-                       
+
+
                         </tbody>
                       </table>
                     </div>
@@ -1429,180 +1638,180 @@ const handleclickstaff = async () => {
               </div>
             </div>
           </div>
-           {openmodal111 && (
-                <div
-                  className="modal fade show"
-                  aria-labelledby="staticBackdropLabel"
-                  style={{
-                    backgroundColor: "rgba(0,0,0,0.5)",
-                    display: "block",
-                  }}
-                >
-                  <div className="modal-dialog modal-lg">
-                    <div className="modal-content">
-                      <div className="modal-header">
-                        <h5 className="modal-title">Add Nurse</h5>
-                        <button
-                          type="button"
-                          className="btn-close"
-                          onClick={handleclicknurse123}
-                        ></button>
+          {openmodal111 && (
+            <div
+              className="modal fade show"
+              aria-labelledby="staticBackdropLabel"
+              style={{
+                backgroundColor: "rgba(0,0,0,0.5)",
+                display: "block",
+              }}
+            >
+              <div className="modal-dialog modal-lg">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">Add Nurse</h5>
+                    <button
+                      type="button"
+                      className="btn-close"
+                      onClick={handleclicknurse123}
+                    ></button>
+                  </div>
+                  <div className="modal-body">
+                    <div className="row">
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          Prefix
+                        </label>
+                        <br />
+                        <select
+                          className="w-100 bg-white py-1 rounded"
+                          name="prefix"
+                          onChange={handlechaneg}
+                        >
+                          <option>Miss</option>
+                          <option>Mr</option>
+                          <option>Mrs</option>
+                        </select>
                       </div>
-                      <div className="modal-body">
-                        <div className="row">
-                          <div className="mb-3 col-4">
-                            <label htmlFor="doctorName" className="form-label">
-                              Prefix
-                            </label>
-                            <br />
-                            <select
-                              className="w-100 bg-white py-1 rounded"
-                              name="prefix"
-                              onChange={handlechaneg}
-                            >
-                              <option>Miss</option>
-                              <option>Mr</option>
-                              <option>Mrs</option>
-                            </select>
-                          </div>
-                          <div className="mb-3 col-4">
-                            <label htmlFor="doctorName" className="form-label">
-                              First Name
-                            </label>
-                            <input
-                              type="text"
-                              name="fullName"
-                              placeholder="Name"
-                              className="form-control"
-                              id="doctorName"
-                              onChange={handlechaneg}
-                            />
-                          </div>
-                          <div className="mb-3 col-4">
-                            <label htmlFor="doctorName" className="form-label">
-                              {" "}
-                              Last Name
-                            </label>
-                            <input
-                              type="text"
-                              name="shortName"
-                              onChange={handlechaneg}
-                              placeholder="Last Name"
-                              className="form-control"
-                              id="doctorName"
-                            />
-                          </div>
-                        </div>
-                        <div className="row">
-                          <div className="mb-3 col-4">
-                            <label
-                              htmlFor="specialization"
-                              className="form-label"
-                            >
-                              email
-                            </label>
-                            <input
-                              type="email"
-                              name="email"
-                              placeholder="doctor@gmail.com"
-                              className="form-control"
-                              id="specialization"
-                              onChange={handlechaneg}
-                            />
-                          </div>
-                          <div className="mb-3 col-4">
-                            <label
-                              htmlFor="specialization"
-                              className="form-label"
-                            >
-                              Gender
-                            </label>
-                            <select
-                              className="w-100 form-label py-1 rounded bg-white"
-                              name="gender"
-                              onChange={handlechaneg}
-                            >
-                              <option>Select</option>
-                              <option>Male</option>
-                              <option>Female</option>
-                              <option>Other</option>
-                            </select>
-                          </div>
-                          <div className="mb-3 col-4">
-                            <label
-                              htmlFor="specialization"
-                              className="form-label"
-                            >
-                              Password
-                            </label>
-                            <input
-                              type="passowrd"
-                              name="password"
-                              placeholder="123456"
-                              className="form-control"
-                              id="specialization"
-                              onChange={handlechaneg}
-                            />
-                          </div>
-                        </div>
-                        <div className="row">
-                          <div className="mb-3 col-4">
-                            <label htmlFor="doctorName" className="form-label">
-                              Date Of Birth
-                            </label>
-                            <input
-                              type="date"
-                              name="dateOfBirth"
-                              className="form-control"
-                              id="doctorName"
-                              onChange={handlechaneg}
-                            />
-                          </div>
-                          <div className="mb-3 col-4">
-                            <label
-                              htmlFor="specialization"
-                              className="form-label"
-                            >
-                              License Id
-                            </label>
-                            <input
-                              type="text"
-                              placeholder="License Number"
-                              name="licenseId"
-                              className="form-control"
-                              id="specialization"
-                              onChange={handlechaneg}
-                            />
-                          </div>
-                          <div className="mb-3 col-4">
-                            <label htmlFor="doctorName" className="form-label">
-                              Civil Id
-                            </label>
-                            <input
-                              type="text"
-                              name="civilId"
-                              className="form-control"
-                              placeholder="Civil Id"
-                              id="doctorName"
-                              onChange={handlechaneg}
-                            />
-                          </div>
-                        </div>
-                        <div className="row">
-                          <div className="mb-3 col-4">
-                            <label htmlFor="doctorName" className="form-label">
-                              Passport
-                            </label>
-                            <input
-                              type="text"
-                              name="passport"
-                              placeholder="passport number"
-                              className="form-control"
-                              id="doctorName"
-                              onChange={handlechaneg}
-                            />
-                          </div>
-                          {/* <div className="mb-3 col-4">
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          First Name
+                        </label>
+                        <input
+                          type="text"
+                          name="fullName"
+                          placeholder="Name"
+                          className="form-control"
+                          id="doctorName"
+                          onChange={handlechaneg}
+                        />
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          {" "}
+                          Last Name
+                        </label>
+                        <input
+                          type="text"
+                          name="shortName"
+                          onChange={handlechaneg}
+                          placeholder="Last Name"
+                          className="form-control"
+                          id="doctorName"
+                        />
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="mb-3 col-4">
+                        <label
+                          htmlFor="specialization"
+                          className="form-label"
+                        >
+                          email
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          placeholder="doctor@gmail.com"
+                          className="form-control"
+                          id="specialization"
+                          onChange={handlechaneg}
+                        />
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label
+                          htmlFor="specialization"
+                          className="form-label"
+                        >
+                          Gender
+                        </label>
+                        <select
+                          className="w-100 form-label py-1 rounded bg-white"
+                          name="gender"
+                          onChange={handlechaneg}
+                        >
+                          <option>Select</option>
+                          <option>Male</option>
+                          <option>Female</option>
+                          <option>Other</option>
+                        </select>
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label
+                          htmlFor="specialization"
+                          className="form-label"
+                        >
+                          Password
+                        </label>
+                        <input
+                          type="passowrd"
+                          name="password"
+                          placeholder="123456"
+                          className="form-control"
+                          id="specialization"
+                          onChange={handlechaneg}
+                        />
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          Date Of Birth
+                        </label>
+                        <input
+                          type="date"
+                          name="dateOfBirth"
+                          className="form-control"
+                          id="doctorName"
+                          onChange={handlechaneg}
+                        />
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label
+                          htmlFor="specialization"
+                          className="form-label"
+                        >
+                          License Id
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="License Number"
+                          name="licenseId"
+                          className="form-control"
+                          id="specialization"
+                          onChange={handlechaneg}
+                        />
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          Civil Id
+                        </label>
+                        <input
+                          type="text"
+                          name="civilId"
+                          className="form-control"
+                          placeholder="Civil Id"
+                          id="doctorName"
+                          onChange={handlechaneg}
+                        />
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          Passport
+                        </label>
+                        <input
+                          type="text"
+                          name="passport"
+                          placeholder="passport number"
+                          className="form-control"
+                          id="doctorName"
+                          onChange={handlechaneg}
+                        />
+                      </div>
+                      {/* <div className="mb-3 col-4">
                             <label htmlFor="doctorName" className="form-label">
                               Specialty
                             </label>
@@ -1615,46 +1824,612 @@ const handleclickstaff = async () => {
                               onChange={handlechaneg}
                             />
                           </div> */}
-                          <div className="mb-3 col-4">
-                            <label htmlFor="doctorName" className="form-label">
-                              Photo
-                            </label>
-                            <input
-                              type="file"
-                              name="personalPhoto"
-                              className="form-control"
-                              id="doctorName"
-                              onChange={handlefilechnage}
-                            />
-                          </div>
-                          <div className="mb-3 col-4">
-                            <label htmlFor="doctorName" className="form-label">
-                              Phone Number
-                            </label>
-                            <input
-                              type="text"
-                              name="phoneNumber"
-                              className="form-control"
-                              placeholder="+91 8859932237"
-                              id="doctorName"
-                              onChange={handlechaneg}
-                            />
-                          </div>
-                        </div>
-                        <div className="d-flex justify-content-center">
-                          <button
-                            type="submit"
-                            className="btn btn-primary"
-                            onClick={AddNurse}
-                          >
-                            Add Nurse
-                          </button>
-                        </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          Photo
+                        </label>
+                        <input
+                          type="file"
+                          name="personalPhoto"
+                          className="form-control"
+                          id="doctorName"
+                          onChange={handlefilechnage}
+                        />
                       </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          Phone Number
+                        </label>
+                        <input
+                          type="text"
+                          name="phoneNumber"
+                          className="form-control"
+                          placeholder="+91 8859932237"
+                          id="doctorName"
+                          onChange={handlechaneg}
+                        />
+                      </div>
+                    </div>
+                    <div className="d-flex justify-content-center">
+                      <button
+                        type="submit"
+                        className="btn btn-primary"
+                        onClick={AddNurse}
+                      >
+                        Add Nurse
+                      </button>
                     </div>
                   </div>
                 </div>
-              )}
+              </div>
+            </div>
+          )}
+
+          {/* Edit Doctor Modal */}
+          {editModal && editDoctor && (
+            <div
+              className="modal fade show"
+              aria-labelledby="staticBackdropLabel"
+              style={{
+                backgroundColor: "rgba(0,0,0,0.5)",
+                display: "block",
+              }}
+            >
+              <div className="modal-dialog modal-lg">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">Edit Doctor</h5>
+                    <button
+                      type="button"
+                      className="btn-close"
+                      onClick={handleEditClose}
+                    ></button>
+                  </div>
+                  <div className="modal-body">
+                    <div className="row">
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          Prefix
+                        </label>
+                        <br />
+                        <select
+                          className="w-100 bg-white py-1 rounded"
+                          name="prefix"
+                          value={editDoctor.prefix || ""}
+                          onChange={handleEditChange}
+                        >
+                          <option value="">Select</option>
+                          <option value="Dr.">Dr.</option>
+                          <option value="Mr.">Mr.</option>
+                          <option value="Mrs.">Mrs.</option>
+                          <option value="Miss">Miss</option>
+                        </select>
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          First Name
+                        </label>
+                        <input
+                          type="text"
+                          name="fullName"
+                          placeholder="Name"
+                          className="form-control"
+                          id="doctorName"
+                          value={editDoctor.fullName || ""}
+                          onChange={handleEditChange}
+                        />
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          {" "}
+                          Last Name
+                        </label>
+                        <input
+                          type="text"
+                          name="shortName"
+                          onChange={handleEditChange}
+                          placeholder="Last Name"
+                          className="form-control"
+                          id="doctorName"
+                          value={editDoctor.shortName || ""}
+                        />
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="mb-3 col-4">
+                        <label
+                          htmlFor="specialization"
+                          className="form-label"
+                        >
+                          Email
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          placeholder="doctor@gmail.com"
+                          className="form-control"
+                          id="specialization"
+                          value={editDoctor.email || ""}
+                          onChange={handleEditChange}
+                        />
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label
+                          htmlFor="specialization"
+                          className="form-label"
+                        >
+                          Gender
+                        </label>
+                        <select
+                          className="w-100 form-label py-1 rounded bg-white"
+                          name="gender"
+                          value={editDoctor.gender || ""}
+                          onChange={handleEditChange}
+                        >
+                          <option value="">Select</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label
+                          htmlFor="specialization"
+                          className="form-label"
+                        >
+                          Specialty
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Orthopedic"
+                          name="specialty"
+                          className="form-control"
+                          id="specialization"
+                          value={editDoctor.specialty || ""}
+                          onChange={handleEditChange}
+                        />
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          Date Of Birth
+                        </label>
+                        <input
+                          type="date"
+                          name="dateOfBirth"
+                          className="form-control"
+                          id="doctorName"
+                          value={editDoctor.dateOfBirth || ""}
+                          onChange={handleEditChange}
+                        />
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label
+                          htmlFor="specialization"
+                          className="form-label"
+                        >
+                          License Id
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="License Number"
+                          name="licenseId"
+                          className="form-control"
+                          id="specialization"
+                          value={editDoctor.licenseId || ""}
+                          onChange={handleEditChange}
+                        />
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          Civil Id
+                        </label>
+                        <input
+                          type="text"
+                          name="civilId"
+                          className="form-control"
+                          placeholder="Civil Id"
+                          id="doctorName"
+                          value={editDoctor.civilId || ""}
+                          onChange={handleEditChange}
+                        />
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          Passport
+                        </label>
+                        <input
+                          type="text"
+                          name="passport"
+                          placeholder="passport number"
+                          className="form-control"
+                          id="doctorName"
+                          value={editDoctor.passport || ""}
+                          onChange={handleEditChange}
+                        />
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          Phone Number
+                        </label>
+                        <input
+                          type="text"
+                          name="phoneNumber"
+                          className="form-control"
+                          placeholder="+91 8859932237"
+                          id="doctorName"
+                          value={editDoctor.phoneNumber || ""}
+                          onChange={handleEditChange}
+                        />
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          Photo
+                        </label>
+                        <input
+                          type="file"
+                          name="personalPhoto"
+                          className="form-control"
+                          id="doctorName"
+                          onChange={handleEditFileChange}
+                        />
+                        {editDoctor.personalPhoto && (
+                          <small className="text-muted">
+                            Current: {editDoctor.personalPhoto}
+                          </small>
+                        )}
+                      </div>
+                    </div>
+                    <div className="d-flex justify-content-center">
+                      <button
+                        type="submit"
+                        className="btn btn-primary me-2"
+                        onClick={UpdateDoctor}
+                      >
+                        Update Doctor
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={handleEditClose}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Edit Staff Modal */}
+          {editStaffModal && editStaff && (
+            <div
+              className="modal fade show"
+              aria-labelledby="staticBackdropLabel"
+              style={{
+                backgroundColor: "rgba(0,0,0,0.5)",
+                display: "block",
+              }}
+            >
+              <div className="modal-dialog modal-lg">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">Edit Staff</h5>
+                    <button
+                      type="button"
+                      className="btn-close"
+                      onClick={handleStaffEditClose}
+                    ></button>
+                  </div>
+                  <div className="modal-body">
+                    <div className="row">
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          Prefix
+                        </label>
+                        <br />
+                        <select
+                          className="w-100 bg-white py-1 rounded"
+                          name="prefix"
+                          value={editStaff.prefix || ""}
+                          onChange={handleStaffEditChange}
+                        >
+                          <option value="">Select</option>
+                          <option value="Dr.">Dr.</option>
+                          <option value="Mr.">Mr.</option>
+                          <option value="Mrs.">Mrs.</option>
+                          <option value="Miss">Miss</option>
+                        </select>
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          First Name
+                        </label>
+                        <input
+                          type="text"
+                          name="fullName"
+                          placeholder="Name"
+                          className="form-control"
+                          id="doctorName"
+                          value={editStaff.fullName || ""}
+                          onChange={handleStaffEditChange}
+                        />
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          {" "}
+                          Last Name
+                        </label>
+                        <input
+                          type="text"
+                          name="shortName"
+                          onChange={handleStaffEditChange}
+                          placeholder="Last Name"
+                          className="form-control"
+                          id="doctorName"
+                          value={editStaff.shortName || ""}
+                        />
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="mb-3 col-4">
+                        <label
+                          htmlFor="specialization"
+                          className="form-label"
+                        >
+                          Email
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          placeholder="doctor@gmail.com"
+                          className="form-control"
+                          id="specialization"
+                          value={editStaff.email || ""}
+                          onChange={handleStaffEditChange}
+                        />
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label
+                          htmlFor="specialization"
+                          className="form-label"
+                        >
+                          Gender
+                        </label>
+                        <select
+                          className="w-100 form-label py-1 rounded bg-white"
+                          name="gender"
+                          value={editStaff.gender || ""}
+                          onChange={handleStaffEditChange}
+                        >
+                          <option value="">Select</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          Phone Number
+                        </label>
+                        <input
+                          type="text"
+                          name="phoneNumber"
+                          className="form-control"
+                          placeholder="+91 8859932237"
+                          id="doctorName"
+                          value={editStaff.phoneNumber || ""}
+                          onChange={handleStaffEditChange}
+                        />
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          Date Of Birth
+                        </label>
+                        <input
+                          type="date"
+                          name="dateOfBirth"
+                          className="form-control"
+                          id="doctorName"
+                          value={editStaff.dateOfBirth || ""}
+                          onChange={handleStaffEditChange}
+                        />
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          License Id
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="License Number"
+                          name="licenseId"
+                          className="form-control"
+                          id="doctorName"
+                          value={editStaff.licenseId || ""}
+                          onChange={handleStaffEditChange}
+                        />
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          Civil Id
+                        </label>
+                        <input
+                          type="text"
+                          name="civilId"
+                          className="form-control"
+                          placeholder="Civil Id"
+                          id="doctorName"
+                          value={editStaff.civilId || ""}
+                          onChange={handleStaffEditChange}
+                        />
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          Passport
+                        </label>
+                        <input
+                          type="text"
+                          name="passport"
+                          placeholder="passport number"
+                          className="form-control"
+                          id="doctorName"
+                          value={editStaff.passport || ""}
+                          onChange={handleStaffEditChange}
+                        />
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="doctorName" className="form-label">
+                          Photo
+                        </label>
+                        <input
+                          type="file"
+                          name="personalPhoto"
+                          className="form-control"
+                          id="doctorName"
+                          onChange={handleStaffEditFileChange}
+                        />
+                        {editStaff.personalPhoto && (
+                          <small className="text-muted">
+                            Current: {editStaff.personalPhoto}
+                          </small>
+                        )}
+                      </div>
+                    </div>
+                    <div className="d-flex justify-content-center">
+                      <button
+                        type="submit"
+                        className="btn btn-primary me-2"
+                        onClick={UpdateStaff}
+                      >
+                        Update Staff
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={handleStaffEditClose}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* View User Modal */}
+          {viewUserModal && viewUser && (
+            <div
+              className="modal fade show"
+              aria-labelledby="staticBackdropLabel"
+              style={{
+                backgroundColor: "rgba(0,0,0,0.5)",
+                display: "block",
+              }}
+            >
+              <div className="modal-dialog modal-lg">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">View User Details</h5>
+                    <button
+                      type="button"
+                      className="btn-close"
+                      onClick={handleViewUserClose}
+                    ></button>
+                  </div>
+                  <div className="modal-body">
+                    <div className="row">
+                      <div className="col-md-12 mb-3">
+                        <div className="d-flex align-items-center">
+                          <div className="flex-shrink-0">
+                            <img
+                              src="../assets/images/user/avatar-2.jpg"
+                              alt="user image"
+                              className="img-radius"
+                              style={{ width: "80px", height: "80px" }}
+                            />
+                          </div>
+                          <div className="flex-grow-1 ms-3">
+                            <h4 className="mb-1">{viewUser.fullName}</h4>
+                            <p className="text-muted mb-0">{viewUser.role}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-bold">Email</label>
+                        <p className="form-control-plaintext">{viewUser.email}</p>
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-bold">Phone Number</label>
+                        <p className="form-control-plaintext">{viewUser.phoneNumber}</p>
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-bold">Civil ID</label>
+                        <p className="form-control-plaintext">{viewUser.civilId}</p>
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-bold">Date of Birth</label>
+                        <p className="form-control-plaintext">
+                          {new Date(viewUser.dateOfBirth).toLocaleDateString("en-GB")}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-bold">Gender</label>
+                        <p className="form-control-plaintext">{viewUser.gender}</p>
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-bold">Role</label>
+                        <p className="form-control-plaintext">{viewUser.role}</p>
+                      </div>
+                    </div>
+                    {viewUser.licenseId && (
+                      <div className="row">
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label fw-bold">License ID</label>
+                          <p className="form-control-plaintext">{viewUser.licenseId}</p>
+                        </div>
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label fw-bold">Passport</label>
+                          <p className="form-control-plaintext">{viewUser.passport}</p>
+                        </div>
+                      </div>
+                    )}
+                    {viewUser.specialty && (
+                      <div className="row">
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label fw-bold">Specialty</label>
+                          <p className="form-control-plaintext">{viewUser.specialty}</p>
+                        </div>
+                      </div>
+                    )}
+                    <div className="d-flex justify-content-center mt-4">
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={handleViewUserClose}
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <ToastContainer />

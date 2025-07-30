@@ -583,7 +583,7 @@ export default function Labs() {
             Add Lab
           </button>
         </div>
-        <div className="container my-12">
+        <div className="my-12">
           <div className="col-12">
             <div className="card table-card">
               <div className="card-header">
