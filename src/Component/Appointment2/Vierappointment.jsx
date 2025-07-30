@@ -13,15 +13,6 @@ export default function Vierappointment() {
               {/* Personal Info */}
               <div className="card mb-3" style={{ position: "relative" }}>
                 <div className="personaimg text-center">
-                  {/* <img
-                                style={{ width: "100px", height: "100px" }}
-                                src={
-                                  personalinfo.profileImage === null
-                                    ? perImg
-                                    : ` ${baseurImage}${personalinfo.profileImage}`
-                                }
-                                alt="1"
-                              /> */}
                 </div>
                 <div>
                   <h5 className="card-title">View Appointment</h5>

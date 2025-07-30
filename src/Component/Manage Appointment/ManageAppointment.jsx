@@ -28,6 +28,8 @@ export default function ManageAppointment() {
   const [patientservice, setpatientservice] = useState([]);
   const [getservice, setGetservice] = useState([]);
   const [patients, setPatients] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [inpval, setInpval] = useState("");
   const [dataAppointment, setDataAppointment] = useState([]);
   const [appointmentdata, setAppointmentdata] = useState([]);
@@ -512,10 +514,13 @@ export default function ManageAppointment() {
     return (weight / (heightInMeters * heightInMeters)).toFixed(2);
   };
   const handleapisubmit = async () => {
+    setIsSubmitting(true); // 🔒 Disable button
+
     const now = new Date();
     const date = now.toISOString().split("T")[0];
     const time = now.toTimeString().split(" ")[0];
     const recordedAt = `${date} ${time}`;
+
     const validations = [
       {
         name: "blood_pressure_systolic",
@@ -543,9 +548,11 @@ export default function ManageAppointment() {
       { name: "Weight", value: formData.weight, min: 0, max: 1000 },
       { name: "Height", value: formData.height, min: 0, max: 300 },
     ];
+
     for (const field of validations) {
       const num = parseFloat(field.value);
       if (isNaN(num) || num < field.min || num > field.max) {
+        setIsSubmitting(false); // 🔓 Re-enable if validation fails
         return Swal.fire(
           "Invalid Input",
           `${field.name} must be between ${field.min} and ${field.max}`,
@@ -553,6 +560,7 @@ export default function ManageAppointment() {
         );
       }
     }
+
     const payload = {
       blood_pressure_systolic: parseInt(formData.blood_pressure_systolic),
       blood_pressure_diastolic: parseInt(formData.blood_pressure_diastolic),
@@ -573,19 +581,21 @@ export default function ManageAppointment() {
       recorded_at: recordedAt,
       doctor_id: location.state.patientid.defaultDoctorId,
     };
+
     try {
       const response = await axios.post(
         `${baseurl}recordPatientVitals`,
         payload
       );
+
       if (response.data.success === true) {
         getDataa();
         Swal.fire("Success", "Vitals added successfully", "success");
         setFormData(null);
         handlecloseVital();
-        getDataa();
       } else {
         Swal.fire("Oops!", "Something went wrong!", "error");
+        setIsSubmitting(false); // 🔓 Re-enable on failure
       }
     } catch (error) {
       Swal.fire(
@@ -593,8 +603,10 @@ export default function ManageAppointment() {
         error?.response?.data?.message || "Something went wrong",
         "error"
       );
+      setIsSubmitting(false); // 🔓 Re-enable on error
     }
   };
+
   const handleclickdeletevital = async (id) => {
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -602,7 +614,7 @@ export default function ManageAppointment() {
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
+      cancelButtonColor: "#e61e10ff",
       confirmButtonText: "Yes, delete it!",
       cancelButtonText: "Cancel",
     });
@@ -634,7 +646,7 @@ export default function ManageAppointment() {
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
+      cancelButtonColor: "#f3150eff",
       confirmButtonText: "Yes, delete it!",
     });
 
@@ -3217,63 +3229,110 @@ export default function ManageAppointment() {
                                 </label>
                               ))}
                             </div> */}
+
+                                {/* {["Low", "Medium", "High"].map((option) => {
+  const getColorClass = () => {
+    if (formData.risk_of_fall !== option) return "";
+    if (option === "High") return "text-danger";
+    if (option === "Medium") return "text-success";
+    if (option === "Low") return "text-warning";
+  };
+
+  return (
+       <div className="col-md-6 d-flex mb-3">
+    <label className="me-3 form-label" key={option}> Risk of Fall   </label>
+      <input
+        type="radio"
+        name="risk_of_fall"
+        value={option}
+        checked={formData.risk_of_fall === option}
+        style={{ cursor: "pointer" }}
+        onChange={handleChange}
+      />{" "}
+      <span className={`form-label ${getColorClass()}`}>{option}</span>
+
+    </div>
+  );
+})} */}
+
+                                {/* <div className="col-md-6 ">
+                                  <label className="form-label">Risk of Fall</label>
+                                  <br />
+                                  {["Low", "Medium", "High"].map(
+                                    (option) => {
+                                      // Determine color class for selected option
+                                      const getColorClass = () => {
+                                        if (formData.risk_of_fall !== option)
+                                          return "";
+                                        if (option === "High")
+                                          return "text-danger"; // Red
+                                        if (option === "Medium")
+                                          return "text-warning"; // Yellow
+                                        if (option === "Low")
+                                          return "text-success"; // Green
+                                      };
+
+                                      return (
+                                        <label
+                                          className={`me-3 form-label ${getColorClass()}`}
+                                          key={option}
+                                        >
+                                          <input
+                                            type="radio"
+                                            name="risk_of_fall"
+                                            value={option}
+                                            style={{ cursor: "pointer" }}
+                                            checked={
+                                              formData.risk_of_fall === option
+                                            }
+                                            onChange={handleChange}
+                                          />{" "}
+                                          {option}
+                                        </label>
+                                      );
+                                    }
+                                  )}
+                                </div> */}
                                 <div className="col-md-6 ">
-                                  <label className="form-label form-label">
+                                  <label className="form-label">
                                     Risk of Fall
                                   </label>
                                   <br />
-                                  {["Low", "Medium", "High"].map((option) => {
-                                    // Determine color class based on the option and selection
-                                    const getColorClass = () => {
-                                      if (formData.risk_of_fall !== option)
-                                        return "";
-                                      if (option === "High")
-                                        return "text-danger"; // Red
-                                      if (option === "Medium")
-                                        return "text-success"; // Green
-                                      if (option === "Low")
-                                        return "text-warning"; // Yellow
-                                    };
+                                  {["Normal", "Moderate", "High"].map(
+                                    (option) => {
+                                      // Determine color class for selected option
+                                      const getColorClass = () => {
+                                        if (formData.risk_of_fall !== option)
+                                          return "";
+                                        if (option === "High")
+                                          return "text-danger"; // Red
+                                        if (option === "Moderate")
+                                          return "text-warning"; // Yellow
+                                        if (option === "Normal")
+                                          return "text-success"; // Green
+                                      };
 
-                                    return (
-                                      <label
-                                        className={`me-3 form-label ${getColorClass()}`}
-                                        key={option}
-                                      >
-                                        <input
-                                          type="radio"
-                                          name="risk_of_fall"
-                                          value={option}
-                                          checked={
-                                            formData.risk_of_fall === option
-                                          }
-                                          style={{ cursor: "pointer" }}
-                                          onChange={handleChange}
-                                        />{" "}
-                                        <span className="form-label">
+                                      return (
+                                        <label
+                                          className={`me-3 form-label ${getColorClass()}`}
+                                          key={option}
+                                        >
+                                          <input
+                                            type="radio"
+                                            name="risk_of_fall"
+                                            value={option}
+                                            style={{ cursor: "pointer" }}
+                                            checked={
+                                              formData.risk_of_fall === option
+                                            }
+                                            onChange={handleChange}
+                                          />{" "}
                                           {option}
-                                        </span>
-                                      </label>
-                                    );
-                                  })}
+                                        </label>
+                                      );
+                                    }
+                                  )}
                                 </div>
-
-                                {/* <div className="col-md-6 ">
-                              <label>Urgency</label>
-                              <br />
-                              {["Normal", "Moderate", "High"].map((option) => (
-                                <label className="me-3" key={option}>
-                                  <input
-                                    type="radio"
-                                    name="urgency"
-                                    value={option}
-                                    checked={formData.urgency === option}
-                                    onChange={handleChange}
-                                  />{" "}
-                                  {option}
-                                </label>
-                              ))}
-                            </div> */}
                                 <div className="col-md-6 ">
                                   <label className="form-label">Urgency</label>
                                   <br />
@@ -3411,7 +3470,7 @@ export default function ManageAppointment() {
                                 </div>
                                 <div className="col-md-6">
                                   <label className="form-label">
-                                    blood Pressure Diastolic (20-180)
+                                    Blood Pressure Diastolic (20-180)
                                   </label>
                                   <input
                                     type="number"
@@ -3635,46 +3694,30 @@ export default function ManageAppointment() {
                                 </label>
                               ))}
                             </div> */}
-                                <div className="col-md-6 ">
-                                  <label className="form-label form-label">
-                                    Risk of Fall
-                                  </label>
-                                  <br />
-                                  {["Low", "Medium", "High"].map((option) => {
-                                    // Determine color class based on the option and selection
-                                    const getColorClass = () => {
-                                      if (formData.risk_of_fall !== option)
-                                        return "";
-                                      if (option === "High")
-                                        return "text-danger"; // Red
-                                      if (option === "Medium")
-                                        return "text-success"; // Green
-                                      if (option === "Low")
-                                        return "text-warning"; // Yellow
-                                    };
+                                {/* {["Low", "Medium", "High"].map((option) => {
+  const getColorClass = () => {
+    if (formData.risk_of_fall !== option) return "";
+    if (option === "High") return "text-danger";
+    if (option === "Medium") return "text-success";
+    if (option === "Low") return "text-warning";
+  };
 
-                                    return (
-                                      <label
-                                        className={`me-3 form-label ${getColorClass()}`}
-                                        key={option}
-                                      >
-                                        <input
-                                          type="radio"
-                                          name="risk_of_fall"
-                                          value={option}
-                                          checked={
-                                            formData.risk_of_fall === option
-                                          }
-                                          style={{ cursor: "pointer" }}
-                                          onChange={handleChange}
-                                        />{" "}
-                                        <span className="form-label">
-                                          {option}
-                                        </span>
-                                      </label>
-                                    );
-                                  })}
-                                </div>
+  return (
+    <div className="col-md-6 d-flex mb-3">
+    <label className="me-3 form-label" key={option}>
+      <input
+        type="radio"
+        name="risk_of_fall"
+        value={option}
+        checked={formData.risk_of_fall === option}
+        style={{ cursor: "pointer" }}
+        onChange={handleChange}
+      />{" "}
+      <span className={`form-label ${getColorClass()}`}>{option}</span>
+    </label>
+      </div>
+  );
+})} */}
 
                                 {/* <div className="col-md-6 mb-3">
                               <label>Urgency</label>
@@ -3692,6 +3735,44 @@ export default function ManageAppointment() {
                                 </label>
                               ))}
                             </div> */}
+                                <div className="col-md-6">
+                                  <label className="form-label">
+                                    Risk of Fall
+                                  </label>
+                                  <br />
+                                  {["Low", "Medium", "High"].map((option) => {
+                                    // Determine color class for selected option
+                                    const getColorClass = () => {
+                                      if (formData.risk_of_fall !== option)
+                                        return "";
+                                      if (option === "High")
+                                        return "text-danger"; // Red
+                                      if (option === "Medium")
+                                        return "text-warning"; // Yellow
+                                      if (option === "Low")
+                                        return "text-success"; // Green
+                                    };
+
+                                    return (
+                                      <label
+                                        className={`me-3 form-label ${getColorClass()}`}
+                                        key={option}
+                                      >
+                                        <input
+                                          type="radio"
+                                          name="risk_of_fall"
+                                          value={option}
+                                          style={{ cursor: "pointer" }}
+                                          checked={
+                                            formData.risk_of_fall === option
+                                          }
+                                          onChange={handleChange}
+                                        />{" "}
+                                        {option}
+                                      </label>
+                                    );
+                                  })}
+                                </div>
                                 <div className="col-md-6">
                                   <label className="form-label">Urgency</label>
                                   <br />
@@ -3747,8 +3828,9 @@ export default function ManageAppointment() {
                                   type="submit"
                                   onClick={handleapisubmit}
                                   className="btn btn-primary"
+                                  disabled={isSubmitting}
                                 >
-                                  Add Vital
+                                  {isSubmitting ? "Submitting..." : "Add Vital"}
                                 </button>
                               </div>
                             </div>
