@@ -172,7 +172,7 @@ const Homepage = () => {
         </div>
          <div className="col-lg-4">
           <div className="card upcomingAppointments shadow-lg rounded-4 p-3">
-            <h5 className="fw-bold mb-3" style={{background:"f6f6f6"}} >Upcoming Appointments</h5>
+            <h5 className="fw-bold mb-3 rounded" style={{background:"#e85c09"}} >Upcoming Appointments</h5>
 
             {appointments && appointments.length > 0 && appointments.slice(0,3).map((item, index) => {
                 console.log(item)
@@ -181,8 +181,7 @@ const Homepage = () => {
                 <div
                   key={index}
                   className="mb-3 border-bottom pb-2"
-                  style={{ backgroundColor: "#f8f9fa" }}
-                >
+                  style={{ backgroundColor: "#f8f9fa" }}>
                   <strong>
                   Dr  {item.doctorName} {item.lastName}
                   </strong>

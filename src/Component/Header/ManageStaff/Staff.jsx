@@ -42,12 +42,10 @@ export default function Staff() {
 
  const AddNurse = async () => {
   try {
-    // Check for required fields
     if (!dataDoctor.email || !dataDoctor.fullName || !files1) {
       Swal.fire("Missing Fields", "Please fill all required fields", "warning");
       return;
     }
-
     const formData = new FormData();
     formData.append("email", dataDoctor.email);
     formData.append("password", dataDoctor.password);
@@ -62,12 +60,10 @@ export default function Staff() {
     formData.append("passport", dataDoctor.passport);
     formData.append("gender", dataDoctor.gender);
     formData.append("personalPhoto", files1);
-
     console.log("✅ Ready FormData:");
     for (let pair of formData.entries()) {
       console.log(`${pair[0]}:`, pair[1]);
     }
-
     const response = await axios.post(
       `${baseurl}addDoctorDetails`,
       formData,
@@ -77,7 +73,6 @@ export default function Staff() {
         },
       }
     );
-
     if (response.data.success === true) {
       Swal.fire("Success", "Nurse added successfully", "success");
       getallNurse()
@@ -89,13 +84,10 @@ export default function Staff() {
       Swal.fire("Error", msg, "error");
       console.error("❌ Server Error:", response.data);
     }
-
   } catch (error) {
     console.error("🚨 Error while adding nurse:", error);
-
     if (error.response) {
       const errorData = error.response.data;
-
       if (typeof errorData === "string") {
         Swal.fire("Server Error", errorData, "error");
       } else if (errorData.message) {
@@ -110,7 +102,6 @@ export default function Staff() {
       } else {
         Swal.fire("Error", "Unexpected server error occurred", "error");
       }
-
     } else if (error.request) {
       Swal.fire("Network Error", "No response from server. Please check your connection.", "error");
     } else {
@@ -121,12 +112,10 @@ export default function Staff() {
 
  const AddDocotor = async () => {
   try {
-    // Required fields validation
     if (!dataDoctor.email || !dataDoctor.fullName || !files1) {
       Swal.fire("Missing Fields", "Please fill all required fields", "warning");
       return;
     }
-
     const formData = new FormData();
     formData.append("email", dataDoctor.email);
     formData.append("password", dataDoctor.password);
@@ -142,12 +131,10 @@ export default function Staff() {
     formData.append("specialty", dataDoctor.specialty);
     formData.append("phoneNumber", dataDoctor.phoneNumber);
     formData.append("personalPhoto", files1);
-
     console.log("✅ Ready FormData:");
     for (let pair of formData.entries()) {
       console.log(`${pair[0]}:`, pair[1]);
     }
-
     const response = await axios.post(
       `${baseurl}addDoctorDetails`,
       formData,
@@ -157,7 +144,6 @@ export default function Staff() {
         },
       }
     );
-
     if (response.data.success === true) {
       Swal.fire("Success", response.data.message || "Doctor added successfully!", "success");
       console.log("✅ Doctor added successfully:", response.data);
@@ -167,26 +153,21 @@ export default function Staff() {
       Swal.fire("Error", msg, "error");
       console.error("❌ Server Error:", msg);
     }
-
   } catch (error) {
     console.error("🚨 Error while adding doctor:", error);
-
     if (error.response) {
       const errorData = error.response.data;
-
       if (typeof errorData === "string") {
         Swal.fire("Server Error", errorData, "error");
       } else if (errorData.message) {
         Swal.fire("Error", errorData.message, "error");
       } else if (Array.isArray(errorData.errors)) {
-        // Show all validation messages one by one
         for (const err of errorData.errors) {
           Swal.fire("Validation Error", err.msg || err.message, "error");
         }
       } else {
         Swal.fire("Error", "Unexpected server error occurred", "error");
       }
-
     } else if (error.request) {
       Swal.fire("Network Error", "No response from server. Please check your connection.", "error");
     } else {
@@ -219,7 +200,7 @@ export default function Staff() {
 //         console.log(pair[0], pair[1]);
 //       }
 //       const response = await axios.post(
-//         `${baseurl}addDoctorDetails`,
+//         `${baseurl}addDoctorDetails`,home
 //         formData,
 //         {
 //           headers: {
