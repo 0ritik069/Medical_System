@@ -89,10 +89,9 @@ export default function Appointment2() {
     const { name, value } = e.target;
     setDataConfirm({ ...dataConfirm, [name]: value });
   };
- const handlechange11 = (e) => {
+  const handlechange11 = (e) => {
     const value = e.target.value;
     const checked = e.target.checked;
-
     setSelectedDoctors((prevSelected) => {
       let updated;
       if (checked) {
@@ -100,18 +99,14 @@ export default function Appointment2() {
       } else {
         updated = prevSelected.filter((id) => id !== value);
       }
-
-      // Update selectAll checkbox state
       setSelectAll(updated.length === doctors.length);
       setArrayuser(updated);
       return updated;
     });
   };
-    // Handle "Select All" checkbox
   const handleSelectAll = (e) => {
     const checked = e.target.checked;
     setSelectAll(checked);
-
     if (checked) {
       const allDoctorIds = doctors.map((doc) => String(doc.id));
       setSelectedDoctors(allDoctorIds);
@@ -121,20 +116,6 @@ export default function Appointment2() {
       setArrayuser([]);
     }
   };
-  // const handlechange11 = (e) => {
-  //   const value = e.target.value;
-  //   const checked = e.target.checked;
-
-  //   setSelectedDoctors((prevSelected) => {
-  //     const updated = checked
-  //       ? [...prevSelected, value]
-  //       : prevSelected.filter((id) => id !== value);
-
-  //     setArrayuser(updated);
-  //     return updated;
-  //   });
-  // };
-  // };
   const setFunction = async () => {
     try {
       const response = await axios.post(`${baseurl}appointmentByDoctorId`, {
@@ -149,16 +130,13 @@ export default function Appointment2() {
       }
     } catch (error) {
       console.log("Full error object:", error);
-
       const errorMessage =
         error.response?.data?.message ||
         error.message ||
         "Something went wrong";
-
       Swal.fire("Error", errorMessage, "error");
     }
   };
-
   const BookingConfirm = async () => {
     const start = new Date(`2020-01-01T${dataConfirm.startTime}`);
     const end = new Date(`2020-01-01T${dataConfirm.endTime}`);
@@ -178,33 +156,26 @@ export default function Appointment2() {
       toast.error("End time must be between 12:00 PM and 11:59 PM");
       return;
     }
-
-    // Optional: check that endTime is after startTime
     if (end <= start) {
       toast.error("End time must be after start time");
       return;
     }
-
-    // Optional: check max 2 hours
     const diffInMs = end - start;
     const diffInHours = diffInMs / (1000 * 60 * 60);
     if (diffInHours > 2) {
       toast.error("Appointment can't be more than 2 hours");
       return;
     }
-
     const datapost = {
       doctorId: dataConfirm.doctorId,
       startTime: dataConfirm.startTime,
       endTime: dataConfirm.endTime,
     };
-
     try {
       const response = await axios.post(
         `${baseurl}bookingAppointment/${eid}`,
         datapost
       );
-
       if (response.data.success === true) {
         Swal.fire("Success!!", "Appointment added successfully.", "success");
         handleclose22();
@@ -472,7 +443,7 @@ export default function Appointment2() {
       const response = await axios.post(
         `${baseurl}changeAppointmentStatus/${item.id}`,
         {
-          status: "Completed",
+          status: "Confirmed",
         }
       );
 
@@ -616,7 +587,7 @@ export default function Appointment2() {
                         value={selectedDates}
                         onChange={setSelectedDates}
                         format="YYYY-MM-DD"
-                        placeholder="Select dates"
+                        placeholder="Select Dates"
                         inputClass="form-control py-2"
                         className="custom-calendar-style"
                       />
@@ -705,7 +676,7 @@ export default function Appointment2() {
                             }
                           />
                         </div>
-                          <div className="col-md-6">
+                        <div className="col-md-6">
                           <label className="form-label">Start Time</label>
                           <input
                             type="time"
@@ -739,7 +710,6 @@ export default function Appointment2() {
                                 value="Waiting"
                                 onChange={handleChange23}
                                 checked={appointmentdata1.apptype === "Waiting"}
-                                // className="form-check-input"
                               />
                               Waiting
                             </label>
@@ -757,15 +727,12 @@ export default function Appointment2() {
                                 checked={
                                   appointmentdata1.apptype === "Emergency"
                                 }
-                                // style={{ cursor: "pointer" }}
-                                // className="form-check-input"
                               />
                               Emergency
                             </label>
                           </div>
                         </div>
 
-                      
                         <div className="col-lg-12">
                           <label className="form-label">Notes</label>
                           <input
@@ -846,62 +813,59 @@ export default function Appointment2() {
                         )}
                       </div>
                     </div> */}
-                       <div className="modal-body appointmentDetails">
-          <div className="row">
-            {doctors && doctors.length > 0 ? (
-              <>
-                {/* Select All */}
-                <div className="col-12 mb-3">
-                  <div className="form-check">
-                    <input
-                      type="checkbox"
-                      id="selectAllDoctors"
-                      className="form-check-input bg-secondary"
-                      checked={selectAll}
-                      onChange={handleSelectAll}
-                      style={{ cursor: "pointer" }}
-                    />
-                    <label
-                      className="form-check-label ms-2"
-                      htmlFor="selectAllDoctors"
-                    >
-                      Select All Doctors
-                    </label>
-                  </div>
-                </div>
-
-                {/* List of Doctor Checkboxes */}
-                {doctors.map((item, index) => (
-                  <div className="col-md-4 mb-3" key={index}>
-                    <div className="form-check">
-                      <input
-                        type="checkbox"
-                        // style={{ cursor: "pointer", backgroundColor: "#0d6efd" }}
-                        id={`doctor-${item.id}`}
-                        value={item.id}
-                        name="doctorIds"
-                        style={{cursor:"pointer"}}
-                        checked={selectedDoctors.includes(String(item.id))}
-                        onChange={handlechange11}
-                      />
-                      <label
-                        className="form-check-label ms-2  bg-blue-important"
-                        htmlFor={`doctor-${item.id}`}
-                      >
-                        {item.fullName}
-                      </label>
+                    <div className="modal-body appointmentDetails">
+                      <div className="row">
+                        {doctors && doctors.length > 0 ? (
+                          <>
+                            <div className="col-12 mb-3">
+                              <div className="form-check">
+                                <input
+                                  type="checkbox"
+                                  id="selectAllDoctors"
+                                  className="form-check-input bg-secondary"
+                                  checked={selectAll}
+                                  onChange={handleSelectAll}
+                                  style={{ cursor: "pointer" }}
+                                />
+                                <label
+                                  className="form-check-label ms-2"
+                                  htmlFor="selectAllDoctors"
+                                >
+                                  Select All Doctors
+                                </label>
+                              </div>
+                            </div>
+                            {doctors.map((item, index) => (
+                              <div className="col-md-4 mb-3" key={index}>
+                                <div className="form-check">
+                                  <input
+                                    type="checkbox"
+                                    id={`doctor-${item.id}`}
+                                    value={item.id}
+                                    name="doctorIds"
+                                    style={{ cursor: "pointer" }}
+                                    checked={selectedDoctors.includes(
+                                      String(item.id)
+                                    )}
+                                    onChange={handlechange11}
+                                  />
+                                  <label
+                                    className="form-check-label ms-2  bg-blue-important"
+                                    htmlFor={`doctor-${item.id}`}
+                                  >
+                                    {item.fullName}
+                                  </label>
+                                </div>
+                              </div>
+                            ))}
+                          </>
+                        ) : (
+                          <div className="col-12">
+                            <p>No doctors available</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </>
-            ) : (
-              <div className="col-12">
-                <p>No doctors available</p>
-              </div>
-            )}
-          </div>
-        </div>
-       
                     <siv className="d-flex justify-content-center">
                       <button
                         className=" my-3 bgBtn"
@@ -914,9 +878,7 @@ export default function Appointment2() {
                     </siv>
                   </div>
                 </div>
-                
-     
-      </div>
+              </div>
             )}
             {showdata ? (
               <div className="card-body tableAppoint">
@@ -1209,17 +1171,18 @@ export default function Appointment2() {
                     <div className="d-flex iconTab">
                       <i
                         className="ti ti-edit f-20"
-                        style={{cursor:"pointer"}}
+                        style={{ cursor: "pointer" }}
                         onClick={() => {
-                          
                           handledopencllick(datamodalappointment);
                         }}
                       ></i>
                       <i className="ti ti-bell"></i>
-                      <i class="ti ti-file" onClick={()=>{
-                        handleclick11111111(datamodalappointment)
-                      }}
-                          style={{cursor:"pointer"}}
+                      <i
+                        class="ti ti-file"
+                        onClick={() => {
+                          handleclick11111111(datamodalappointment);
+                        }}
+                        style={{ cursor: "pointer" }}
                       ></i>
                     </div>
                   </div>
