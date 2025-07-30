@@ -11,6 +11,8 @@ export default function NewRequest() {
   const [patients, setPatients] = useState([]);
   const [labs, setLabs] = useState([]);
   const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState({ patients: true, labs: true, doctors: true });
+  const [apiError, setApiError] = useState({ patients: false, labs: false, doctors: false });
   const [formData, setFormData] = useState({
     patient_id: "",
     lab_id: "",
@@ -24,38 +26,87 @@ export default function NewRequest() {
   const [selectedPatientId, setSelectedPatientId] = useState("");
 
   useEffect(() => {
+    console.log("Fetching patients from:", `${baseurl}getAllPatients`);
+    setLoading(prev => ({ ...prev, patients: true }));
+    setApiError(prev => ({ ...prev, patients: false }));
+    
     axios.get(`${baseurl}getAllPatients`)
       .then(res => {
+        console.log("Patients API response:", res.data);
         if (res.data.success && Array.isArray(res.data.data)) {
+          console.log("Setting patients:", res.data.data);
           setPatients(res.data.data);
+        } else {
+          console.log("Patients API failed or no data:", res.data);
+          setApiError(prev => ({ ...prev, patients: true }));
         }
+        setLoading(prev => ({ ...prev, patients: false }));
       })
       .catch(err => {
         console.error("Failed to fetch patients", err);
+        console.error("Error details:", err.response?.data);
+        setApiError(prev => ({ ...prev, patients: true }));
+        setLoading(prev => ({ ...prev, patients: false }));
       });
   }, []);
 
   useEffect(() =>{
-    axios.get(`${baseurl}getAllLabs`)
+    console.log("Fetching labs from:", `${baseurl}getAllActiveLabs`);
+    setLoading(prev => ({ ...prev, labs: true }));
+    setApiError(prev => ({ ...prev, labs: false }));
+    
+    axios.get(`${baseurl}getAllActiveLabs`)
     .then(res => {
+        console.log("Labs API response:", res.data);
         if(res.data.success && Array.isArray(res.data.data)) {
+            console.log("Setting labs:", res.data.data);
             setLabs(res.data.data);
+        } else {
+            console.log("Labs API failed or no data:", res.data);
+            setApiError(prev => ({ ...prev, labs: true }));
         }
+        setLoading(prev => ({ ...prev, labs: false }));
     })
     .catch(err =>{
-        console.log("Failed to fetch labs",err);
+        console.error("Failed to fetch labs", err);
+        console.error("Error details:", err.response?.data);
+        setApiError(prev => ({ ...prev, labs: true }));
+        setLoading(prev => ({ ...prev, labs: false }));
     });
   },[]);
 
   useEffect(() => {
-    axios.get(`${baseurl}getAllDoctors`)
+    // Test if API server is reachable
+    console.log("Testing API server connection...");
+    axios.get(`${baseurl}`)
       .then(res => {
+        console.log("API server is reachable:", res.data);
+      })
+      .catch(err => {
+        console.error("API server not reachable:", err);
+      });
+      
+    console.log("Fetching doctors from:", `${baseurl}getActiveDoctors`);
+    setLoading(prev => ({ ...prev, doctors: true }));
+    setApiError(prev => ({ ...prev, doctors: false }));
+    
+    axios.get(`${baseurl}getActiveDoctors`)
+      .then(res => {
+        console.log("Doctors API response:", res.data);
         if (res.data.success && Array.isArray(res.data.data)) {
+          console.log("Setting doctors:", res.data.data);
           setDoctors(res.data.data);
+        } else {
+          console.log("Doctors API failed or no data:", res.data);
+          setApiError(prev => ({ ...prev, doctors: true }));
         }
+        setLoading(prev => ({ ...prev, doctors: false }));
       })
       .catch(err => {
         console.error("Failed to fetch doctors", err);
+        console.error("Error details:", err.response?.data);
+        setApiError(prev => ({ ...prev, doctors: true }));
+        setLoading(prev => ({ ...prev, doctors: false }));
       });
   }, []);
 
@@ -74,7 +125,8 @@ export default function NewRequest() {
     setFormData((prev) => ({
       ...prev,
       patient: selectedPatient ? `${selectedPatient.firstName} ${selectedPatient.lastName}` : "",
-      patient_id: selectedPatient ? selectedPatient.civilIdNumber : "",
+      patient_id: selectedId, // Use the actual MySQL id for API
+      patient_civil_id: selectedPatient ? selectedPatient.civilIdNumber : "", // For display
     }));
   };
 
@@ -97,6 +149,9 @@ export default function NewRequest() {
       setSubmitted(false);
       return;
     }
+    
+    console.log("Submitting form data:", formData);
+    
     try {
       const response = await axios.post(
         `${baseurl}addLabRequest`,
@@ -119,8 +174,8 @@ export default function NewRequest() {
         Swal.fire("Error", response.data.message || "Something went wrong", "error");
       }
     } catch (error) {
+      console.error("API Error:", error.response?.data || error);
       Swal.fire("Error", "Server error while adding request", "error");
-      console.error(error);
     }
   };
   return (
@@ -156,14 +211,18 @@ export default function NewRequest() {
                   name="patient_id"
                   value={selectedPatientId}
                   onChange={handlePatientChange}
+                  disabled={loading.patients}
                 >
-                  <option value="">Select Patient</option>
-                  {patients.map((p) => (
+                  <option value="">{loading.patients ? "Loading patients..." : "Select Patient"}</option>
+                  {!loading.patients && !apiError.patients && patients.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.firstName} {p.lastName}
                     </option>
                   ))}
                 </select>
+                {apiError.patients && (
+                  <p className="text-danger">Failed to load patients. Please try again.</p>
+                )}
                 {errors && errors.patient_id && (
                   <p className="text-danger">{errors.patient_id}</p>
                 )}
@@ -172,8 +231,8 @@ export default function NewRequest() {
                 <label className="form-label">Patient ID</label>
                 <input
                   type="text"
-                  name="patient_id"
-                  value={formData.patient_id}
+                  name="patient_civil_id"
+                  value={formData.patient_civil_id || ""}
                   className="form-control"
                   placeholder="Patient ID"
                   readOnly
@@ -189,14 +248,18 @@ export default function NewRequest() {
                   name="lab_id"
                   value={formData.lab_id}
                   onChange={handleChange}
+                  disabled={loading.labs}
                 >
-                  <option value="">Select Lab</option>
-                  {labs.map((lab) => (
+                  <option value="">{loading.labs ? "Loading labs..." : "Select Lab"}</option>
+                  {!loading.labs && !apiError.labs && labs.map((lab) => (
                     <option key={lab.id} value={lab.id}>
                       {lab.lab_name}
                     </option>
                   ))}
                 </select>
+                {apiError.labs && (
+                  <p className="text-danger">Failed to load labs. Please try again.</p>
+                )}
                 {errors && errors.lab_id && (
                   <p className="text-danger">{errors.lab_id}</p>
                 )}
@@ -210,14 +273,19 @@ export default function NewRequest() {
                   name="doctor_id"
                   value={formData.doctor_id}
                   onChange={handleChange}
+                  disabled={loading.doctors}
                 >
-                  <option value="">Select Doctor</option>
-                  {doctors.map((doc) => (
+                  <option value="">{loading.doctors ? "Loading doctors..." : "Select Doctor"}</option>
+                  {console.log("Rendering doctors dropdown with:", doctors.length, "doctors")}
+                  {!loading.doctors && !apiError.doctors && doctors.map((doc) => (
                     <option key={doc.id} value={doc.id}>
                       {doc.fullName}
                     </option>
                   ))}
                 </select>
+                {apiError.doctors && (
+                  <p className="text-danger">Failed to load doctors. Please try again.</p>
+                )}
                 {errors && errors.doctor_id && (
                   <p className="text-danger">{errors.doctor_id}</p>
                 )}

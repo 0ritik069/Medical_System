@@ -2630,9 +2630,9 @@ export default function ManageAppointment() {
                                         <tr key={index}>
                                           <td>{item.patient_name}</td>
                                           <td>{item.lab_name}</td>
-                                          <td>{item.doctor_name}</td>
                                           <td>{item.title}</td>
                                           <td>{item.description}</td>
+                                          <td>{item.doctor_name}</td>
                                           <td>
                                             <div
                                               // to="/Admin/Manageappointment"
@@ -3635,7 +3635,7 @@ export default function ManageAppointment() {
                                 </label>
                               ))}
                             </div> */}
-                                <div className="col-md-6">
+                                <div className="col-md-6 ">
                                   <label className="form-label form-label">
                                     Risk of Fall
                                   </label>

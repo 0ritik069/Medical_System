@@ -207,11 +207,11 @@ export default function ManageLabs() {
               onClick={() => {
                 navigate("/Admin/addlabs");
               }}>
-              Add Labs
+              Labs
             </button>
           </div>
         </div>
-        <div class="container my-12">
+        <div class="my-12">
           <div className="w-100 border rounded p-2">
             <ul className="nav nav-pills w-100" id="pills-tab" role="tablist"> 
               <li className="nav-item" role="presentation">
@@ -325,6 +325,7 @@ export default function ManageLabs() {
                                       value={lab.status}
                                       title="Change status"
                                       onChange={async e => {
+                                        console.log('Original dropdown change:', e.target.value);
                                         const newStatus = e.target.value === 'Cancel' ? 'Cancelled' : e.target.value;
                                         try {
                                           const res = await axios.post(`${baseurl}updateLabRequestStatus/${lab.request_id}`, { status: newStatus });
@@ -339,9 +340,10 @@ export default function ManageLabs() {
                                         }
                                       }}
                                     >
-                                      <option value="Not Sent">Not Sent</option>
-                                      <option value="Pending">Pending</option>
-                                      <option value="Cancel">Cancel</option>
+                                      <option value={lab.status} disabled>{lab.status}</option>
+                                      {lab.status !== "Not Sent" && <option value="Not Sent">Not Sent</option>}
+                                      {lab.status !== "Pending" && <option value="Pending">Pending</option>}
+                                      {lab.status !== "Cancel" && <option value="Cancel">Cancel</option>}
                                     </select>
                                   </td>
                                   <td>
@@ -422,6 +424,7 @@ export default function ManageLabs() {
                                     value={lab.status}
                                     title="Change status"
                                     onChange={async e => {
+                                      console.log('Pending dropdown change:', e.target.value);
                                       const newStatus = e.target.value === 'Cancel' ? 'Cancelled' : e.target.value;
                                       try {
                                         const res = await axios.post(`${baseurl}updateLabRequestStatus/${lab.request_id}`, { status: newStatus });
@@ -436,9 +439,10 @@ export default function ManageLabs() {
                                       }
                                     }}
                                   >
-                                    <option value="Pending">Pending</option>
-                                    <option value="Received">Received</option>
-                                    <option value="Cancel">Cancel</option>
+                                    <option value={lab.status} disabled>{lab.status}</option>
+                                    {lab.status !== "Pending" && <option value="Pending">Pending</option>}
+                                    {lab.status !== "Received" && <option value="Received">Received</option>}
+                                    {lab.status !== "Cancel" && <option value="Cancel">Cancel</option>}
                                   </select>
                                 </td>
                                 <td>
@@ -519,6 +523,7 @@ export default function ManageLabs() {
                                     value={lab.status}
                                     title="Change status"
                                     onChange={async e => {
+                                      console.log('Received dropdown change:', e.target.value);
                                       const newStatus = e.target.value === 'Cancel' ? 'Cancelled' : e.target.value;
                                       try {
                                         const res = await axios.post(`${baseurl}updateLabRequestStatus/${lab.request_id}`, { status: newStatus });
@@ -533,9 +538,10 @@ export default function ManageLabs() {
                                       }
                                     }}
                                   >
-                                    <option value="Received">Received</option>
-                                    <option value="Result">Result</option>
-                                    <option value="Cancel">Cancel</option>
+                                    <option value={lab.status} disabled>{lab.status}</option>
+                                    {lab.status !== "Received" && <option value="Received">Received</option>}
+                                    {lab.status !== "Result" && <option value="Result">Result</option>}
+                                    {lab.status !== "Cancel" && <option value="Cancel">Cancel</option>}
                                   </select>
                                 </td>
                                 <td>

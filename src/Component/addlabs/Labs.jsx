@@ -535,9 +535,8 @@ export default function Labs() {
   };
   const handleStatusChange = async (id, status) => {
     try {
-      const response = await axios.put(`${baseurl}updateLabStatus`, {
-        id,
-        is_active: status,
+      const response = await axios.put(`${baseurl}changeLabStatus/${id}`, {
+        status: status,
       });
       if (response.data.success === true) {
         Swal.fire("Success", "Status Updated", "success");

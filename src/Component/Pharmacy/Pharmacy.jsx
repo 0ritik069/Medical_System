@@ -225,7 +225,8 @@ export default function Pharmacy() {
 
 
   const filteredDrugs = drugs.filter((item) =>
-    item.name?.toLowerCase().includes(searchDrug.toLowerCase())
+    item.name?.toLowerCase().includes(searchDrug.toLowerCase()) ||
+    item.barcode?.toLowerCase().includes(searchDrug.toLowerCase())
   );
 
   const filteredRxList = rxList.filter((item) =>
@@ -262,7 +263,7 @@ export default function Pharmacy() {
   return (
     <div className="pc-container">
       <div className="pc-content">
-        <div className="container mt-4">
+        <div className="mt-4">
           {activeTab === "tab1" && (
             <div className="d-flex justify-content-between align-items-center mb-3">
 
@@ -308,11 +309,11 @@ export default function Pharmacy() {
             <div className="card-body pt-3">
               <div className="table-responsive">
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <div style={{ width: "300px",  margin: "15px" }}>
+                  <div style={{ width: "300px", margin: "15px" }}>
                     <input
                       type="text"
-                      className="form-control "
-                      placeholder="Search by medicine name"
+                      className="form-control"
+                      placeholder={activeTab === "tab1" ? "Search by medicine name or barcode" : "Search by medicine name"}
                       value={activeTab === "tab1" ? searchDrug : searchRx}
                       onChange={(e) => {
                         activeTab === "tab1"
@@ -395,9 +396,14 @@ export default function Pharmacy() {
                             <td style={{ minWidth: '200px' }}>
                               <div className="text-center">
                                 {item.barcode && (
-                                  <div style={{ transform: 'scale(1.2)', transformOrigin: 'center', margin: '0 auto' }}>
-                                    <BarcodeGenerator value={item.barcode} width={3} height={60} />
-                                  </div>
+                                  <span style={{ 
+                                    fontFamily: 'monospace',
+                                    fontSize: '12px',
+                                    fontWeight: 'bold',
+                                    color: '#495057'
+                                  }}>
+                                    {item.barcode}
+                                  </span>
                                 )}
                               </div>
                             </td>

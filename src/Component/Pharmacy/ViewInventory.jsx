@@ -96,7 +96,14 @@ export default function ViewInventory() {
                   <label className="form-label">Barcode</label>
                   {inventory.barcode && (
                     <div className="text-center">
-                      <BarcodeGenerator value={inventory.barcode} width={3} height={120} />
+                      <span style={{ 
+                        fontFamily: 'monospace',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        color: '#495057'
+                      }}>
+                        {inventory.barcode}
+                      </span>
                     </div>
                   )}
                 </div>
