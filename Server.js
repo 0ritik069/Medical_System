@@ -226,9 +226,63 @@
 
 // Count the number of even and odd numbers in an array
 
-const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
- const response = arr.find(5)
-console.log(response)
+// const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+//  const response = arr.find(5)
+// console.log(response)
+
+
+
+// const num=11;
+
+// // prime number check
+// let isPrime = true; 
+// for (let i = 2; i <= Math.sqrt(num); i++) {
+//     if (num % i === 0) {
+//         isPrime = false;
+//         break;
+//     }
+// }
+// if (isPrime && num > 1) {
+//     console.log(`${num} is a prime number.`);
+// }
+// else {
+//     console.log(`${num} is not a prime number.`);
+// }
+
+// const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+// console.log(arr[9])
+
+
+// Filter all numbers greater than 50 from an array.
+
+// let arr= [101,2,222,50,57,58,59,10,10,12,141,151,12,13,14]
+
+// const response = arr.filter((item)=>{
+//     return item>=50
+// })
+// console.log(response)
+
+// Find all elements that appear more than once.
+// const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3];
+// const duplicates = arr.filter((item, index) => arr.indexOf(item) !== index);    
+// console.log(duplicates); // Output: [1, 2, 3]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
