@@ -40,95 +40,204 @@ export default function Staff() {
     setFiles1(file);
   };
 
-  const AddNurse = async () => {
-    try {
-      if (!dataDoctor.email || !dataDoctor.fullName || !files1) {
-      Swal.fire("error","Please fill all required fields","error");
-      }
-      const formData = new FormData();
-      formData.append("email", dataDoctor.email);
-      formData.append("password", dataDoctor.password);
-      formData.append("role", dataDoctor.role || "nurse");
-      formData.append("fullName", dataDoctor.fullName);
-      formData.append("shortName", dataDoctor.shortName);
-      formData.append("prefix", dataDoctor.prefix);
-      formData.append("dateOfBirth", dataDoctor.dateOfBirth);
-      formData.append("licenseId", dataDoctor.licenseId);
-      formData.append("civilId", dataDoctor.civilId);
-      formData.append("phoneNumber", dataDoctor.phoneNumber);
-      formData.append("passport", dataDoctor.passport);
-      formData.append("gender", dataDoctor.gender);
-      formData.append("personalPhoto", files1);
-      console.log("✅ Ready FormData:");
-      for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-      }
-      const response = await axios.post(
-        `${baseurl}addDoctorDetails`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      if (response.data.success === true) {
-        // toast.success(response.data.message);
-        Swal.fire('success',"Nurse added successfully","success")
-        handleclicknurse123()
-        console.log("✅ Doctor added successfully:", response.data);
-        setOpenmodal(false);
-      } else {
-        toast.error("❌ Something went wrong:", response.data.message);
-      }
-    } catch (error) {
-      console.error("🚨 Error while adding doctor:", error);
+ const AddNurse = async () => {
+  try {
+    // Check for required fields
+    if (!dataDoctor.email || !dataDoctor.fullName || !files1) {
+      Swal.fire("Missing Fields", "Please fill all required fields", "warning");
+      return;
     }
-  };
-  const AddDocotor = async () => {
-    try {
-      if (!dataDoctor.email || !dataDoctor.fullName || !files1) {
-        return alert("Please fill all required fields");
-      }
-      const formData = new FormData();
-      formData.append("email", dataDoctor.email);
-      formData.append("password", dataDoctor.password);
-      formData.append("role", dataDoctor.role || "doctor");
-      formData.append("fullName", dataDoctor.fullName);
-      formData.append("shortName", dataDoctor.shortName);
-      formData.append("prefix", dataDoctor.prefix);
-      formData.append("dateOfBirth", dataDoctor.dateOfBirth);
-      formData.append("licenseId", dataDoctor.licenseId);
-      formData.append("civilId", dataDoctor.civilId);
-      formData.append("passport", dataDoctor.passport);
-      formData.append("gender", dataDoctor.gender);
-      formData.append("specialty", dataDoctor.specialty);
-      formData.append("phoneNumber", dataDoctor.phoneNumber);
-      formData.append("personalPhoto", files1);
-      console.log("✅ Ready FormData:");
-      for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-      }
-      const response = await axios.post(
-        `${baseurl}addDoctorDetails`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      if (response.data.success === true) {
-        toast.success(response.data.message);
-        console.log("✅ Doctor added successfully:", response.data);
-        setOpenmodal(false);
-      } else {
-        toast.error("❌ Something went wrong:", response.data.message);
-      }
-    } catch (error) {
-      console.error("🚨 Error while adding doctor:", error);
+
+    const formData = new FormData();
+    formData.append("email", dataDoctor.email);
+    formData.append("password", dataDoctor.password);
+    formData.append("role", "nurse");
+    formData.append("fullName", dataDoctor.fullName);
+    formData.append("shortName", dataDoctor.shortName);
+    formData.append("prefix", dataDoctor.prefix);
+    formData.append("dateOfBirth", dataDoctor.dateOfBirth);
+    formData.append("licenseId", dataDoctor.licenseId);
+    formData.append("civilId", dataDoctor.civilId);
+    formData.append("phoneNumber", dataDoctor.phoneNumber);
+    formData.append("passport", dataDoctor.passport);
+    formData.append("gender", dataDoctor.gender);
+    formData.append("personalPhoto", files1);
+
+    console.log("✅ Ready FormData:");
+    for (let pair of formData.entries()) {
+      console.log(`${pair[0]}:`, pair[1]);
     }
-  };
+
+    const response = await axios.post(
+      `${baseurl}addDoctorDetails`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    if (response.data.success === true) {
+      Swal.fire("Success", "Nurse added successfully", "success");
+      getallNurse()
+      handleclicknurse123();
+      console.log("✅ Nurse added successfully:", response.data);
+      setOpenmodal(false);
+    } else {
+      const msg = response.data.message || "Something went wrong!";
+      Swal.fire("Error", msg, "error");
+      console.error("❌ Server Error:", response.data);
+    }
+
+  } catch (error) {
+    console.error("🚨 Error while adding nurse:", error);
+
+    if (error.response) {
+      const errorData = error.response.data;
+
+      if (typeof errorData === "string") {
+        Swal.fire("Server Error", errorData, "error");
+      } else if (errorData.message) {
+        Swal.fire("Error", errorData.message, "error");
+      } else if (Array.isArray(errorData.errors)) {
+        const allErrors = errorData.errors.map(err => `• ${err.msg || err.message}`).join('<br>');
+        Swal.fire({
+          title: "Validation Errors",
+          html: allErrors,
+          icon: "error"
+        });
+      } else {
+        Swal.fire("Error", "Unexpected server error occurred", "error");
+      }
+
+    } else if (error.request) {
+      Swal.fire("Network Error", "No response from server. Please check your connection.", "error");
+    } else {
+      Swal.fire("Error", error.message || "An unknown error occurred", "error");
+    }
+  }
+};
+
+ const AddDocotor = async () => {
+  try {
+    // Required fields validation
+    if (!dataDoctor.email || !dataDoctor.fullName || !files1) {
+      Swal.fire("Missing Fields", "Please fill all required fields", "warning");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("email", dataDoctor.email);
+    formData.append("password", dataDoctor.password);
+    formData.append("role", dataDoctor.role || "doctor");
+    formData.append("fullName", dataDoctor.fullName);
+    formData.append("shortName", dataDoctor.shortName);
+    formData.append("prefix", dataDoctor.prefix);
+    formData.append("dateOfBirth", dataDoctor.dateOfBirth);
+    formData.append("licenseId", dataDoctor.licenseId);
+    formData.append("civilId", dataDoctor.civilId);
+    formData.append("passport", dataDoctor.passport);
+    formData.append("gender", dataDoctor.gender);
+    formData.append("specialty", dataDoctor.specialty);
+    formData.append("phoneNumber", dataDoctor.phoneNumber);
+    formData.append("personalPhoto", files1);
+
+    console.log("✅ Ready FormData:");
+    for (let pair of formData.entries()) {
+      console.log(`${pair[0]}:`, pair[1]);
+    }
+
+    const response = await axios.post(
+      `${baseurl}addDoctorDetails`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    if (response.data.success === true) {
+      Swal.fire("Success", response.data.message || "Doctor added successfully!", "success");
+      console.log("✅ Doctor added successfully:", response.data);
+      setOpenmodal(false);
+    } else {
+      const msg = response.data.message || "Something went wrong";
+      Swal.fire("Error", msg, "error");
+      console.error("❌ Server Error:", msg);
+    }
+
+  } catch (error) {
+    console.error("🚨 Error while adding doctor:", error);
+
+    if (error.response) {
+      const errorData = error.response.data;
+
+      if (typeof errorData === "string") {
+        Swal.fire("Server Error", errorData, "error");
+      } else if (errorData.message) {
+        Swal.fire("Error", errorData.message, "error");
+      } else if (Array.isArray(errorData.errors)) {
+        // Show all validation messages one by one
+        for (const err of errorData.errors) {
+          Swal.fire("Validation Error", err.msg || err.message, "error");
+        }
+      } else {
+        Swal.fire("Error", "Unexpected server error occurred", "error");
+      }
+
+    } else if (error.request) {
+      Swal.fire("Network Error", "No response from server. Please check your connection.", "error");
+    } else {
+      Swal.fire("Error", error.message || "An unknown error occurred", "error");
+    }
+  }
+};
+//  const AddDocotor = async () => {
+//     try {
+//       if (!dataDoctor.email || !dataDoctor.fullName || !files1) {
+//         return alert("Please fill all required fields");
+//       }
+//       const formData = new FormData();
+//       formData.append("email", dataDoctor.email);
+//       formData.append("password", dataDoctor.password);
+//       formData.append("role", dataDoctor.role || "doctor");
+//       formData.append("fullName", dataDoctor.fullName);
+//       formData.append("shortName", dataDoctor.shortName);
+//       formData.append("prefix", dataDoctor.prefix);
+//       formData.append("dateOfBirth", dataDoctor.dateOfBirth);
+//       formData.append("licenseId", dataDoctor.licenseId);
+//       formData.append("civilId", dataDoctor.civilId);
+//       formData.append("passport", dataDoctor.passport);
+//       formData.append("gender", dataDoctor.gender);
+//       formData.append("specialty", dataDoctor.specialty);
+//       formData.append("phoneNumber", dataDoctor.phoneNumber);
+//       formData.append("personalPhoto", files1);
+//       console.log("✅ Ready FormData:");
+//       for (let pair of formData.entries()) {
+//         console.log(pair[0], pair[1]);
+//       }
+//       const response = await axios.post(
+//         `${baseurl}addDoctorDetails`,
+//         formData,
+//         {
+//           headers: {
+//             "Content-Type": "multipart/form-data",
+//           },
+//         }
+//       );
+//       if (response.data.success === true) {
+//         toast.success(response.data.message);
+//         console.log("✅ Doctor added successfully:", response.data);
+//         setOpenmodal(false);
+//       } else {
+//         toast.error("❌ Something went wrong:", response.data.message);
+//       }
+//     } catch (error) {
+//       console.error("🚨 Error while adding doctor:", error);
+//     }
+//   };
   const handlechaneg = (e) => {
     const { name, value } = e.target;
     setDataDoctor({ ...dataDoctor, [name]: value });
@@ -235,51 +344,151 @@ export default function Staff() {
     }
   };
 
-  const handleclickstaff =async () => {
-    console.log("eeeeeeeee")
-    console.log(dataDoctor)
-      try {
-      const formData = new FormData();
-      formData.append("email", dataDoctor.email);
-      formData.append("password", dataDoctor.password);
-      formData.append("role",  dataDoctor.role);
-      formData.append("fullName", dataDoctor.firstName);
-      formData.append("shortName", dataDoctor.lastName);
-      formData.append("prefix", dataDoctor.prefix);
-      formData.append("dateOfBirth", dataDoctor.dateOfBirth);
-      formData.append("licenseId", dataDoctor.licenseId);
-      formData.append("civilId", dataDoctor.civilId);
-      formData.append("passport", dataDoctor.passport);
-      formData.append("gender", dataDoctor.gender);
-      formData.append("phoneNumber", dataDoctor.phoneNumber);
-      // formData.append("specialty", dataDoctor.specialty);
-      formData.append("personalPhoto", files1);
-      console.log("✅ Ready FormData:");
-      for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-      }
-      const response = await axios.post(
-        `${baseurl}addDoctorDetails`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      if (response.data.success === true) {
-       Swal.fire("success","Staff Added succesfully","success")
-        console.log("✅ Doctor added successfully:", response.data);
-        handleClose2()
-      } else {
-        toast.error("❌ Something went wrong:", response.data.message);
-      }
-    } catch (error) {
-      console.error("🚨 Error while adding doctor:", error);
+// const handleclickstaff = async () => {
+//   console.log("📤 Submitting doctor data...");
+//   console.log(dataDoctor);
+
+//   try {
+//     const formData = new FormData();
+//     formData.append("email", dataDoctor.email);
+//     formData.append("password", dataDoctor.password);
+//     formData.append("role", dataDoctor.role);
+//     formData.append("fullName", dataDoctor.firstName);
+//     formData.append("shortName", dataDoctor.lastName);
+//     formData.append("prefix", dataDoctor.prefix);
+//     formData.append("dateOfBirth", dataDoctor.dateOfBirth);
+//     formData.append("licenseId", dataDoctor.licenseId);
+//     formData.append("civilId", dataDoctor.civilId);
+//     formData.append("passport", dataDoctor.passport);
+//     formData.append("gender", dataDoctor.gender);
+//     formData.append("phoneNumber", dataDoctor.phoneNumber);
+//     // formData.append("specialty", dataDoctor.specialty);
+//     formData.append("personalPhoto", files1);
+
+//     console.log("✅ Ready FormData:");
+//     for (let pair of formData.entries()) {
+//       console.log(`${pair[0]}:`, pair[1]);
+//     }
+
+//     const response = await axios.post(
+//       `${baseurl}addDoctorDetails`,
+//       formData,
+//       {
+//         headers: {
+//           "Content-Type": "multipart/form-data",
+//         },
+//       }
+//     );
+
+//     if (response.data.success === true) {
+//       Swal.fire("Success", "Staff added successfully", "success");
+//       console.log("✅ Doctor added successfully:", response.data);
+//       handleClose2();
+//     } else {
+//       const errorMessage = response.data.message || "Something went wrong!";
+//       toast.error(`❌ ${errorMessage}`);
+//       console.error("❌ Server responded with an error:", response.data);
+//     }
+//   } catch (error) {
+//     if (error.response) {
+//       // Server responded with a status other than 2xx
+//       const errorData = error.response.data;
+//       if (typeof errorData === "string") {
+//         toast.error(`❌ ${errorData}`);
+//       } else if (errorData.message) {
+//         toast.error(`❌ ${errorData.message}`);
+//       } else if (Array.isArray(errorData.errors)) {
+//         errorData.errors.forEach((err) => {
+//           toast.error(`❌ ${err.msg || err.message}`);
+//         });
+//       } else {
+//         toast.error("❌ Unexpected error occurred.");
+//       }
+//       console.error("🚨 Error response from server:", errorData);
+//     } else if (error.request) {
+//       toast.error("❌ No response from server. Please check your network.");
+//       console.error("📡 No response received:", error.request);
+//     } else {
+//       toast.error(`❌ Error: ${error.message}`);
+//       console.error("⚠️ Error setting up request:", error.message);
+//     }
+//   }
+// };
+const handleclickstaff = async () => {
+  console.log("📤 Submitting doctor data...");
+  console.log(dataDoctor);
+
+  try {
+    const formData = new FormData();
+    formData.append("email", dataDoctor.email);
+    formData.append("password", dataDoctor.password);
+    formData.append("role", dataDoctor.role);
+    formData.append("fullName", dataDoctor.firstName);
+    formData.append("shortName", dataDoctor.lastName);
+    formData.append("prefix", dataDoctor.prefix);
+    formData.append("dateOfBirth", dataDoctor.dateOfBirth);
+    formData.append("licenseId", dataDoctor.licenseId);
+    formData.append("civilId", dataDoctor.civilId);
+    formData.append("passport", dataDoctor.passport);
+    formData.append("gender", dataDoctor.gender);
+    formData.append("phoneNumber", dataDoctor.phoneNumber);
+    // formData.append("specialty", dataDoctor.specialty);
+    formData.append("personalPhoto", files1);
+
+    console.log("✅ Ready FormData:");
+    for (let pair of formData.entries()) {
+      console.log(`${pair[0]}:`, pair[1]);
     }
 
+    const response = await axios.post(
+      `${baseurl}addDoctorDetails`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
 
+    if (response.data.success === true) {
+      Swal.fire("Success", "Staff added successfully", "success");
+      console.log("✅ Doctor added successfully:", response.data);
+      getallstaff()
+      handleClose2();
+    } else {
+      const errorMessage = response.data.message || "Something went wrong!";
+      Swal.fire("Error", errorMessage, "error");
+      console.error("❌ Server responded with an error:", response.data);
+    }
+  } catch (error) {
+    console.error("🚨 Error while adding doctor:", error);
+
+    if (error.response) {
+      const errorData = error.response.data;
+
+      if (typeof errorData === "string") {
+        Swal.fire("Error", errorData, "error");
+      } else if (errorData.message) {
+        Swal.fire("Error", errorData.message, "error");
+      } else if (Array.isArray(errorData.errors)) {
+        // Show all errors in one alert
+        const allErrors = errorData.errors.map(err => `• ${err.msg || err.message}`).join('<br>');
+        Swal.fire({
+          title: "Validation Errors",
+          html: allErrors,
+          icon: "error"
+        });
+      } else {
+        Swal.fire("Error", "Unexpected server error occurred", "error");
+      }
+    } else if (error.request) {
+      Swal.fire("Network Error", "No response from server. Please check your internet connection.", "error");
+    } else {
+      Swal.fire("Error", error.message || "An unknown error occurred", "error");
+    }
   }
+};
+
   return (
     <div className="pc-container">
       <div className="pc-content">
@@ -469,7 +678,7 @@ export default function Staff() {
                             <th>DOB</th>
                             <th>License Id</th>
                             <th>Gender</th>
-                            <th>Specialty</th>
+                            <th>Civil Id</th>
                             <th>Phone No</th>
                             <th>Action</th>
                           </tr>
@@ -498,7 +707,7 @@ export default function Staff() {
                             <td>{new Date(item.dateOfBirth).toLocaleDateString('en-GB')}</td>
                             <td>{item.licenseId}</td>
                             <td>{item.gender}</td>
-                            <td>{item.specialty}</td>
+                            <td>{item.civilId}</td>
                             {/* <td>
                               <div className="form-check form-switch">
                                 <input
@@ -516,7 +725,7 @@ export default function Staff() {
                                 </label>
                               </div>
                             </td> */}
-                            <td>{item.phone}</td>
+                            <td>{item.phoneNumber}</td>
                             <td>
                               <a
                                 href="#"
@@ -1251,7 +1460,7 @@ export default function Staff() {
                   <div className="modal-dialog modal-lg">
                     <div className="modal-content">
                       <div className="modal-header">
-                        <h5 className="modal-title">Add Doctor</h5>
+                        <h5 className="modal-title">Add Nurse</h5>
                         <button
                           type="button"
                           className="btn-close"
@@ -1445,6 +1654,7 @@ export default function Staff() {
                               type="text"
                               name="phoneNumber"
                               className="form-control"
+                              placeholder="+91 8859932237"
                               id="doctorName"
                               onChange={handlechaneg}
                             />

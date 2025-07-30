@@ -395,6 +395,7 @@ export default function Appointment2() {
 
       if (response.data.success) {
         setAppointmentPatient(response.data.data);
+        setAppointmentdata(response.data.data);
       } else {
         toast.error("No data found");
         setAppointmentPatient([]);
@@ -879,6 +880,7 @@ export default function Appointment2() {
                         id={`doctor-${item.id}`}
                         value={item.id}
                         name="doctorIds"
+                        style={{cursor:"pointer"}}
                         checked={selectedDoctors.includes(String(item.id))}
                         onChange={handlechange11}
                       />
