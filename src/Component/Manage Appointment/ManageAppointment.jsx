@@ -2941,10 +2941,7 @@ export default function ManageAppointment() {
                       display: "block",
                     }}
                   >
-                    <div
-                      className="modal-dialog modal-xl"
-                      style={{ height: "650px" }}
-                    >
+                    <div className="modal-dialog modal-xl">
                       <div className="modal-content">
                         <div className="modal-header">
                           <h5 className="modal-title">Edit Vital</h5>
@@ -3350,15 +3347,14 @@ export default function ManageAppointment() {
                 {openVital && (
                   <div
                     className="modal fade show"
+                    tabIndex="-1"
                     style={{
                       backgroundColor: "rgba(0,0,0,0.5)",
                       display: "block",
                     }}
+                    aria-modal="true"
                   >
-                    <div
-                      className="modal-dialog modal-xl"
-                      style={{ height: "650px" }}
-                    >
+                    <div className="modal-dialog modal-xl">
                       <div className="modal-content">
                         <div className="modal-header">
                           <h5 className="modal-title">Add Vital</h5>
@@ -3371,33 +3367,48 @@ export default function ManageAppointment() {
                         <div>
                           <div className="row p20">
                             <div className="d-flex">
-                              <div className="col-md-5">
-                                Name:{" "}
-                                {location?.state?.patientid?.firstName +
-                                  " " +
-                                  location?.state?.patientid?.lastName}
-                                <br />
-                                Nurse: {userddertails?.role}
-                                <br />
-                                Doctor:{" "}
-                                {location?.state?.patientid?.Primary_Doctor}
+                              <div className="col-lg-3 col-md-4">
+                                <p>
+                                  {" "}
+                                  <strong> Name:</strong>{" "}
+                                  {location?.state?.patientid?.firstName +
+                                    " " +
+                                    location?.state?.patientid?.lastName}
+                                </p>
+                                <p>
+                                  <strong>Nurse:</strong> {userddertails?.role}
+                                </p>
+                                <p>
+                                  <strong>Doctor:</strong>{" "}
+                                  {location?.state?.patientid?.Primary_Doctor}
+                                </p>
                               </div>
-                              <div className="col-md-6">
-                                Age: {location?.state?.patientid?.age}
-                                <br />
-                                Date: {date}
-                                <br />
-                                Time: {time}
+                              <div className="col-lg-3 col-md-4">
+                                <p>
+                                  <strong> Age:</strong>{" "}
+                                  {location?.state?.patientid?.age}
+                                </p>
+
+                                <p>
+                                  <strong>Date:</strong> {date}
+                                </p>
+
+                                <p>
+                                  <strong>Time:</strong> {time}
+                                </p>
                               </div>
                             </div>
                           </div>
                           <hr className="hrLine" />
-                          <div className="row">
-                            <div className="col-lg-8">
-                              <div className="row p20">
+                          <div className="row p20">
+                            <div className="col-lg-8 ">
+                              <div>
+                                <h6> Blood Pressure</h6>
+                              </div>
+                              <div className="row">
                                 <div className="col-md-6">
                                   <label className="form-label">
-                                    Blood Pressure Systolic (40-300)
+                                    Systolic (40-300)
                                   </label>
                                   <input
                                     type="number"
@@ -3411,7 +3422,7 @@ export default function ManageAppointment() {
                                 </div>
                                 <div className="col-md-6">
                                   <label className="form-label">
-                                    blood Pressure Diastolic (20-180)
+                                    Diastolic (20-180)
                                   </label>
                                   <input
                                     type="number"
@@ -3427,9 +3438,7 @@ export default function ManageAppointment() {
                                   />
                                 </div>
                                 <div className="col-12">
-                                  <label className="form-label">
-                                    BP Position
-                                  </label>
+                                  <label className="form-label">Position</label>
                                   <br />
                                   {[
                                     "Right Arm",
@@ -3437,7 +3446,7 @@ export default function ManageAppointment() {
                                     "Right Leg",
                                     "Left Leg",
                                   ].map((pos) => (
-                                    <label className="me-3" key={pos}>
+                                    <label className="me-4" key={pos}>
                                       <input
                                         type="radio"
                                         name="bp_position" // All radios must share the same name
@@ -3451,6 +3460,8 @@ export default function ManageAppointment() {
                                     </label>
                                   ))}
                                 </div>
+                              </div>
+                              <div className="row mt-2">
                                 <div className="col-md-6">
                                   <label className="form-label">
                                     Respiratory Rate (5-50)
