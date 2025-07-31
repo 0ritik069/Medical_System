@@ -5,6 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import Select from "react-select";
+import Swal from "sweetalert2";
 const AddAppointment = () => {
   const [formData, setFormData] = useState({
     patientId: "",
@@ -72,32 +73,93 @@ const AddAppointment = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) return;
-    try {
-      const response = await axios.post(`${baseurl}createAppointment`, formData);
-      if (response.data.success) {
-        toast.success(response.data.message);
-        setTimeout(() => {
-          navigate("/Admin/appointment2");
-        }, 1500);
-        setFormData({
-          patientId: "",
-          doctorId: "",
-          appointmentDate: "",
-          startTime: "",
-          endTime: "",
-          reason: "",
-          status: "Scheduled",
-          status: "",
-        });
-        setErrors({});
-      }
-    } catch (error) {
-      console.error("Error creating appointment:", error);
+  e.preventDefault();
+
+  // Run front-end validation
+  const validationErrors = validate();
+  if (Object.keys(validationErrors).length > 0) {
+    setErrors(validationErrors);
+    return;
+  }
+
+  try {
+    const response = await axios.post(`${baseurl}createAppointment`, formData);
+
+    if (response.data.success) {
+      Swal.fire("success", "Appointment create successfully","success");
+
+      // Navigate after a short delay
+      setTimeout(() => {
+        navigate("/Admin/appointment2");
+      }, 1500);
+
+      // Reset form fields
+      setFormData({
+        patientId: "",
+        doctorId: "",
+        appointmentDate: "",
+        startTime: "",
+        endTime: "",
+        reason: "",
+        status: "Scheduled", // ✅ fixed: only one status field
+      });
+
+      // Clear errors
+      setErrors({});
     }
-  };
+  } catch (error) {
+    console.error("Error creating appointment:", error);
+
+    // Check if server sent a response
+    if (error.response && error.response.data) {
+      const { message, errors } = error.response.data;
+
+      // Show main error message
+      if (message) toast.error(message);
+
+      // Show field-level validation errors if present
+      if (errors && typeof errors === "object") {
+        const newErrors = {};
+        for (let key in errors) {
+          toast.error(`${key}: ${errors[key]}`);
+          newErrors[key] = errors[key];
+        }
+        setErrors(newErrors);
+      }
+    } else {
+      // Generic fallback error
+      toast.error("Something went wrong while creating appointment.");
+    }
+  }
+};
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const validationErrors = validate();
+  //   if (Object.keys(validationErrors).length > 0) return;
+  //   try {
+  //     const response = await axios.post(`${baseurl}createAppointment`, formData);
+  //     if (response.data.success) {
+  //       toast.success(response.data.message);
+  //       setTimeout(() => {
+  //         navigate("/Admin/appointment2");
+  //       }, 1500);
+  //       setFormData({
+  //         patientId: "",
+  //         doctorId: "",
+  //         appointmentDate: "",
+  //         startTime: "",
+  //         endTime: "",
+  //         reason: "",
+  //         status: "Scheduled",
+  //         status: "",
+  //       });
+  //       setErrors({});
+  //     }
+  //   } catch (error) {
+  //     console.error("Error creating appointment:", error);
+  //   }
+  // };
   const patientOptions = patientList.map((patient) => ({
     value: patient.id,
     label: `${patient.firstName} ${patient.lastName}`,
