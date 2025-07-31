@@ -168,7 +168,6 @@ function App() {
             <Route path="/Admin/EditInventory" element={<EditInventory />} />
             <Route path="/Admin/ViewInventory/:id" element={<ViewInventory />} />
             <Route path="/Admin/ViewRx/:id" element={<ViewRx />} />
-
             <Route path="/Admin/AddInventory" element={<AddInventory />} />
             <Route path="/Admin/AddRxList" element={<AddRxList />} />
             <Route path="/Admin/ViewLab/:id" element={<ViewLab />} />

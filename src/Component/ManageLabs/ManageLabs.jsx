@@ -77,6 +77,20 @@ export default function ManageLabs() {
     });
   };
 
+  const handleStatusChange = async (requestId, newStatus) => {
+    try {
+      const res = await axios.post(`${baseurl}updateLabRequestStatus/${requestId}`, { status: newStatus });
+      if (res.data.success) {
+        setRefreshFlag(f => f + 1);
+        Swal.fire('Success', 'Status updated successfully', 'success');
+      } else {
+        Swal.fire('Error', res.data.message || 'Failed to update status', 'error');
+      }
+    } catch {
+      Swal.fire('Error', 'Server error while updating status', 'error');
+    }
+  };
+
   const handleAddReportClick = (labId) => {
     setReportLabId(labId);
     setShowReportModal(true);
@@ -317,37 +331,27 @@ export default function ManageLabs() {
                                   <td>{lab.description}</td>
                                   <td>{lab.days_since_request ?? ''}</td>
                                   <td>{lab.sent_by}</td>
-                                  <td>
-                                    <select
-                                      id={`status-select-new-${lab.request_id}`}
-                                      className="form-select form-select-sm border-primary shadow-sm px-1 py-0"
-                                      style={{ minWidth: 90, fontWeight: 500, fontSize: '0.85em', height: '1.8em', backgroundColor: '#f8f9fa' }}
-                                      value={lab.status}
-                                      title="Change status"
-                                      onChange={async e => {
-                                        console.log('Original dropdown change:', e.target.value);
-                                        const newStatus = e.target.value === 'Cancel' ? 'Cancelled' : e.target.value;
-                                        try {
-                                          const res = await axios.post(`${baseurl}updateLabRequestStatus/${lab.request_id}`, { status: newStatus });
-                                          if (res.data.success) {
-                                            setRefreshFlag(f => f + 1);
-                                            Swal.fire('Success', 'Status updated successfully', 'success');
-                                          } else {
-                                            Swal.fire('Error', res.data.message || 'Failed to update status', 'error');
-                                          }
-                                        } catch {
-                                          Swal.fire('Error', 'Server error while updating status', 'error');
-                                        }
-                                      }}
-                                                                         >
-                                       <option value={lab.status} disabled>
-                                         {lab.status === "Pending" ? "Sent" : lab.status}
-                                       </option>
-                                       {lab.status !== "Not Sent" && <option value="Not Sent">Not Sent</option>}
-                                       {lab.status !== "Pending" && <option value="Pending">Sent</option>}
-                                       {lab.status !== "Cancel" && <option value="Cancel">Cancel</option>}
-                                     </select>
-                                  </td>
+                                                                     <td>
+                                     <div className="form-check form-switch">
+                                       <input
+                                         className="form-check-input"
+                                         type="checkbox"
+                                         role="switch"
+                                         id={`toggle-${lab.request_id}`}
+                                         checked={lab.status === 'Active' || lab.status === 'Pending' || lab.status === 'Received' || lab.status === 'Result'}
+                                         onChange={(e) => {
+                                           const newStatus = e.target.checked ? 'Active' : 'Inactive';
+                                           handleStatusChange(lab.request_id, newStatus);
+                                         }}
+                                       />
+                                       <label
+                                         className="form-check-label ms-2"
+                                         htmlFor={`toggle-${lab.request_id}`}
+                                       >
+                                         {lab.status === 'Active' || lab.status === 'Pending' || lab.status === 'Received' || lab.status === 'Result' ? "Active" : "Inactive"}
+                                       </label>
+                                     </div>
+                                   </td>
                                   <td>
                                     <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); navigate(`/Admin/ViewLab/${lab.request_id}`); }}>
                                       <i className="ti ti-eye f-20" />{" "}
@@ -418,37 +422,27 @@ export default function ManageLabs() {
                                 <td>{lab.description}</td>
                                 <td>{lab.days_since_request ?? ''}</td>
                                 <td>{lab.sent_by}</td>
-                                <td>
-                                  <select
-                                    id={`status-select-pending-${lab.request_id}`}
-                                    className="form-select form-select-sm border-primary shadow-sm px-1 py-0"
-                                    style={{ minWidth: 90, fontWeight: 500, fontSize: '0.85em', height: '1.8em', backgroundColor: '#f8f9fa' }}
-                                    value={lab.status}
-                                    title="Change status"
-                                    onChange={async e => {
-                                      console.log('Pending dropdown change:', e.target.value);
-                                      const newStatus = e.target.value === 'Cancel' ? 'Cancelled' : e.target.value;
-                                      try {
-                                        const res = await axios.post(`${baseurl}updateLabRequestStatus/${lab.request_id}`, { status: newStatus });
-                                        if (res.data.success) {
-                                          setRefreshFlag(f => f + 1);
-                                          Swal.fire('Success', 'Status updated successfully', 'success');
-                                        } else {
-                                          Swal.fire('Error', res.data.message || 'Failed to update status', 'error');
-                                        }
-                                      } catch {
-                                        Swal.fire('Error', 'Server error while updating status', 'error');
-                                      }
-                                    }}
-                                                                     >
-                                     <option value={lab.status} disabled>
-                                       {lab.status === "Pending" ? "Sent" : lab.status === "Received" ? "Completed" : lab.status}
-                                     </option>
-                                     {lab.status !== "Pending" && <option value="Pending">Sent</option>}
-                                     {lab.status !== "Received" && <option value="Received">Completed</option>}
-                                     {lab.status !== "Cancel" && <option value="Cancel">Cancel</option>}
-                                   </select>
-                                </td>
+                                                                 <td>
+                                   <div className="form-check form-switch">
+                                     <input
+                                       className="form-check-input"
+                                       type="checkbox"
+                                       role="switch"
+                                       id={`toggle-pending-${lab.request_id}`}
+                                       checked={lab.status === 'Active' || lab.status === 'Pending' || lab.status === 'Received' || lab.status === 'Result'}
+                                       onChange={(e) => {
+                                         const newStatus = e.target.checked ? 'Active' : 'Inactive';
+                                         handleStatusChange(lab.request_id, newStatus);
+                                       }}
+                                     />
+                                     <label
+                                       className="form-check-label ms-2"
+                                       htmlFor={`toggle-pending-${lab.request_id}`}
+                                     >
+                                       {lab.status === 'Active' || lab.status === 'Pending' || lab.status === 'Received' || lab.status === 'Result' ? "Active" : "Inactive"}
+                                     </label>
+                                   </div>
+                                 </td>
                                 <td>
                                   <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); navigate(`/Admin/ViewLab/${lab.request_id}`); }}>
                                     <i className="ti ti-eye f-20" />{" "}
@@ -519,37 +513,27 @@ export default function ManageLabs() {
                                 <td>{lab.description}</td>
                                 <td>{lab.days_since_request ?? ''}</td>
                                 <td>{lab.sent_by}</td>
-                                <td>
-                                  <select
-                                    id={`status-select-received-${lab.request_id}`}
-                                    className="form-select form-select-sm border-primary shadow-sm px-1 py-0"
-                                    style={{ minWidth: 90, fontWeight: 500, fontSize: '0.85em', height: '1.8em', backgroundColor: '#f8f9fa' }}
-                                    value={lab.status}
-                                    title="Change status"
-                                    onChange={async e => {
-                                      console.log('Received dropdown change:', e.target.value);
-                                      const newStatus = e.target.value === 'Cancel' ? 'Cancelled' : e.target.value;
-                                      try {
-                                        const res = await axios.post(`${baseurl}updateLabRequestStatus/${lab.request_id}`, { status: newStatus });
-                                        if (res.data.success) {
-                                          setRefreshFlag(f => f + 1);
-                                          Swal.fire('Success', 'Status updated successfully', 'success');
-                                        } else {
-                                          Swal.fire('Error', res.data.message || 'Failed to update status', 'error');
-                                        }
-                                      } catch {
-                                        Swal.fire('Error', 'Server error while updating status', 'error');
-                                      }
-                                    }}
-                                                                     >
-                                     <option value={lab.status} disabled>
-                                       {lab.status === "Received" ? "Completed" : lab.status}
-                                     </option>
-                                     {lab.status !== "Received" && <option value="Received">Completed</option>}
-                                     {lab.status !== "Result" && <option value="Result">Result</option>}
-                                     {lab.status !== "Cancel" && <option value="Cancel">Cancel</option>}
-                                   </select>
-                                </td>
+                                                                 <td>
+                                   <div className="form-check form-switch">
+                                     <input
+                                       className="form-check-input"
+                                       type="checkbox"
+                                       role="switch"
+                                       id={`toggle-received-${lab.request_id}`}
+                                       checked={lab.status === 'Active' || lab.status === 'Pending' || lab.status === 'Received' || lab.status === 'Result'}
+                                       onChange={(e) => {
+                                         const newStatus = e.target.checked ? 'Active' : 'Inactive';
+                                         handleStatusChange(lab.request_id, newStatus);
+                                       }}
+                                     />
+                                     <label
+                                       className="form-check-label ms-2"
+                                       htmlFor={`toggle-received-${lab.request_id}`}
+                                     >
+                                       {lab.status === 'Active' || lab.status === 'Pending' || lab.status === 'Received' || lab.status === 'Result' ? "Active" : "Inactive"}
+                                     </label>
+                                   </div>
+                                 </td>
                                 <td>
                                   <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); navigate(`/Admin/ViewLab/${lab.request_id}`); }}>
                                     <i className="ti ti-eye f-20" />{" "}
