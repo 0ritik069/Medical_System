@@ -34052,3 +34052,14 @@ overflow-x: hidden;
 .modal-content p{
   margin-bottom: 10px;
 }
+.appDeailsImg img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid #c6c7c8;
+}
+.appDeailsImg{
+  height: 100px;
+width: 100px;  
+}

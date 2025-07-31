@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/medicalSystem/static/css/main.e1eba5df.css",
-    "main.js": "/medicalSystem/static/js/main.313ae2b9.js",
+    "main.css": "/medicalSystem/static/css/main.ca47987b.css",
+    "main.js": "/medicalSystem/static/js/main.71490da2.js",
     "static/media/national-cancer-institute-4SiOVKH3DYA-unsplash.jpg": "/medicalSystem/static/media/national-cancer-institute-4SiOVKH3DYA-unsplash.3b060009c9b1c45aff23.jpg",
     "static/media/insurance11.png": "/medicalSystem/static/media/insurance11.862ff15567c0f19a4f7d.png",
     "static/media/liver.png": "/medicalSystem/static/media/liver.56a6aec443ce2832ff7a.png",
@@ -33,11 +33,11 @@
     "index.html": "/medicalSystem/index.html",
     "static/media/img-dropbox-bg.svg": "/medicalSystem/static/media/img-dropbox-bg.6ba2c2ca8a6b9fcae659.svg",
     "static/media/img-cunstruct-1-bottom.svg": "/medicalSystem/static/media/img-cunstruct-1-bottom.2dbd5d98166f00361b2b.svg",
-    "main.e1eba5df.css.map": "/medicalSystem/static/css/main.e1eba5df.css.map",
-    "main.313ae2b9.js.map": "/medicalSystem/static/js/main.313ae2b9.js.map"
+    "main.ca47987b.css.map": "/medicalSystem/static/css/main.ca47987b.css.map",
+    "main.71490da2.js.map": "/medicalSystem/static/js/main.71490da2.js.map"
   },
   "entrypoints": [
-    "static/css/main.e1eba5df.css",
-    "static/js/main.313ae2b9.js"
+    "static/css/main.ca47987b.css",
+    "static/js/main.71490da2.js"
   ]
 }

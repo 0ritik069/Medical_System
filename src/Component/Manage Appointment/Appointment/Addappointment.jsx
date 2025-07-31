@@ -14,7 +14,7 @@ const AddAppointment = () => {
     endTime: "",
     reason: "",
     status: "Scheduled",
-    apptype: "",
+    status: "",
   });
   const [errors, setErrors] = useState({});
   const [patientList, setPatientList] = useState([]);
@@ -90,7 +90,7 @@ const AddAppointment = () => {
           endTime: "",
           reason: "",
           status: "Scheduled",
-          apptype: "",
+          status: "",
         });
         setErrors({});
       }
@@ -193,10 +193,10 @@ const AddAppointment = () => {
                 <label className="form-check-label d-flex align-items-center gap-2">
                   <input
                     type="radio"
-                    name="apptype"
+                    name="status"
                     value="Waiting"
                     onChange={handleChange}
-                    checked={formData.apptype === "Waiting"}
+                    checked={formData.status === "Waiting"}
                     style={{ cursor: "pointer" }}
                   />
                   Waiting
@@ -204,10 +204,10 @@ const AddAppointment = () => {
                 <label className="form-check-label d-flex align-items-center gap-2">
                   <input
                     type="radio"
-                    name="apptype"
+                    name="status"
                     value="Emergency"
                     onChange={handleChange}
-                    checked={formData.apptype === "Emergency"}
+                    checked={formData.status === "Emergency"}
                     style={{ cursor: "pointer" }}
                   />
                   Emergency
@@ -251,7 +251,7 @@ const AddAppointment = () => {
             <div className="text-center">
               <button className="cancelBtn me-2" onClick={() => navigate(-1)}>Cancel</button>
               <button className="bgBtn" onClick={handleSubmit}>
-                Add Appointment
+                Add 
               </button>
             </div>
           </div>
