@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Link, Navigate, NavLink, useNavigate } from "react-router-dom";
+import {
+  Link,
+  Navigate,
+  NavLink,
+  useNavigate,
+  useLocation,
+  matchPath,
+} from "react-router-dom";
 import logo from "../../assests/logo.png";
 import home from "../../../src/assests/sideImg/home.png";
 import dash from "../../../src/assests/sideImg/HOME-DASH.png";
@@ -16,7 +23,7 @@ import file from "../../../src/assests/sideImg/files.png";
 import stats from "../../../src/assests/sideImg/stats.png";
 import setting from "../../../src/assests/sideImg/settings.png";
 import report from "../../../src/assests/sideImg/reports.png";
- 
+
 export default function Header({ isOpen }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -34,20 +41,22 @@ export default function Header({ isOpen }) {
       text: "Home",
       icon: dash,
     },
- {
-     path: "/Admin/dashboard",
-     text: "Dashboard",
-      icon:stats,
+    {
+      path: "/Admin/dashboard",
+      text: "Dashboard",
+      icon: stats,
     },
     {
       path: "/Admin/patient",
       text: "Patients",
-      icon:file,
+      icon: file,
+      matchPaths:["addPatient","Manageappointment","EditPatient"]
     },
     {
       path: "/Admin/appointment2",
       text: "Appointments",
-      icon:appoint,
+      icon: appoint,
+      matchPaths:["Addappointment"]
     },
     // {
     //   path: "/Admin/Manageappointment",
@@ -72,7 +81,7 @@ export default function Header({ isOpen }) {
     {
       path: "/Admin/Pharmacy",
       text: "Pharmacy",
-      icon:pharmacy,
+      icon: pharmacy,
     },
     {
       path: "/Admin/Medicals",
@@ -99,16 +108,18 @@ export default function Header({ isOpen }) {
       text: "Reports",
       icon: report,
     },
-        {
+    {
       path: "/Admin/setting",
       text: "Setting",
       icon: setting,
+      matchPaths: ["/Admin/business_setting", "/Admin/finance"],
     },
   ];
   const handleclicklogout = () => {
     localStorage.clear();
     navigate("/");
   };
+  const location = useLocation();
   return (
     // <nav
     //   className={`pc-sidebar ${isOpen ? "" : "newSide"}`}
@@ -117,7 +128,7 @@ export default function Header({ isOpen }) {
     //     transition: "width 0.3s ease",
     //   }}
     // >
-      <nav className="pc-sidebar"> 
+    <nav className="pc-sidebar">
       <div className="navbar-wrapper">
         {/* <div className="m-header ">
           <Link to="/Admin/dashboard" className="b-brand text-primary">
@@ -126,24 +137,31 @@ export default function Header({ isOpen }) {
         </div> */}
         <div className="navbar-content">
           <ul className="pc-navbar">
-            {sidebarMenu.map((item, index) => (
-              <li className="pc-item" key={index}>
-                <NavLink
-                  to={item.path}
-                  className={({ isActive }) =>
-                    `pc-link ${isActive ? "active-link" : ""}`
-                  }
-                  style={{ textDecoration: "none" }}
-                >
-                  <span className="pc-micon">
-                    <div className="pc-icon">
-                      <img src={item.icon} alt={item.text} />
-                    </div>
-                  </span>
-                  <span className="pc-mtext fw-800">{item.text}</span>
-                </NavLink>
-              </li>
-            ))}
+            {sidebarMenu.map((item, index) => {
+              const isActive =
+                location.pathname.includes(item.path) ||
+                (item.matchPaths &&
+                  item.matchPaths.some((subPath) =>
+                    location.pathname.includes(subPath)
+                  ));
+
+              return (
+                <li className="pc-item" key={index}>
+                  <NavLink
+                    to={item.path}
+                    className={`pc-link ${isActive ? "active-link" : ""}`}
+                    style={{ textDecoration: "none" }}
+                  >
+                    <span className="pc-micon">
+                      <div className="pc-icon">
+                        <img src={item.icon} alt={item.text} />
+                      </div>
+                    </span>
+                    <span className="pc-mtext fw-800">{item.text}</span>
+                  </NavLink>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>
