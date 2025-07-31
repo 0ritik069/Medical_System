@@ -339,12 +339,14 @@ export default function ManageLabs() {
                                           Swal.fire('Error', 'Server error while updating status', 'error');
                                         }
                                       }}
-                                    >
-                                      <option value={lab.status} disabled>{lab.status}</option>
-                                      {lab.status !== "Not Sent" && <option value="Not Sent">Not Sent</option>}
-                                      {lab.status !== "Pending" && <option value="Pending">Pending</option>}
-                                      {lab.status !== "Cancel" && <option value="Cancel">Cancel</option>}
-                                    </select>
+                                                                         >
+                                       <option value={lab.status} disabled>
+                                         {lab.status === "Pending" ? "Sent" : lab.status}
+                                       </option>
+                                       {lab.status !== "Not Sent" && <option value="Not Sent">Not Sent</option>}
+                                       {lab.status !== "Pending" && <option value="Pending">Sent</option>}
+                                       {lab.status !== "Cancel" && <option value="Cancel">Cancel</option>}
+                                     </select>
                                   </td>
                                   <td>
                                     <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); navigate(`/Admin/ViewLab/${lab.request_id}`); }}>
@@ -438,12 +440,14 @@ export default function ManageLabs() {
                                         Swal.fire('Error', 'Server error while updating status', 'error');
                                       }
                                     }}
-                                  >
-                                    <option value={lab.status} disabled>{lab.status}</option>
-                                    {lab.status !== "Pending" && <option value="Pending">Pending</option>}
-                                    {lab.status !== "Received" && <option value="Received">Received</option>}
-                                    {lab.status !== "Cancel" && <option value="Cancel">Cancel</option>}
-                                  </select>
+                                                                     >
+                                     <option value={lab.status} disabled>
+                                       {lab.status === "Pending" ? "Sent" : lab.status === "Received" ? "Completed" : lab.status}
+                                     </option>
+                                     {lab.status !== "Pending" && <option value="Pending">Sent</option>}
+                                     {lab.status !== "Received" && <option value="Received">Completed</option>}
+                                     {lab.status !== "Cancel" && <option value="Cancel">Cancel</option>}
+                                   </select>
                                 </td>
                                 <td>
                                   <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); navigate(`/Admin/ViewLab/${lab.request_id}`); }}>
@@ -537,12 +541,14 @@ export default function ManageLabs() {
                                         Swal.fire('Error', 'Server error while updating status', 'error');
                                       }
                                     }}
-                                  >
-                                    <option value={lab.status} disabled>{lab.status}</option>
-                                    {lab.status !== "Received" && <option value="Received">Received</option>}
-                                    {lab.status !== "Result" && <option value="Result">Result</option>}
-                                    {lab.status !== "Cancel" && <option value="Cancel">Cancel</option>}
-                                  </select>
+                                                                     >
+                                     <option value={lab.status} disabled>
+                                       {lab.status === "Received" ? "Completed" : lab.status}
+                                     </option>
+                                     {lab.status !== "Received" && <option value="Received">Completed</option>}
+                                     {lab.status !== "Result" && <option value="Result">Result</option>}
+                                     {lab.status !== "Cancel" && <option value="Cancel">Cancel</option>}
+                                   </select>
                                 </td>
                                 <td>
                                   <a href="#" className="avtar avtar-xs btn-link-secondary" onClick={e => { e.preventDefault(); navigate(`/Admin/ViewLab/${lab.request_id}`); }}>
