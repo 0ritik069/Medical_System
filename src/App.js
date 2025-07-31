@@ -1,4 +1,4 @@
- // import './App.css';
+// import './App.css';
 // import { BrowserRouter, Routes, Route } from 'react-router-dom';
 // import Dashboard from './Pages/Dashboard';
 // import Login from './Component/Header/Login/Login';
@@ -119,6 +119,10 @@ import FinanceSetting from './Component/SettingNew/FinanceSetting';
 import NotificationCenter from './Component/SettingNew/NotificationCenter';
 import Security from './Component/SettingNew/Security';
 import BarcodeScanner from './Component/BarcodeScanner/BarcodeScanner';
+import ViewUser from './Component/Header/ManageStaff/ViewUser';
+import ViewStaff from './Component/Header/ManageStaff/ViewStaff';
+import ViewDoctor from './Component/Header/ManageStaff/ViewDoctor';
+import ViewNurse from './Component/Header/ManageStaff/ViewNurse';
 
 // import SettingsDashboard from './'
 function App() {
@@ -141,7 +145,7 @@ function App() {
             <Route path="/Admin/addPatient" element={<Addpatient />} />
             <Route path="/Admin/EditPatient" element={<EditPatient />} />
             <Route path="/Admin/Changepassword" element={<Changepassword />} />
-              <Route  path='/Admin/appointment2' element={<Appointment2 />}  />
+            <Route path='/Admin/appointment2' element={<Appointment2 />} />
             {/* doctor routes */}
             <Route path="/Admin/newrequest" element={<NewRequest />} />
             <Route path="/Admin/ManageDoctors" element={<ManageDoctors />} />
@@ -162,20 +166,24 @@ function App() {
             <Route path="/Admin/addlabs" element={<Labs />} />
             <Route path="/Admin/Category" element={<Category />} />
             <Route path="/Admin/EditInventory" element={<EditInventory />} />
-            <Route path="/Admin/ViewInventory/:id" element={<ViewInventory/>} />
+            <Route path="/Admin/ViewInventory/:id" element={<ViewInventory />} />
             <Route path="/Admin/ViewRx/:id" element={<ViewRx />} />
 
-             <Route path="/Admin/AddInventory" element={<AddInventory />} />
+            <Route path="/Admin/AddInventory" element={<AddInventory />} />
             <Route path="/Admin/AddRxList" element={<AddRxList />} />
             <Route path="/Admin/ViewLab/:id" element={<ViewLab />} />
             <Route path="/Admin/EditLab/:id" element={<EditLab />} />
-             <Route path="/Admin/SettingsDashboard" element={<SettingsDashboard />} />
-              <Route path="/Admin/setting" element={<SettingNew />} />
-              <Route path="/Admin/business_setting" element={<BusinessSetting />} />
-              <Route path="/Admin/finance" element={<FinanceSetting />} />
-              <Route path="/Admin/notification_center" element={<NotificationCenter />} />
-              <Route path="/Admin/security" element={<Security />} />
-              <Route path="/Admin/BarcodeScanner" element={<BarcodeScanner />} />
+            <Route path="/Admin/ViewUser" element={<ViewUser />} />
+            <Route path="/Admin/ViewStaff" element={<ViewStaff />} />
+            <Route path="/Admin/ViewDoctor" element={<ViewDoctor />} />
+            <Route path="/Admin/ViewNurse" element={<ViewNurse />} />
+            <Route path="/Admin/SettingsDashboard" element={<SettingsDashboard />} />
+            <Route path="/Admin/setting" element={<SettingNew />} />
+            <Route path="/Admin/business_setting" element={<BusinessSetting />} />
+            <Route path="/Admin/finance" element={<FinanceSetting />} />
+            <Route path="/Admin/notification_center" element={<NotificationCenter />} />
+            <Route path="/Admin/security" element={<Security />} />
+            <Route path="/Admin/BarcodeScanner" element={<BarcodeScanner />} />
           </Route>
         </Routes>
       </BrowserRouter>

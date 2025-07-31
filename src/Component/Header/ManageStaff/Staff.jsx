@@ -15,12 +15,7 @@ export default function Staff() {
   const [editStaff, setEditStaff] = useState(null);
   const [editNurseModal, setEditNurseModal] = useState(false);
   const [editNurse, setEditNurse] = useState(null);
-  const [viewUserModal, setViewUserModal] = useState(false);
-  const [viewUser, setViewUser] = useState(null);
-  const [viewStaffModal, setViewStaffModal] = useState(false);
-  const [viewStaff, setViewStaff] = useState(null);
-  const [viewNurseModal, setViewNurseModal] = useState(false);
-  const [viewNurse, setViewNurse] = useState(null);
+
   const [allDoctors, setAllDoctors] = useState([]);
   const [allNurses, getAllNurses] = useState([]);
   const [allStaff, setAllStaff] = useState([]);
@@ -601,23 +596,11 @@ export default function Staff() {
   };
 
   const handleViewUserClick = (user) => {
-    setViewUser(user);
-    setViewUserModal(true);
-  };
-
-  const handleViewUserClose = () => {
-    setViewUserModal(false);
-    setViewUser(null);
+    navigate(`/Admin/ViewUser`, { state: { user } });
   };
 
   const handleViewStaffClick = (staff) => {
-    setViewStaff(staff);
-    setViewStaffModal(true);
-  };
-
-  const handleViewStaffClose = () => {
-    setViewStaffModal(false);
-    setViewStaff(null);
+    navigate(`/Admin/ViewStaff`, { state: { staff } });
   };
 
   const handleEditNurseClick = (nurse) => {
@@ -642,13 +625,13 @@ export default function Staff() {
   };
 
   const handleViewNurseClick = (nurse) => {
-    setViewNurse(nurse);
-    setViewNurseModal(true);
+    navigate(`/Admin/ViewNurse`, { state: { nurse } });
   };
 
-  const handleViewNurseClose = () => {
-    setViewNurseModal(false);
-    setViewNurse(null);
+
+
+  const handleViewDoctorClick = (doctor) => {
+    navigate(`/Admin/ViewDoctor`, { state: { doctor } });
   };
 
   const UpdateNurse = async () => {
@@ -1572,10 +1555,18 @@ export default function Staff() {
                                         style={{ cursor: "pointer" }}
                                         title="View Appointments"
                                       >
-                                        <i className="ti ti-eye f-20" />{" "}
+                                        <i className="ti ti-calendar f-20" />{" "}
                                       </div>
                                     </td>
                                     <td>
+                                      <div
+                                        onClick={() => handleViewDoctorClick(item)}
+                                        className="avtar avtar-xs btn-link-secondary"
+                                        style={{ cursor: "pointer" }}
+                                        title="View Doctor"
+                                      >
+                                        <i className="ti ti-eye f-20" />{" "}
+                                      </div>
                                       <div
                                         onClick={() => handleEditClick(item)}
                                         className="avtar avtar-xs btn-link-secondary"
@@ -2634,293 +2625,11 @@ export default function Staff() {
             </div>
           )}
 
-          {/* View User Modal */}
-          {viewUserModal && viewUser && (
-            <div
-              className="modal fade show"
-              aria-labelledby="staticBackdropLabel"
-              style={{
-                backgroundColor: "rgba(0,0,0,0.5)",
-                display: "block",
-              }}
-            >
-              <div className="modal-dialog modal-lg">
-                <div className="modal-content">
-                  <div className="modal-header">
-                    <h5 className="modal-title">View User Details</h5>
-                    <button
-                      type="button"
-                      className="btn-close"
-                      onClick={handleViewUserClose}
-                    ></button>
-                  </div>
-                  <div className="modal-body">
-                    <div className="row">
-                      <div className="col-md-12 mb-3">
-                        <div className="d-flex align-items-center">
-                          <div className="flex-shrink-0">
-                            <img
-                              src="../assets/images/user/avatar-2.jpg"
-                              alt="user image"
-                              className="img-radius"
-                              style={{ width: "80px", height: "80px" }}
-                            />
-                          </div>
-                          <div className="flex-grow-1 ms-3">
-                            <h4 className="mb-1">{viewUser.fullName}</h4>
-                            <p className="text-muted mb-0">{viewUser.role}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold">Email</label>
-                        <p className="form-control-plaintext">{viewUser.email}</p>
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold">Phone Number</label>
-                        <p className="form-control-plaintext">{viewUser.phoneNumber}</p>
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold">Civil ID</label>
-                        <p className="form-control-plaintext">{viewUser.civilId}</p>
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold">Date of Birth</label>
-                        <p className="form-control-plaintext">
-                          {new Date(viewUser.dateOfBirth).toLocaleDateString("en-GB")}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold">Gender</label>
-                        <p className="form-control-plaintext">{viewUser.gender}</p>
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold">Role</label>
-                        <p className="form-control-plaintext">{viewUser.role}</p>
-                      </div>
-                    </div>
-                    {viewUser.licenseId && (
-                      <div className="row">
-                        <div className="col-md-6 mb-3">
-                          <label className="form-label fw-bold">License ID</label>
-                          <p className="form-control-plaintext">{viewUser.licenseId}</p>
-                        </div>
-                        <div className="col-md-6 mb-3">
-                          <label className="form-label fw-bold">Passport</label>
-                          <p className="form-control-plaintext">{viewUser.passport}</p>
-                        </div>
-                      </div>
-                    )}
-                    {viewUser.specialty && (
-                      <div className="row">
-                        <div className="col-md-6 mb-3">
-                          <label className="form-label fw-bold">Specialty</label>
-                          <p className="form-control-plaintext">{viewUser.specialty}</p>
-                        </div>
-                      </div>
-                    )}
-                    <div className="d-flex justify-content-center mt-4">
-                      <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={handleViewUserClose}
-                      >
-                        Close
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
-          {/* View Staff Modal */}
-          {viewStaffModal && viewStaff && (
-            <div
-              className="modal fade show"
-              aria-labelledby="staticBackdropLabel"
-              style={{
-                backgroundColor: "rgba(0,0,0,0.5)",
-                display: "block",
-              }}
-            >
-              <div className="modal-dialog modal-lg">
-                <div className="modal-content">
-                  <div className="modal-header">
-                    <h5 className="modal-title">View Staff Details</h5>
-                    <button
-                      type="button"
-                      className="btn-close"
-                      onClick={handleViewStaffClose}
-                    ></button>
-                  </div>
-                  <div className="modal-body">
-                    <div className="row">
-                      <div className="col-md-12 mb-3">
-                        <div className="d-flex align-items-center">
-                          <div className="flex-shrink-0">
-                            <img
-                              src="../assets/images/user/avatar-1.jpg"
-                              alt="staff image"
-                              className="img-radius"
-                              style={{ width: "80px", height: "80px" }}
-                            />
-                          </div>
-                          <div className="flex-grow-1 ms-3">
-                            <h4 className="mb-1">{viewStaff.fullName}</h4>
-                            <p className="text-muted mb-0">Staff Member</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold">Full Name</label>
-                        <p className="form-control-plaintext">{viewStaff.fullName}</p>
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold">Phone Number</label>
-                        <p className="form-control-plaintext">{viewStaff.phoneNumber}</p>
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold">Civil ID</label>
-                        <p className="form-control-plaintext">{viewStaff.civilId}</p>
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold">Date of Birth</label>
-                        <p className="form-control-plaintext">
-                          {new Date(viewStaff.dateOfBirth).toLocaleDateString("en-GB")}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold">Gender</label>
-                        <p className="form-control-plaintext">{viewStaff.gender}</p>
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold">License ID</label>
-                        <p className="form-control-plaintext">{viewStaff.licenseId}</p>
-                      </div>
-                    </div>
-                    <div className="d-flex justify-content-center mt-4">
-                      <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={handleViewStaffClose}
-                      >
-                        Close
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
-          {/* View Nurse Modal */}
-          {viewNurseModal && viewNurse && (
-            <div
-              className="modal fade show"
-              aria-labelledby="staticBackdropLabel"
-              style={{
-                backgroundColor: "rgba(0,0,0,0.5)",
-                display: "block",
-              }}
-            >
-              <div className="modal-dialog modal-lg">
-                <div className="modal-content">
-                  <div className="modal-header">
-                    <h5 className="modal-title">View Nurse Details</h5>
-                    <button
-                      type="button"
-                      className="btn-close"
-                      onClick={handleViewNurseClose}
-                    ></button>
-                  </div>
-                  <div className="modal-body">
-                    <div className="row">
-                      <div className="col-md-12 mb-3">
-                        <div className="d-flex align-items-center">
-                          <div className="flex-shrink-0">
-                            <img
-                              src="../assets/images/user/avatar-1.jpg"
-                              alt="nurse image"
-                              className="img-radius"
-                              style={{ width: "80px", height: "80px" }}
-                            />
-                          </div>
-                          <div className="flex-grow-1 ms-3">
-                            <h4 className="mb-1">{viewNurse.fullName}</h4>
-                            <p className="text-muted mb-0">Nurse</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold">Full Name</label>
-                        <p className="form-control-plaintext">{viewNurse.fullName}</p>
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold">Email</label>
-                        <p className="form-control-plaintext">{viewNurse.email}</p>
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold">Civil ID</label>
-                        <p className="form-control-plaintext">{viewNurse.civilId}</p>
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold">Date of Birth</label>
-                        <p className="form-control-plaintext">
-                          {new Date(viewNurse.dateOfBirth).toLocaleDateString("en-GB")}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold">Gender</label>
-                        <p className="form-control-plaintext">{viewNurse.gender}</p>
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold">License ID</label>
-                        <p className="form-control-plaintext">{viewNurse.licenseId}</p>
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold">Phone Number</label>
-                        <p className="form-control-plaintext">{viewNurse.phoneNumber}</p>
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold">Specialty</label>
-                        <p className="form-control-plaintext">{viewNurse.specialty}</p>
-                      </div>
-                    </div>
-                    <div className="d-flex justify-content-center mt-4">
-                      <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={handleViewNurseClose}
-                      >
-                        Close
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+
+
+
 
           {/* Edit Nurse Modal */}
           {editNurseModal && editNurse && (
