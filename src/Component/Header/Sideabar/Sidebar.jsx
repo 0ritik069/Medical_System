@@ -19,6 +19,12 @@ export default function Sidebar({isOpen, onToggle }) {
     navigate("/");
   };
 
+
+
+  
+
+
+
   return (
     <header className="pc-header" >
       <div className="header-wrapper  bg-light">

@@ -12,8 +12,8 @@ export default function DoctorBooking() {
   }, []);
   const getdata = async () => {
     try {
-      const response = await axios.post(
-        `${baseurl}appointmentByDoctorId/${location.state.data}`
+      const response = await axios.get(
+        `${baseurl}getAppointmentsByDoctorId/${location.state.data}`
       );
       if (response.data.success == true) {
         setDataAppointment(response.data.data);
@@ -40,11 +40,13 @@ export default function DoctorBooking() {
                 <table className="table table-hover" id="pc-dt-simple">
                   <thead>
                     <tr>
-                      <th>Name</th>
-                      <th>doctorName </th>
+                      <th>Patient Name</th>
+                      <th>Doctor Name</th>
                       <th>Date</th>
+                      <th>Start Time</th>
+                      <th>End Time</th>
+                      <th>Reason</th>
                       <th>Status</th>
-                      {/* <th>Action</th> */}
                     </tr>
                   </thead>
                   <tbody>
@@ -53,15 +55,6 @@ export default function DoctorBooking() {
                         return (
                           <>
                             <tr key={index}>
-                              {/* <td>
-                  <div className="d-flex align-items-center">
-                    <div className="flex-shrink-0"><img src="../assets/images/user/avatar-1.jpg" alt="user image" className="img-radius wid-40" />
-                    </div>
-                    <div className="flex-grow-1 ms-3">
-                      <h6 className="mb-0">Airi Satou</h6>
-                    </div>
-                  </div>
-                </td> */}
                               <td>{item.patientName}</td>
                               <td>{item.doctorName}</td>
                               <td>
@@ -69,35 +62,28 @@ export default function DoctorBooking() {
                                   item.appointmentDate
                                 ).toLocaleDateString("en-GB")}
                               </td>
-                              <td>{item.status}</td>
-                              {/* <td>
-                                <a
-                                  href="#"
-                                  className="avtar avtar-xs btn-link-secondary"
-                                >
-                                  <i className="ti ti-eye f-20" />{" "}
-                                </a>
-                                <a
-                                  href="#"
-                                  className="avtar avtar-xs btn-link-secondary"
-                                >
-                                  <i className="ti ti-edit f-20" />{" "}
-                                </a>
-                                <a
-                                  href="#"
-                                  className="avtar avtar-xs btn-link-secondary"
-                                >
-                                  <i className="ti ti-trash f-20" />
-                                </a>
-                              </td> */}
+                              <td>{item.startTime}</td>
+                              <td>{item.endTime}</td>
+                              <td>{item.reason}</td>
+                              <td>
+                                <span className={`badge ${
+                                  item.status === 'Confirmed' ? 'bg-success' : 
+                                  item.status === 'Completed' ? 'bg-primary' : 
+                                  item.status === 'Pending' ? 'bg-warning' : 'bg-secondary'
+                                }`}>
+                                  {item.status}
+                                </span>
+                              </td>
                             </tr>
                           </>
                         );
                       })
                     ) : (
-                     <td className="">
-                        No Data Found
-                     </td>
+                     <tr>
+                        <td colSpan="7" className="text-center">
+                          No Data Found
+                        </td>
+                     </tr>
                     )}
                   </tbody>
                 </table>
