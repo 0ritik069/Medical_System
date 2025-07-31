@@ -832,12 +832,11 @@ export default function Appointment2() {
                         {doctors && doctors.length > 0 ? (
                           <>
                             <div className="col-12 mb-3">
-                              <div className="form-check">
+                              <div>
                                 <input
                                   type="checkbox"
                                   id="selectAllDoctors"
-                                  className="form-check-input bg-secondary"
-                                  checked={selectAll}
+                                   checked={selectAll}
                                   onChange={handleSelectAll}
                                   style={{ cursor: "pointer" }}
                                 />
@@ -850,8 +849,8 @@ export default function Appointment2() {
                               </div>
                             </div>
                             {doctors.map((item, index) => (
-                              <div className="col-md-4 mb-3" key={index}>
-                                <div className="form-check">
+                              <div className="col-md-4" key={index}>
+                                <div>
                                   <input
                                     type="checkbox"
                                     id={`doctor-${item.id}`}
@@ -1224,12 +1223,12 @@ export default function Appointment2() {
                                 gridColumn: `${doctorIndex + 2}`,
                               }}
                             >
-                              <strong>{app.patientName}</strong>
-                              <br />
-                              <small>{app.reason}</small>
-                              <br />
-                              <small>{app.status}</small>
-                              <br />
+                              <p><strong>{app.patientName}</strong></p>
+                               
+                              <p><small>{app.status}</small></p>
+                              <p><small>{app.reason}</small></p>
+                          
+                             
                             </div>
                           );
                         })}
