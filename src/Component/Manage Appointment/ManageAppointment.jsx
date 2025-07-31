@@ -681,10 +681,10 @@ export default function ManageAppointment() {
   };
   // ////////////////////////////////////////////////// add appointment////////////////////////
   const [formData1, setFormData1] = useState({
-    patientId: location?.state?.patientid?.id,
     doctorId: "",
     appointmentDate: "",
     startTime: "",
+    patientId: location?.state?.patientid?.id,
     endTime: "",
     reason: "",
     status: "Scheduled",
@@ -711,7 +711,8 @@ export default function ManageAppointment() {
       newErrors.appointmentDate = "Date is required";
     if (!formData1.reason.trim()) newErrors.reason = "Notes is required";
     if (!formData1.doctorId) newErrors.doctorId = "Doctor is required";
-    if (!formData1.startTime) newErrors.startTime = "Start time is required";
+    if(formData1.apptype=== "Waiting") {return ""}else{
+ if (!formData1.startTime) newErrors.startTime = "Start time is required";
     if (!formData1.endTime) newErrors.endTime = "End time is required";
     if (formData1.startTime && formData1.endTime) {
       const start = new Date(`2020-01-01T${formData1.startTime}`);
@@ -723,6 +724,7 @@ export default function ManageAppointment() {
       } else if (diffInHours > 5) {
         newErrors.endTime = "Appointment can't be more than 5 hours";
       }
+    }
     }
     setErrors(newErrors);
     return newErrors;
@@ -761,71 +763,81 @@ export default function ManageAppointment() {
   //   }
   // };
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
+  const validationErrors = validate();
+  if (Object.keys(validationErrors).length > 0) {
+    setErrors(validationErrors);
+    return;
+  }
+  // Prepare the data to send
+  let dataToSend = { ...formData1 };
+  // If apptype is "Waiting", remove startTime and endTime
+  if (formData1.apptype === "Waiting") {
+    delete dataToSend.startTime;
+    delete dataToSend.endTime;
+  } else {
+    // If not "Waiting", ensure both times are present
+    if (!formData1.startTime || !formData1.endTime) {
+      setErrors((prev) => ({
+        ...prev,
+        startTime: "Start time is required",
+        endTime: "End time is required",
+      }));
       return;
     }
+  }
 
-    console.log("Submitting form:", formData1);
+  try {
+    const response = await axios.post(
+      `${baseurl}createAppointment`,
+      dataToSend
+    );
 
-    try {
-      const response = await axios.post(
-        `${baseurl}createAppointment`,
-        formData1
+    if (response.data.success) {
+      handleclickpopusopenn11();
+      getdata();
+      Swal.fire("Success", "Appointment added successfully!", "success");
+
+      setFormData1({
+        doctorId: "",
+        appointmentDate: "",
+        startTime: "",
+        endTime: "",
+        reason: "",
+        status: "Scheduled",
+        apptype: "",
+      });
+      setErrors({});
+    } else {
+      Swal.fire(
+        "Error",
+        response.data.message || "Unknown error occurred.",
+        "error"
       );
-
-      if (response.data.success) {
-        handleclickpopusopenn11();
-        getdata();
-        Swal.fire("Success", "Appointment added successfully!", "success");
-
-        setFormData1({
-          doctorId: "",
-          appointmentDate: "",
-          startTime: "",
-          endTime: "",
-          reason: "",
-          status: "Scheduled",
-          apptype: "",
-        });
-        setErrors({});
-      } else {
-        // When API returns success: false
-        Swal.fire(
-          "Error",
-          response.data.message || "Unknown error occurred.",
-          "error"
-        );
-      }
-    } catch (error) {
-      console.error("Error creating appointment:", error);
-
-      // Network or server errors
-      if (error.response) {
-        // Server responded with a status code outside 2xx
-        const errMessage =
-          error.response.data?.message || "Server error occurred.";
-        Swal.fire("Error", errMessage, "error");
-      } else if (error.request) {
-        // Request made but no response
-        Swal.fire(
-          "Error",
-          "No response from server. Please check your internet.",
-          "error"
-        );
-      } else {
-        // Something else triggered the error
-        Swal.fire(
-          "Error",
-          "Something went wrong while sending the request.",
-          "error"
-        );
-      }
     }
-  };
+  } catch (error) {
+    console.error("Error creating appointment:", error);
+    if (error.response) {
+      const errMessage =
+        error.response.data?.message || "Server error occurred.";
+      Swal.fire("Error", errMessage, "error");
+    } else if (error.request) {
+      Swal.fire(
+        "Error",
+        "No response from server. Please check your internet.",
+        "error"
+      );
+    } else {
+      Swal.fire(
+        "Error",
+        "Something went wrong while sending the request.",
+        "error"
+      );
+    }
+  }
+};
+
 
   /////
   // ///////////////////////////////////////////// labs code////////////////////////////////////////////////////////
@@ -2395,8 +2407,9 @@ export default function ManageAppointment() {
                                         </label>
                                       </div>
                                     </div>
-
-                                    <div className="col-md-6">
+ {formData1.apptype === "Waiting"?"":
+ <>
+  <div className="col-md-6">
                                       <label className="form-label">
                                         Start Time
                                       </label>
@@ -2430,6 +2443,8 @@ export default function ManageAppointment() {
                                         {errors.endTime}
                                       </div>
                                     </div>
+ </>
+                                   }
                                     <div className="col-lg-6">
                                       <label className="form-label">
                                         Notes

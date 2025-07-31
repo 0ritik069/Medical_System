@@ -173,6 +173,7 @@ export default function Appointment2() {
       doctorId: dataConfirm.doctorId,
       startTime: dataConfirm.startTime,
       endTime: dataConfirm.endTime,
+      appointmentDate:dataConfirm.date
     };
     try {
       const response = await axios.post(
@@ -358,31 +359,62 @@ export default function Appointment2() {
   //     );
   //   }
   // };
-  const handleMultiDateFilter = async () => {
-    const formattedDates = selectedDates.map((date) =>
-      date.format("YYYY-MM-DD")
-    );
-    console.log("Selected Dates:", formattedDates);if(formattedDates.length === 0) {
-      Swal.fire("Error", "Please select at least one date", "error");
-    }else{
-    try {
-      const response = await axios.post(`${baseurl}getAppointmentsByDate`, {
-        dates: formattedDates, // Send as array in body
-      });
-      if (response.data.success) {
-        setAppointmentPatient(response.data.data);
-        setAppointmentdata(response.data.data);
-      } else {
-        toast.error("No data found");
-        setAppointmentPatient([]);
-      }
-    } catch (error) {
-      console.log(error);
-      Swal.fire("Error!", error.message, "error");
-    }
+  // const handleMultiDateFilter = async () => {
+  //   const formattedDates = selectedDates.map((date) =>
+  //     date.format("YYYY-MM-DD")
+  //   );
+  //   console.log("Selected Dates:", formattedDates);if(formattedDates.length === 0) {
+  //     Swal.fire("Error", "Please select at least one date", "error");
+  //   }else{
+  //   try {
+  //     const response = await axios.post(`${baseurl}getAppointmentsByDate`, {
+  //       dates: formattedDates, // Send as array in body
+  //     });
+  //     if (response.data.success) {
+  //       setAppointmentPatient(response.data.data);
+  //       setAppointmentdata(response.data.data);
+  //     } else {
+  //       toast.error("No data found");
+  //       setAppointmentPatient([]);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     Swal.fire("Error!", error.message, "error");
+  //   }
    
+  //   }
+  //    };
+ const handleMultiDateFilter = async () => {
+  if (!selectedDates || selectedDates.length === 0) {
+    Swal.fire("Error", "Please select at least one date", "error");
+    return;
+  }
+
+  const formattedDates = selectedDates.map((date) =>
+    date.format("YYYY-MM-DD")
+  );
+
+  console.log("Selected Dates:", formattedDates);
+
+  try {
+    const response = await axios.post(`${baseurl}getAppointmentsByDate`, {
+      dates: formattedDates, // Can be one date or a range (2 dates)
+    });
+
+    if (response.data.success) {
+      setAppointmentPatient(response.data.data);
+      setAppointmentdata(response.data.data);
+    } else {
+      toast.error("No data found");
+      setAppointmentPatient([]);
     }
-     };
+  } catch (error) {
+    console.error("Error fetching appointments by date:", error);
+    Swal.fire("Error!", error.message || "Something went wrong", "error");
+  }
+};
+
+
   const handleclickcancleapoointment = async (item) => {
     console.log("Cancelling appointment:", item);
     try {
@@ -595,26 +627,26 @@ export default function Appointment2() {
                         <i class="fa fa-list" aria-hidden="true"></i>
                       </div>
                     </div>
-                    <div className="position-relative">
-                      <DatePicker
-                        multiple
-                        value={selectedDates}
-                        onChange={setSelectedDates}
-                        format="YYYY-MM-DD"
-                        placeholder="Select Dates"
-                        inputClass="form-control py-2"
-                        className="custom-calendar-style"
-                      />
-                      <i
-                        className="fa fa-calendar position-absolute"
-                        style={{
-                          right: "10px",
-                          top: "20px",
-                          transform: "translateY(-50%)",
-                          color: "#888",
-                        }}
-                      />
-                    </div>
+                  <div className="position-relative">
+  <DatePicker
+    range
+    value={selectedDates}
+    onChange={setSelectedDates}
+    format="YYYY-MM-DD"
+    placeholder="Select Date Range"
+    inputClass="form-control py-2"
+    className="custom-calendar-style"
+  />
+  <i
+    className="fa fa-calendar position-absolute"
+    style={{
+      right: "10px",
+      top: "20px",
+      transform: "translateY(-50%)",
+      color: "#888",
+    }}
+  />
+</div>
                     <div>
                       <button
                         onClick={() => {
@@ -1520,6 +1552,15 @@ export default function Appointment2() {
                             );
                           })}
                       </select>
+                    </div>
+                     <div className="col-md-6">
+                      <label className="form-label">End Time</label>
+                      <input
+                        type="date"
+                        name="date"
+                        onChange={handlechange}
+                        className="form-control"
+                      />
                     </div>
                   </div>
                   {/* </table> */}

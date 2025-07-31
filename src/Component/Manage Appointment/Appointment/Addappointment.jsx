@@ -47,12 +47,15 @@ const AddAppointment = () => {
   };
   const validate = () => {
     const newErrors = {};
-    if (!formData.patientId) newErrors.patientId = "Patient is required";
+        if (!formData.patientId) newErrors.patientId = "Patient is required";
     if (!formData.appointmentDate)
       newErrors.appointmentDate = "Date is required";
     if (!formData.reason.trim()) newErrors.reason = "Reason is required";
     if (!formData.doctorId) newErrors.doctorId = "Doctor is required";
-    if (!formData.startTime) newErrors.startTime = "Start time is required";
+      if(formData.status==="Waiting"){
+        return ""
+      }else{
+ if (!formData.startTime) newErrors.startTime = "Start time is required";
     if (!formData.endTime) newErrors.endTime = "End time is required";
     if (formData.startTime && formData.endTime) {
       const start = new Date(`2020-01-01T${formData.startTime}`);
@@ -65,6 +68,8 @@ const AddAppointment = () => {
         newErrors.endTime = "Appointment can't be more than 5 hours";
       }
     }
+      }
+   
     setErrors(newErrors);
     return newErrors;
   };
@@ -72,66 +77,69 @@ const AddAppointment = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-  const handleSubmit = async (e) => {
-  e.preventDefault();
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
 
-  // Run front-end validation
-  const validationErrors = validate();
-  if (Object.keys(validationErrors).length > 0) {
-    setErrors(validationErrors);
-    return;
-  }
+  //   // Run front-end validation
+  //   const validationErrors = validate();
+  //   if (Object.keys(validationErrors).length > 0) {
+  //     setErrors(validationErrors);
+  //     return;
+  //   }
 
-  try {
-    const response = await axios.post(`${baseurl}createAppointment`, formData);
+  //   try {
+  //     const response = await axios.post(
+  //       `${baseurl}createAppointment`,
+  //       formData
+  //     );
 
-    if (response.data.success) {
-      Swal.fire("success", "Appointment create successfully","success");
+  //     if (response.data.success) {
+  //       Swal.fire("success", "Appointment create successfully", "success");
 
-      // Navigate after a short delay
-      setTimeout(() => {
-        navigate("/Admin/appointment2");
-      }, 1500);
+  //       // Navigate after a short delay
+  //       setTimeout(() => {
+  //         navigate("/Admin/appointment2");
+  //       }, 1500);
 
-      // Reset form fields
-      setFormData({
-        patientId: "",
-        doctorId: "",
-        appointmentDate: "",
-        startTime: "",
-        endTime: "",
-        reason: "",
-        status: "Scheduled", // ✅ fixed: only one status field
-      });
+  //       // Reset form fields
+  //       setFormData({
+  //         patientId: "",
+  //         doctorId: "",
+  //         appointmentDate: "",
+  //         startTime: "",
+  //         endTime: "",
+  //         reason: "",
+  //         status: "Scheduled", // ✅ fixed: only one status field
+  //       });
 
-      // Clear errors
-      setErrors({});
-    }
-  } catch (error) {
-    console.error("Error creating appointment:", error);
+  //       // Clear errors
+  //       setErrors({});
+  //     }
+  //   } catch (error) {
+  //     console.error("Error creating appointment:", error);
 
-    // Check if server sent a response
-    if (error.response && error.response.data) {
-      const { message, errors } = error.response.data;
+  //     // Check if server sent a response
+  //     if (error.response && error.response.data) {
+  //       const { message, errors } = error.response.data;
 
-      // Show main error message
-      if (message) toast.error(message);
+  //       // Show main error message
+  //       if (message) toast.error(message);
 
-      // Show field-level validation errors if present
-      if (errors && typeof errors === "object") {
-        const newErrors = {};
-        for (let key in errors) {
-          toast.error(`${key}: ${errors[key]}`);
-          newErrors[key] = errors[key];
-        }
-        setErrors(newErrors);
-      }
-    } else {
-      // Generic fallback error
-      toast.error("Something went wrong while creating appointment.");
-    }
-  }
-};
+  //       // Show field-level validation errors if present
+  //       if (errors && typeof errors === "object") {
+  //         const newErrors = {};
+  //         for (let key in errors) {
+  //           toast.error(`${key}: ${errors[key]}`);
+  //           newErrors[key] = errors[key];
+  //         }
+  //         setErrors(newErrors);
+  //       }
+  //     } else {
+  //       // Generic fallback error
+  //       toast.error("Something went wrong while creating appointment.");
+  //     }
+  //   }
+  // };
 
   // const handleSubmit = async (e) => {
   //   e.preventDefault();
@@ -160,6 +168,68 @@ const AddAppointment = () => {
   //     console.error("Error creating appointment:", error);
   //   }
   // };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const validationErrors = validate();
+  if (Object.keys(validationErrors).length > 0) {
+    setErrors(validationErrors);
+    return;
+  }
+
+  // Clone formData and conditionally remove startTime and endTime
+  const dataToSend = { ...formData };
+
+  if (dataToSend.status === "Waiting") {
+    delete dataToSend.startTime;
+    delete dataToSend.endTime;
+  }
+
+  try {
+    const response = await axios.post(
+      `${baseurl}createAppointment`,
+      dataToSend
+    );
+
+    if (response.data.success) {
+      Swal.fire("success", "Appointment created successfully", "success");
+
+      setTimeout(() => {
+        navigate("/Admin/appointment2");
+      }, 1500);
+
+      setFormData({
+        patientId: "",
+        doctorId: "",
+        appointmentDate: "",
+        startTime: "",
+        endTime: "",
+        reason: "",
+        status: "Scheduled",
+      });
+
+      setErrors({});
+    }
+  } catch (error) {
+    console.error("Error creating appointment:", error);
+
+    if (error.response && error.response.data) {
+      const { message, errors } = error.response.data;
+      if (message) toast.error(message);
+      if (errors && typeof errors === "object") {
+        const newErrors = {};
+        for (let key in errors) {
+          toast.error(`${key}: ${errors[key]}`);
+          newErrors[key] = errors[key];
+        }
+        setErrors(newErrors);
+      }
+    } else {
+      toast.error("Something went wrong while creating appointment.");
+    }
+  }
+};
+
   const patientOptions = patientList.map((patient) => ({
     value: patient.id,
     label: `${patient.firstName} ${patient.lastName}`,
@@ -215,7 +285,7 @@ const AddAppointment = () => {
                     },
                   })
                 }
-                placeholder="Select Patient"
+                placeholder="Search by their Name email Number or Civil id"
                 isSearchable={true}
                 filterOption={customFilterOption}
               />
@@ -242,7 +312,9 @@ const AddAppointment = () => {
               <label className="form-label">Appointment Date</label>
               <input
                 type="date"
-                className={`form-control ${errors.appointmentDate ? "is-invalid" : ""}`}
+                className={`form-control ${
+                  errors.appointmentDate ? "is-invalid" : ""
+                }`}
                 name="appointmentDate"
                 value={formData.appointmentDate}
                 onChange={handleChange}
@@ -276,28 +348,38 @@ const AddAppointment = () => {
                 </label>
               </div>
             </div>
-            <div className="col-md-6">
-              <label className="form-label">Start Time</label>
-              <input
-                type="time"
-                className={`form-control ${errors.startTime ? "is-invalid" : ""}`}
-                name="startTime"
-                value={formData.startTime}
-                onChange={handleChange}
-              />
-              <div className="invalid-feedback">{errors.startTime}</div>
-            </div>
-            <div className="col-md-6">
-              <label className="form-label">End Time</label>
-              <input
-                type="time"
-                className={`form-control ${errors.endTime ? "is-invalid" : ""}`}
-                name="endTime"
-                value={formData.endTime}
-                onChange={handleChange}
-              />
-              <div className="invalid-feedback">{errors.endTime}</div>
-            </div>
+            {formData.status === "Waiting" ? (
+              ""
+            ) : (
+              <>
+                <div className="col-md-6">
+                  <label className="form-label">Start Time</label>
+                  <input
+                    type="time"
+                    className={`form-control ${
+                      errors.startTime ? "is-invalid" : ""
+                    }`}
+                    name="startTime"
+                    value={formData.startTime}
+                    onChange={handleChange}
+                  />
+                  <div className="invalid-feedback">{errors.startTime}</div>
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label">End Time</label>
+                  <input
+                    type="time"
+                    className={`form-control ${
+                      errors.endTime ? "is-invalid" : ""
+                    }`}
+                    name="endTime"
+                    value={formData.endTime}
+                    onChange={handleChange}
+                  />
+                  <div className="invalid-feedback">{errors.endTime}</div>
+                </div>
+              </>
+            )}
             <div className="col-lg-12">
               <label className="form-label">Notes</label>
               <input
@@ -311,9 +393,11 @@ const AddAppointment = () => {
               <div className="invalid-feedback">{errors.reason}</div>
             </div>
             <div className="text-center">
-              <button className="cancelBtn me-2" onClick={() => navigate(-1)}>Cancel</button>
+              <button className="cancelBtn me-2" onClick={() => navigate(-1)}>
+                Cancel
+              </button>
               <button className="bgBtn" onClick={handleSubmit}>
-                Add 
+                Add
               </button>
             </div>
           </div>
