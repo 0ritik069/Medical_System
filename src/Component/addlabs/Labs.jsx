@@ -474,27 +474,52 @@
 // }
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { baseurl } from "../../Baseurl";
+import { baseurl, baseurImage } from "../../Baseurl";
 import Swal from "sweetalert2";
 export default function Labs() {
   const [hodalopen, setHodalopen] = useState(false);
   const [formData, setFormData] = useState({});
+  const [logoFile, setLogoFile] = useState(null);
   const [data, getData] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const openmodal = () => {
     setHodalopen(true);
     setFormData({});
     setEditMode(false);
+    setLogoFile(null);
   };
-  const handlecloseVital = () => setHodalopen(false);
+  const handlecloseVital = () => {
+    setHodalopen(false);
+    setLogoFile(null);
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
+  const handleLogoChange = (e) => {
+    setLogoFile(e.target.files[0] || null);
+  };
   const handleapisubmit = async () => {
     try {
+      const submitData = new FormData();
+      
+      // Add form fields
+      Object.keys(formData).forEach(key => {
+        if (formData[key] !== undefined && formData[key] !== null) {
+          submitData.append(key, formData[key]);
+        }
+      });
+      
+             // Add logo file if selected
+       if (logoFile) {
+         submitData.append('image', logoFile);
+       }
+
       if (editMode) {
-        const response = await axios.put(`${baseurl}updateLabById/${formData.id}`, formData);
+        const response = await axios.put(`${baseurl}updateLabById/${formData.id}`, submitData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         if (response.data.success === true) {
           Swal.fire("Success", "Lab updated successfully", "success");
           getDataset();
@@ -503,7 +528,9 @@ export default function Labs() {
           Swal.fire("Error", "Failed to update lab", "error");
         }
       } else {
-        const response = await axios.post(`${baseurl}addLabs`, formData);
+        const response = await axios.post(`${baseurl}addLabs`, submitData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         if (response.data.success === true) {
           Swal.fire("Success", "Lab added successfully", "success");
           getDataset();
@@ -592,25 +619,54 @@ export default function Labs() {
               <div className="card-body pt-3">
                 <div className="table-responsive">
                   <table className="table table-hover">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Address</th>
-                        <th>Speciality</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                      </tr>
-                    </thead>
+                                         <thead>
+                       <tr>
+                         <th>Logo</th>
+                         <th>Name</th>
+                         <th>Email</th>
+                         <th>Phone</th>
+                         <th>Address</th>
+                         <th>Requests</th>
+                         <th>Status</th>
+                         <th>Action</th>
+                       </tr>
+                     </thead>
                     <tbody>
                       {data.map((item, index) => (
                         <tr key={index}>
-                          <td>{item.lab_name}</td>
-                          <td>{item.email}</td>
-                          <td>{item.phone_number}</td>
+                                                     <td>
+                                                           {item.image ? (
+                                <img 
+                                  src={`${baseurImage}${item.image}`} 
+                                  alt="Lab Logo" 
+                                  style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }}
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.display = 'flex';
+                                  }}
+                                />
+                              ) : null}
+                             <div 
+                               style={{ 
+                                 width: '40px', 
+                                 height: '40px', 
+                                 backgroundColor: '#f0f0f0', 
+                                 borderRadius: '4px', 
+                                 display: item.image ? 'none' : 'flex', 
+                                 alignItems: 'center', 
+                                 justifyContent: 'center' 
+                               }}
+                             >
+                               <i className="ti ti-building f-16 text-muted"></i>
+                             </div>
+                           </td>
+                                                     <td>{item.lab_name}</td>
+                           <td>{item.email}</td>
+                                                       <td>{item.phone_number}</td>
                           <td>{item.address}</td>
-                          <td>{item.speciality}</td>
+                                                     <td>
+                             <span className="badge bg-primary">{item.assigned_count || 0}</span>
+                           </td>
                           <td>
                             <div className="form-check form-switch">
                               <input
@@ -660,14 +716,14 @@ export default function Labs() {
                         </div>
                         <div className="container mt-4">
                           <div className="row">
-                            {[
-                              { label: "Lab Name", name: "lab_name", type: "text" },
-                              { label: "Email", name: "email", type: "email" },
-                              { label: "Phone", name: "phone", type: "number" },
-                              { label: "Address", name: "address", type: "text" },
-                              { label: "Speciality", name: "speciality", type: "text" },
-                              { label: "Notes", name: "notes", type: "text" },
-                            ].map((field, idx) => (
+                                                         {[
+                               { label: "Lab Name", name: "lab_name", type: "text" },
+                               { label: "Email", name: "email", type: "email" },
+                               { label: "Phone", name: "phone", type: "text" },
+                               { label: "Address", name: "address", type: "text" },
+                               { label: "Speciality", name: "speciality", type: "text" },
+                               { label: "Notes", name: "notes", type: "text" },
+                             ].map((field, idx) => (
                               <div className="col-md-6 mb-3" key={idx}>
                                 <label className="form-label">{field.label}:</label>
                                 <input
@@ -679,6 +735,22 @@ export default function Labs() {
                                 />
                               </div>
                             ))}
+                          </div>
+                          
+                          {/* Logo Upload Section */}
+                          <div className="row">
+                            <div className="col-md-6 mb-3">
+                              <label className="form-label">Lab Logo:</label>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleLogoChange}
+                                className="form-control"
+                              />
+                              {logoFile && (
+                                <small className="text-muted">Selected: {logoFile.name}</small>
+                              )}
+                            </div>
                           </div>
 
                           <div className="d-flex justify-content-center">
