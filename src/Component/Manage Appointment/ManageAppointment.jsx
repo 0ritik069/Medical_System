@@ -1793,7 +1793,7 @@ export default function ManageAppointment() {
                                     value={personalinfo.civilIdNumber}
                                   />
                                 </div>
-                                <div className="col-md-3">
+                                <div className="col-md-4">
                                   <label className="form-label d-block">
                                     Gender
                                   </label>
@@ -1801,46 +1801,12 @@ export default function ManageAppointment() {
                                     <input
                                       type="text"
                                       className="form-control"
-                                      placeholder="Civil ID"
+                                      placeholder="Gender"
                                       disabled
                                       value={personalinfo.gender}
                                     />
-                                    {/* <div className="form-check form-check-inline">
-                                      <input
-                                      type="text"
-                                        className="form-check-input"
-                                        name="gender"
-                                        value={personalinfo.gender}
-                                        // checked={personalinfo.gender === "Male"}
-                                      />
-                                      {/* <label
-                                        className="form-check-label"
-                                        htmlFor="male"
-                                      >
-                                        Male
-                                      </label> */}
-                                    {/* </div> */}
-                                    {/* <div className="form-check form-check-inline">
-                                      <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="gender"
-                                        value="Female"
-                                        id="female"
-                                        checked={
-                                          personalinfo.gender === "Female"
-                                        }
-                                      />
-                                      <label
-                                        className="form-check-label"
-                                        htmlFor="female"
-                                      >
-                                        Female
-                                      </label>
-                                    </div> */}
                                   </div>
                                 </div>
-
                                 <div className="col-md-6">
                                   <label className="form-label">
                                     Passport ID
@@ -1868,8 +1834,6 @@ export default function ManageAppointment() {
                               </div>
                             </div>
                           </div>
-
-                          {/* Contact Details */}
                           <div className="card mb-3">
                             <div>
                               <h5 className="card-title">Contact Details</h5>
@@ -1917,12 +1881,7 @@ export default function ManageAppointment() {
                             </div>
                           </div>
                         </div>
-
-                        {/* Right Section */}
                         <div className="col-md-4 rightSidePer">
-                          {/* Visit Info */}
-
-                          {/* Emergency Contact */}
                           <div className="card mb-3">
                             <div>
                               <h5 className="card-title">Emergency Contact</h5>
@@ -2036,9 +1995,6 @@ export default function ManageAppointment() {
                                         personalinfo.lastVisitDate
                                       ).toLocaleDateString("en-GB")}
                                 </p>
-                                {/* <p className="ps-2">
-                                  <strong>First Visit:</strong> {new Date(personalinfo.firstVisitDate).toLocaleDateString("en-GB")}
-                                </p> */}
                               </div>
                               <p>
                                 <label className="form-label">
@@ -2125,15 +2081,6 @@ export default function ManageAppointment() {
                                       <label className="form-label">
                                         Appointment Date
                                       </label>
-                                      {/* <input
-                type="date"
-                className={`form-control ${
-                  errors.appointmentDate ? "is-invalid" : ""
-                }`}
-                name="appointmentDate"
-                value={appointmentdata.appointmentDate}
-                onChange={handleChange}
-              /> */}
                                       <input
                                         type="date"
                                         name="appointmentDate"

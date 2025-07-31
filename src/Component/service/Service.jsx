@@ -222,7 +222,7 @@ export default function Service() {
                             <td>{item.type}</td>
                             <td>
                               <NavLink
-                                to="/Admin/Manageappointment"
+                                // to="/Admin/Manageappointment"
                                 state={{ patientid: item }}
                                 className="avtar avtar-xs btn-link-secondary viewIcon"
                               >
@@ -250,7 +250,7 @@ export default function Service() {
                       ) : (
                         <tr>
                           <td colSpan="10" className="text-center">
-                            No patients found.
+                            No Service found.
                           </td>
                         </tr>
                       )}
