@@ -34031,12 +34031,7 @@ hr.hrLine {
   width: 100%;
   height: 100%;
 }
-.appointment-block2,
-.appointment-block1,
-.appointment-block {
-overflow-y: scroll;
-overflow-x: hidden;
-}
+ 
 .barcode-container svg {
   height: 100px !important;
   width: 150px !important;
