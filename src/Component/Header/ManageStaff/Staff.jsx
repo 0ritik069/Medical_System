@@ -13,8 +13,14 @@ export default function Staff() {
   const [editDoctor, setEditDoctor] = useState(null);
   const [editStaffModal, setEditStaffModal] = useState(false);
   const [editStaff, setEditStaff] = useState(null);
+  const [editNurseModal, setEditNurseModal] = useState(false);
+  const [editNurse, setEditNurse] = useState(null);
   const [viewUserModal, setViewUserModal] = useState(false);
   const [viewUser, setViewUser] = useState(null);
+  const [viewStaffModal, setViewStaffModal] = useState(false);
+  const [viewStaff, setViewStaff] = useState(null);
+  const [viewNurseModal, setViewNurseModal] = useState(false);
+  const [viewNurse, setViewNurse] = useState(null);
   const [allDoctors, setAllDoctors] = useState([]);
   const [allNurses, getAllNurses] = useState([]);
   const [allStaff, setAllStaff] = useState([]);
@@ -344,7 +350,11 @@ export default function Staff() {
     try {
       const response = await axios.get(`${baseurl}getAllNurses`);
       if (response.data.success === true) {
-        console.log(response.data.data)
+        console.log("🔍 Debug - All Nurses Data:", response.data.data);
+        if (response.data.data && response.data.data.length > 0) {
+          console.log("🔍 Debug - First Nurse Object:", response.data.data[0]);
+          console.log("🔍 Debug - First Nurse Object Keys:", Object.keys(response.data.data[0]));
+        }
         getAllNurses(response.data.data);
       } else {
         console.log("fgsfdgsdf");
@@ -498,7 +508,7 @@ export default function Staff() {
     console.log("📤 Submitting doctor data...");
     console.log(dataDoctor);
 
-    try {
+      try {
       const formData = new FormData();
       formData.append("email", dataDoctor.email);
       formData.append("password", dataDoctor.password);
@@ -600,6 +610,116 @@ export default function Staff() {
     setViewUser(null);
   };
 
+  const handleViewStaffClick = (staff) => {
+    setViewStaff(staff);
+    setViewStaffModal(true);
+  };
+
+  const handleViewStaffClose = () => {
+    setViewStaffModal(false);
+    setViewStaff(null);
+  };
+
+  const handleEditNurseClick = (nurse) => {
+    console.log("🔍 Debug - handleEditNurseClick received nurse:", nurse);
+    console.log("🔍 Debug - Nurse object keys:", Object.keys(nurse));
+    console.log("🔍 Debug - Nurse ID:", nurse.id);
+    console.log("🔍 Debug - Nurse _id:", nurse._id);
+    console.log("🔍 Debug - Nurse nurseId:", nurse.nurseId);
+    setEditNurse(nurse);
+    setEditNurseModal(true);
+  };
+
+  const handleEditNurseClose = () => {
+    setEditNurseModal(false);
+    setEditNurse(null);
+    setFiles1(null);
+  };
+
+  const handleEditNurseChange = (e) => {
+    const { name, value } = e.target;
+    setEditNurse({ ...editNurse, [name]: value });
+  };
+
+  const handleViewNurseClick = (nurse) => {
+    setViewNurse(nurse);
+    setViewNurseModal(true);
+  };
+
+  const handleViewNurseClose = () => {
+    setViewNurseModal(false);
+    setViewNurse(null);
+  };
+
+  const UpdateNurse = async () => {
+    try {
+      if (!editNurse.email || !editNurse.fullName) {
+        Swal.fire("Missing Fields", "Please fill all required fields", "warning");
+        return;
+      }
+
+      // Debug: Log the nurse object to see available properties
+      console.log("🔍 Debug - Edit Nurse Object:", editNurse);
+      console.log("🔍 Debug - Edit Nurse Object Keys:", Object.keys(editNurse));
+      console.log("🔍 Debug - Edit Nurse ID:", editNurse.id);
+      console.log("🔍 Debug - Edit Nurse _id:", editNurse._id);
+      console.log("🔍 Debug - Edit Nurse nurseId:", editNurse.nurseId);
+
+      // Get the correct ID
+      const nurseId = editNurse.id || editNurse._id || editNurse.nurseId || editNurse.userId;
+      
+      if (!nurseId) {
+        Swal.fire("Error", "Nurse ID not found. Please try again.", "error");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("email", editNurse.email);
+      formData.append("fullName", editNurse.fullName);
+      formData.append("shortName", editNurse.shortName || "");
+      formData.append("prefix", editNurse.prefix || "");
+      formData.append("dateOfBirth", editNurse.dateOfBirth || "");
+      formData.append("licenseId", editNurse.licenseId || "");
+      formData.append("civilId", editNurse.civilId || "");
+      formData.append("passport", editNurse.passport || "");
+      formData.append("gender", editNurse.gender || "");
+      formData.append("specialty", editNurse.specialty || "");
+      formData.append("phoneNumber", editNurse.phoneNumber || "");
+
+      if (files1) {
+        formData.append("personalPhoto", files1);
+      }
+
+      console.log("✅ Ready FormData for Update Nurse:");
+      for (let pair of formData.entries()) {
+        console.log(`${pair[0]}:`, pair[1]);
+      }
+
+      console.log("✅ Using Nurse ID:", nurseId);
+
+      const response = await axios.put(
+        `${baseurl}updateDoctorDetails/${nurseId}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.data.success) {
+        Swal.fire("Success", "Nurse updated successfully", "success");
+        getallNurse();
+        handleEditNurseClose();
+      } else {
+        Swal.fire("Error", response.data.message || "Failed to update nurse", "error");
+      }
+    } catch (error) {
+      console.error("❌ Error updating nurse:", error);
+      Swal.fire("Error", "Failed to update nurse", "error");
+    }
+  };
+
   const UpdateStaff = async () => {
     try {
       if (!editStaff.email || !editStaff.fullName) {
@@ -638,37 +758,194 @@ export default function Staff() {
         }
       );
 
-      if (response.data.success === true) {
-        Swal.fire("Success", "Staff updated successfully!", "success");
-        console.log("✅ Staff updated successfully:", response.data);
-        handleStaffEditClose();
-        getallstaff(); // Refresh the list
+      if (response.data.success) {
+        Swal.fire("Success", "Staff updated successfully", "success");
+        setEditStaffModal(false);
+        setEditStaff(null);
+        setFiles1(null);
+        getallstaff();
       } else {
-        const msg = response.data.message || "Something went wrong";
-        Swal.fire("Error", msg, "error");
-        console.error("❌ Server Error:", msg);
+        Swal.fire("Error", response.data.message || "Failed to update staff", "error");
       }
     } catch (error) {
-      console.error("🚨 Error while updating staff:", error);
-      if (error.response) {
-        const errorData = error.response.data;
-        if (typeof errorData === "string") {
-          Swal.fire("Server Error", errorData, "error");
-        } else if (errorData.message) {
-          Swal.fire("Error", errorData.message, "error");
-        } else if (Array.isArray(errorData.errors)) {
-          for (const err of errorData.errors) {
-            Swal.fire("Validation Error", err.msg || err.message, "error");
-          }
-        } else {
-          Swal.fire("Error", "Unexpected server error occurred", "error");
-        }
-      } else if (error.request) {
-        Swal.fire("Network Error", "No response from server. Please check your connection.", "error");
-      } else {
-        Swal.fire("Error", error.message || "An unknown error occurred", "error");
-      }
+      console.error("❌ Error updating staff:", error);
+      Swal.fire("Error", "Failed to update staff", "error");
     }
+  };
+
+  // Delete functions for all user types
+  const handleDeleteUser = async (userId) => {
+    console.log("🔍 Debug - User ID received:", userId);
+    console.log("🔍 Debug - User ID type:", typeof userId);
+    
+    if (!userId || userId === 'undefined') {
+      Swal.fire("Error", "Invalid user ID. Please try again.", "error");
+      return;
+    }
+    
+    try {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+      });
+
+      if (result.isConfirmed) {
+        const response = await axios.delete(`${baseurl}deleteDoctor/${userId}`);
+        
+        if (response.data.success) {
+          Swal.fire("Deleted!", "User has been deleted.", "success");
+          getalluser(); // Refresh the list
+        } else {
+          Swal.fire("Error", response.data.message || "Failed to delete user", "error");
+        }
+      }
+    } catch (error) {
+      console.error("❌ Error deleting user:", error);
+      Swal.fire("Error", "Failed to delete user", "error");
+    }
+  };
+
+  const handleDeleteStaff = async (staffId) => {
+    console.log("🔍 Debug - Staff ID received:", staffId);
+    console.log("🔍 Debug - Staff ID type:", typeof staffId);
+    
+    if (!staffId || staffId === 'undefined') {
+      Swal.fire("Error", "Invalid staff ID. Please try again.", "error");
+      return;
+    }
+    
+    try {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+      });
+
+      if (result.isConfirmed) {
+        const response = await axios.delete(`${baseurl}deleteDoctor/${staffId}`);
+        
+        if (response.data.success) {
+          Swal.fire("Deleted!", "Staff has been deleted.", "success");
+          getallstaff(); // Refresh the list
+        } else {
+          Swal.fire("Error", response.data.message || "Failed to delete staff", "error");
+        }
+      }
+    } catch (error) {
+      console.error("❌ Error deleting staff:", error);
+      Swal.fire("Error", "Failed to delete staff", "error");
+    }
+  };
+
+  const handleDeleteDoctor = async (doctorId) => {
+    console.log("🔍 Debug - Doctor ID received:", doctorId);
+    console.log("🔍 Debug - Doctor ID type:", typeof doctorId);
+    
+    if (!doctorId || doctorId === 'undefined') {
+      Swal.fire("Error", "Invalid doctor ID. Please try again.", "error");
+      return;
+    }
+    
+    try {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+      });
+
+      if (result.isConfirmed) {
+        const response = await axios.delete(`${baseurl}deleteDoctor/${doctorId}`);
+        
+        if (response.data.success) {
+          Swal.fire("Deleted!", "Doctor has been deleted.", "success");
+          getalldoctor(); // Refresh the list
+        } else {
+          Swal.fire("Error", response.data.message || "Failed to delete doctor", "error");
+        }
+      }
+    } catch (error) {
+      console.error("❌ Error deleting doctor:", error);
+      Swal.fire("Error", "Failed to delete doctor", "error");
+    }
+  };
+
+  const handleDeleteNurse = async (nurseId) => {
+    console.log("🔍 Debug - Nurse ID received:", nurseId);
+    console.log("🔍 Debug - Nurse ID type:", typeof nurseId);
+    
+    if (!nurseId || nurseId === 'undefined') {
+      Swal.fire("Error", "Invalid nurse ID. Please try again.", "error");
+      return;
+    }
+    
+    try {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+      });
+
+      if (result.isConfirmed) {
+        const response = await axios.delete(`${baseurl}deleteDoctor/${nurseId}`);
+        
+        if (response.data.success) {
+          Swal.fire("Deleted!", "Nurse has been deleted.", "success");
+          getAllNurses(); // Refresh the list
+        } else {
+          Swal.fire("Error", response.data.message || "Failed to delete nurse", "error");
+        }
+      }
+    } catch (error) {
+      console.error("❌ Error deleting nurse:", error);
+      Swal.fire("Error", "Failed to delete nurse", "error");
+    }
+  };
+
+  const [viewAppointmentModal, setViewAppointmentModal] = useState(false);
+  const [viewAppointmentDoctor, setViewAppointmentDoctor] = useState(null);
+  const [appointmentData, setAppointmentData] = useState([]);
+
+  const handleViewAppointmentClick = async (doctor) => {
+    setViewAppointmentDoctor(doctor);
+    setViewAppointmentModal(true);
+    
+    try {
+      const response = await axios.get(
+        `${baseurl}getAppointmentsByDoctorId/${doctor.id}`
+      );
+      if (response.data.success === true) {
+        setAppointmentData(response.data.data);
+      } else {
+        console.log("Failed to fetch appointments");
+        setAppointmentData([]);
+      }
+    } catch (error) {
+      console.log("Error fetching appointments:", error);
+      setAppointmentData([]);
+    }
+  };
+
+  const handleViewAppointmentClose = () => {
+    setViewAppointmentModal(false);
+    setViewAppointmentDoctor(null);
+    setAppointmentData([]);
   };
 
   return (
@@ -769,41 +1046,41 @@ export default function Staff() {
                         <tbody>
 
 
-                          {
+{
                             allUser && allUser.length > 0 && allUser.map((item, index) => {
-                              console.log(item)
+    console.log(item)
                               return (
-                                <>
-                                  <tr key={index}>
-                                    <td >
-                                      <div className="d-flex align-items-center">
-                                        <div className="flex-shrink-0">
-                                          <img
-                                            src="../assets/images/user/avatar-2.jpg"
-                                            alt="user image"
-                                            className="img-radius wid-40"
-                                          />
-                                        </div>
-                                        <div className="flex-grow-1 ms-3">
-                                          <h6 className="mb-0">{item.fullName}</h6>
-                                        </div>
-                                      </div>
-                                    </td>
-                                    <td>
-                                      {item.civilId}
-                                    </td>
-                                    <td>{new Date(item.dateOfBirth).toLocaleDateString("en-GB")}</td>
-                                    <td>{item.email}</td>
-                                    <td>{item.role}</td>
-                                    <td>{item.phoneNumber}</td>
-                                    <td>
+      <>
+       <tr key={index}>
+                            <td >
+                              <div className="d-flex align-items-center">
+                                <div className="flex-shrink-0">
+                                  <img
+                                    src="../assets/images/user/avatar-2.jpg"
+                                    alt="user image"
+                                    className="img-radius wid-40"
+                                  />
+                                </div>
+                                <div className="flex-grow-1 ms-3">
+                                  <h6 className="mb-0">{item.fullName}</h6>
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              {item.civilId}
+                            </td>
+                            <td>{new Date(item.dateOfBirth).toLocaleDateString("en-GB")}</td>
+                            <td>{item.email}</td>
+                            <td>{item.role}</td>
+                            <td>{item.phoneNumber}</td>
+                            <td>
                                       <div
                                         onClick={() => handleViewUserClick(item)}
-                                        className="avtar avtar-xs btn-link-secondary"
+                                className="avtar avtar-xs btn-link-secondary"
                                         style={{ cursor: "pointer" }}
                                         title="View User"
-                                      >
-                                        <i className="ti ti-eye f-20" />{" "}
+                              >
+                                <i className="ti ti-eye f-20" />{" "}
                                       </div>
                                       {/* <a
                                 href="#"
@@ -812,19 +1089,27 @@ export default function Staff() {
                                 <i className="ti ti-edit f-20" />{" "}
                               </a> */}
                                       <div
-                                        className="avtar avtar-xs btn-link-secondary"
+                                        onClick={() => {
+                                          console.log("🔍 Debug - Full item object:", item);
+                                          console.log("🔍 Debug - Available properties:", Object.keys(item));
+                                          console.log("🔍 Debug - item.id:", item.id);
+                                          console.log("🔍 Debug - item._id:", item._id);
+                                          console.log("🔍 Debug - item.userId:", item.userId);
+                                          handleDeleteUser(item.id || item._id || item.userId);
+                                        }}
+                                className="avtar avtar-xs btn-link-secondary"
                                         style={{ cursor: "pointer" }}
                                         title="Delete User"
-                                      >
-                                        <i className="ti ti-trash f-20" />
+                              >
+                                <i className="ti ti-trash f-20" />
                                       </div>
-                                    </td>
-                                  </tr>
-                                </>
-                              )
-                            })
-                          }
-
+                            </td>
+                          </tr>
+      </>
+    )
+  })
+}                         
+                         
                         </tbody>
                       </table>
                     </div>
@@ -871,29 +1156,29 @@ export default function Staff() {
                         <tbody>
                           {
                             allStaff && allStaff.length > 0 && allStaff.map((item, index) => {
-                              console.log(item)
+                             console.log(item)
                               return (
                                 <>
                                   <tr key={index}>
-                                    <td>
-                                      <div className="d-flex align-items-center">
-                                        <div className="flex-shrink-0">
-                                          <img
-                                            src="../assets/images/user/avatar-1.jpg"
-                                            alt="user image"
-                                            className="img-radius wid-40"
-                                          />
-                                        </div>
-                                        <div className="flex-grow-1 ms-3">
-                                          <h6 className="mb-0">{item?.fullName}</h6>
-                                        </div>
-                                      </div>
-                                    </td>
-                                    <td>{new Date(item.dateOfBirth).toLocaleDateString('en-GB')}</td>
-                                    <td>{item.licenseId}</td>
-                                    <td>{item.gender}</td>
+                            <td>
+                              <div className="d-flex align-items-center">
+                                <div className="flex-shrink-0">
+                                  <img
+                                    src="../assets/images/user/avatar-1.jpg"
+                                    alt="user image"
+                                    className="img-radius wid-40"
+                                  />
+                                </div>
+                                <div className="flex-grow-1 ms-3">
+                                  <h6 className="mb-0">{item?.fullName}</h6>
+                                </div>
+                              </div>
+                            </td>
+                            <td>{new Date(item.dateOfBirth).toLocaleDateString('en-GB')}</td>
+                            <td>{item.licenseId}</td>
+                            <td>{item.gender}</td>
                                     <td>{item.civilId}</td>
-                                    {/* <td>
+                            {/* <td>
                               <div className="form-check form-switch">
                                 <input
                                   className="form-check-input"
@@ -911,37 +1196,46 @@ export default function Staff() {
                               </div>
                             </td> */}
                                     <td>{item.phoneNumber}</td>
-                                    <td>
+                            <td>
                                       <div
-                                        onClick={() => handleStaffEditClick(item)}
-                                        className="avtar avtar-xs btn-link-secondary"
-                                        style={{ cursor: "pointer" }}
-                                        title="Edit Staff"
-                                      >
-                                        <i className="ti ti-edit f-20" />{" "}
-                                      </div>
-                                      <div
-                                        className="avtar avtar-xs btn-link-secondary"
+                                        onClick={() => handleViewStaffClick(item)}
+                                className="avtar avtar-xs btn-link-secondary"
                                         style={{ cursor: "pointer" }}
                                         title="View Staff"
                                       >
                                         <i className="ti ti-eye f-20" />{" "}
                                       </div>
                                       <div
-                                        className="avtar avtar-xs btn-link-secondary"
+                                        onClick={() => handleStaffEditClick(item)}
+                                className="avtar avtar-xs btn-link-secondary"
+                                        style={{ cursor: "pointer" }}
+                                        title="Edit Staff"
+                                      >
+                                        <i className="ti ti-edit f-20" />{" "}
+                                      </div>
+                                      <div
+                                        onClick={() => {
+                                          console.log("🔍 Debug - Staff item object:", item);
+                                          console.log("🔍 Debug - Staff available properties:", Object.keys(item));
+                                          console.log("🔍 Debug - Staff item.id:", item.id);
+                                          console.log("🔍 Debug - Staff item._id:", item._id);
+                                          console.log("🔍 Debug - Staff item.staffId:", item.staffId);
+                                          handleDeleteStaff(item.id || item._id || item.staffId);
+                                        }}
+                                className="avtar avtar-xs btn-link-secondary"
                                         style={{ cursor: "pointer" }}
                                         title="Delete Staff"
-                                      >
-                                        <i className="ti ti-trash f-20" />
+                              >
+                                <i className="ti ti-trash f-20" />
                                       </div>
-                                    </td>
-                                  </tr>
+                            </td>
+                          </tr>
                                 </>
                               )
                             })
                           }
-
-
+                         
+                       
                         </tbody>
                       </table>
                     </div>
@@ -1104,21 +1398,21 @@ export default function Staff() {
                                       className="form-control" placeholder="phoneNumber"
                                     />
                                   </div>
-                                  <div className="col-md-4">
+ <div className="col-md-4">
                                     <label className="form-label">
-                                      License Id
+                                    License Id
                                     </label>
                                     <input
                                       type="text"
-                                      name="licenseId"
-                                      onChange={handlechaneg}
+                                       name="licenseId"
+                                    onChange={handlechaneg}
                                       placeholder="licenseId"
                                       className="form-control"
                                     />
                                   </div>
-                                  <div className="mb-3 col-4">
+                                   <div className="mb-3 col-4">
                                     <label htmlFor="doctorName" className="form-label">
-                                      Role
+                                          Role                                      
                                     </label>
                                     <br />
                                     <select
@@ -1131,7 +1425,7 @@ export default function Staff() {
                                       <option value="receptionist">Receptionist</option>
                                     </select>
                                   </div>
-                                  <div className="col-md-4">
+                                   <div className="col-md-4">
                                     <label className="form-label">
                                       Password
                                     </label>
@@ -1155,10 +1449,10 @@ export default function Staff() {
                                       onChange={handlefilechnage}
                                     />
                                   </div>
+                                 
 
-
-
-
+                                   
+                                 
                                 </div>
                               </div>
                             </div>
@@ -1273,36 +1567,38 @@ export default function Staff() {
                                     </td>
                                     <td>
                                       <div
-                                        onClick={() => {
-                                          handlenavigate(item.id);
-                                        }}
+                                        onClick={() => handleViewAppointmentClick(item)}
                                         className="avtar avtar-xs btn-link-secondary"
+                                        style={{ cursor: "pointer" }}
+                                        title="View Appointments"
                                       >
                                         <i className="ti ti-eye f-20" />{" "}
                                       </div>
                                     </td>
                                     <td>
                                       <div
-                                        onClick={() => {
-                                          handlefilterdata();
-                                        }}
-                                        className="avtar avtar-xs btn-link-secondary"
-                                      >
-                                        <i className="ti ti-eye f-20" />{" "}
-                                      </div>
-                                      <div
                                         onClick={() => handleEditClick(item)}
                                         className="avtar avtar-xs btn-link-secondary"
                                         style={{ cursor: "pointer" }}
+                                        title="Edit Doctor"
                                       >
                                         <i className="ti ti-edit f-20" />{" "}
                                       </div>
-                                      <a
-                                        href="#"
+                                      <div
+                                        onClick={() => {
+                                          console.log("🔍 Debug - Doctor item object:", item);
+                                          console.log("🔍 Debug - Doctor available properties:", Object.keys(item));
+                                          console.log("🔍 Debug - Doctor item.id:", item.id);
+                                          console.log("🔍 Debug - Doctor item._id:", item._id);
+                                          console.log("🔍 Debug - Doctor item.doctorId:", item.doctorId);
+                                          handleDeleteDoctor(item.id || item._id || item.doctorId);
+                                        }}
                                         className="avtar avtar-xs btn-link-secondary"
+                                        style={{ cursor: "pointer" }}
+                                        title="Delete Doctor"
                                       >
                                         <i className="ti ti-trash f-20" />
-                                      </a>
+                                      </div>
                                     </td>
                                   </tr>
                                 </>
@@ -1556,7 +1852,7 @@ export default function Staff() {
                       <div>
                         <button
                           className="btn btn-primary"
-                          onClick={handleclicknurse}
+                           onClick={handleclicknurse}
                         >
                           Add Nurse
                         </button>
@@ -1582,54 +1878,67 @@ export default function Staff() {
                               console.log(item)
                               return (
                                 <>
-                                  <tr key={index}>
-                                    <td>
-                                      <div className="d-flex align-items-center">
-                                        <div className="flex-shrink-0">
-                                          <img
-                                            src="../assets/images/user/avatar-1.jpg"
-                                            alt="user image"
-                                            className="img-radius wid-40"
-                                          />
-                                        </div>
-                                        <div className="flex-grow-1 ms-3">
-                                          <h6 className="mb-0">{item.fullName}</h6>
-                                        </div>
-                                      </div>
-                                    </td>
-                                    <td>{item.email}</td>
-                                    <td>{item.civilId}</td>
-                                    <td>{item.gender}</td>
-                                    <td>{new Date(item.dateOfBirth).toLocaleDateString("en-GB")}</td>
-                                    <td>
-                                      <a
-                                        href="#"
-                                        className="avtar avtar-xs btn-link-secondary"
-                                      >
-                                        <i className="ti ti-eye f-20" />{" "}
-                                      </a>
-                                      <a
-                                        href="#"
-                                        className="avtar avtar-xs btn-link-secondary"
-                                      >
-                                        <i className="ti ti-edit f-20" />{" "}
-                                      </a>
-                                      <a
-                                        href="#"
-                                        className="avtar avtar-xs btn-link-secondary"
-                                      >
-                                        <i className="ti ti-trash f-20" />
-                                      </a>
-                                    </td>
-                                  </tr>
-
+                                 <tr key={index}>
+                            <td>
+                              <div className="d-flex align-items-center">
+                                <div className="flex-shrink-0">
+                                  <img
+                                    src="../assets/images/user/avatar-1.jpg"
+                                    alt="user image"
+                                    className="img-radius wid-40"
+                                  />
+                                </div>
+                                <div className="flex-grow-1 ms-3">
+                                  <h6 className="mb-0">{item.fullName}</h6>
+                                </div>
+                              </div>
+                            </td>
+                            <td>{item.email}</td>
+                            <td>{item.civilId}</td>
+                            <td>{item.gender}</td>
+                            <td>{new Date(item.dateOfBirth).toLocaleDateString("en-GB")}</td>
+                            <td>
+                              <div
+                                onClick={() => handleViewNurseClick(item)}
+                                className="avtar avtar-xs btn-link-secondary"
+                                style={{ cursor: "pointer" }}
+                                title="View Nurse"
+                              >
+                                <i className="ti ti-eye f-20" />{" "}
+                              </div>
+                              <div
+                                onClick={() => handleEditNurseClick(item)}
+                                className="avtar avtar-xs btn-link-secondary"
+                                style={{ cursor: "pointer" }}
+                                title="Edit Nurse"
+                              >
+                                <i className="ti ti-edit f-20" />{" "}
+                              </div>
+                              <div
+                                onClick={() => {
+                                  console.log("🔍 Debug - Nurse item object:", item);
+                                  console.log("🔍 Debug - Nurse available properties:", Object.keys(item));
+                                  console.log("🔍 Debug - Nurse item.id:", item.id);
+                                  console.log("🔍 Debug - Nurse item._id:", item._id);
+                                  console.log("🔍 Debug - Nurse item.nurseId:", item.nurseId);
+                                  handleDeleteNurse(item.id || item._id || item.nurseId);
+                                }}
+                                className="avtar avtar-xs btn-link-secondary"
+                                style={{ cursor: "pointer" }}
+                                title="Delete Nurse"
+                              >
+                                <i className="ti ti-trash f-20" />
+                              </div>
+                            </td>
+                          </tr>
+                                
                                 </>
                               )
 
                             })
                           }
-
-
+                         
+                       
                         </tbody>
                       </table>
                     </div>
@@ -1638,180 +1947,180 @@ export default function Staff() {
               </div>
             </div>
           </div>
-          {openmodal111 && (
-            <div
-              className="modal fade show"
-              aria-labelledby="staticBackdropLabel"
-              style={{
-                backgroundColor: "rgba(0,0,0,0.5)",
-                display: "block",
-              }}
-            >
-              <div className="modal-dialog modal-lg">
-                <div className="modal-content">
-                  <div className="modal-header">
+           {openmodal111 && (
+                <div
+                  className="modal fade show"
+                  aria-labelledby="staticBackdropLabel"
+                  style={{
+                    backgroundColor: "rgba(0,0,0,0.5)",
+                    display: "block",
+                  }}
+                >
+                  <div className="modal-dialog modal-lg">
+                    <div className="modal-content">
+                      <div className="modal-header">
                     <h5 className="modal-title">Add Nurse</h5>
-                    <button
-                      type="button"
-                      className="btn-close"
-                      onClick={handleclicknurse123}
-                    ></button>
-                  </div>
-                  <div className="modal-body">
-                    <div className="row">
-                      <div className="mb-3 col-4">
-                        <label htmlFor="doctorName" className="form-label">
-                          Prefix
-                        </label>
-                        <br />
-                        <select
-                          className="w-100 bg-white py-1 rounded"
-                          name="prefix"
-                          onChange={handlechaneg}
-                        >
-                          <option>Miss</option>
-                          <option>Mr</option>
-                          <option>Mrs</option>
-                        </select>
+                        <button
+                          type="button"
+                          className="btn-close"
+                          onClick={handleclicknurse123}
+                        ></button>
                       </div>
-                      <div className="mb-3 col-4">
-                        <label htmlFor="doctorName" className="form-label">
-                          First Name
-                        </label>
-                        <input
-                          type="text"
-                          name="fullName"
-                          placeholder="Name"
-                          className="form-control"
-                          id="doctorName"
-                          onChange={handlechaneg}
-                        />
-                      </div>
-                      <div className="mb-3 col-4">
-                        <label htmlFor="doctorName" className="form-label">
-                          {" "}
-                          Last Name
-                        </label>
-                        <input
-                          type="text"
-                          name="shortName"
-                          onChange={handlechaneg}
-                          placeholder="Last Name"
-                          className="form-control"
-                          id="doctorName"
-                        />
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="mb-3 col-4">
-                        <label
-                          htmlFor="specialization"
-                          className="form-label"
-                        >
-                          email
-                        </label>
-                        <input
-                          type="email"
-                          name="email"
-                          placeholder="doctor@gmail.com"
-                          className="form-control"
-                          id="specialization"
-                          onChange={handlechaneg}
-                        />
-                      </div>
-                      <div className="mb-3 col-4">
-                        <label
-                          htmlFor="specialization"
-                          className="form-label"
-                        >
-                          Gender
-                        </label>
-                        <select
-                          className="w-100 form-label py-1 rounded bg-white"
-                          name="gender"
-                          onChange={handlechaneg}
-                        >
-                          <option>Select</option>
-                          <option>Male</option>
-                          <option>Female</option>
-                          <option>Other</option>
-                        </select>
-                      </div>
-                      <div className="mb-3 col-4">
-                        <label
-                          htmlFor="specialization"
-                          className="form-label"
-                        >
-                          Password
-                        </label>
-                        <input
-                          type="passowrd"
-                          name="password"
-                          placeholder="123456"
-                          className="form-control"
-                          id="specialization"
-                          onChange={handlechaneg}
-                        />
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="mb-3 col-4">
-                        <label htmlFor="doctorName" className="form-label">
-                          Date Of Birth
-                        </label>
-                        <input
-                          type="date"
-                          name="dateOfBirth"
-                          className="form-control"
-                          id="doctorName"
-                          onChange={handlechaneg}
-                        />
-                      </div>
-                      <div className="mb-3 col-4">
-                        <label
-                          htmlFor="specialization"
-                          className="form-label"
-                        >
-                          License Id
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="License Number"
-                          name="licenseId"
-                          className="form-control"
-                          id="specialization"
-                          onChange={handlechaneg}
-                        />
-                      </div>
-                      <div className="mb-3 col-4">
-                        <label htmlFor="doctorName" className="form-label">
-                          Civil Id
-                        </label>
-                        <input
-                          type="text"
-                          name="civilId"
-                          className="form-control"
-                          placeholder="Civil Id"
-                          id="doctorName"
-                          onChange={handlechaneg}
-                        />
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="mb-3 col-4">
-                        <label htmlFor="doctorName" className="form-label">
-                          Passport
-                        </label>
-                        <input
-                          type="text"
-                          name="passport"
-                          placeholder="passport number"
-                          className="form-control"
-                          id="doctorName"
-                          onChange={handlechaneg}
-                        />
-                      </div>
-                      {/* <div className="mb-3 col-4">
+                      <div className="modal-body">
+                        <div className="row">
+                          <div className="mb-3 col-4">
+                            <label htmlFor="doctorName" className="form-label">
+                              Prefix
+                            </label>
+                            <br />
+                            <select
+                              className="w-100 bg-white py-1 rounded"
+                              name="prefix"
+                              onChange={handlechaneg}
+                            >
+                              <option>Miss</option>
+                              <option>Mr</option>
+                              <option>Mrs</option>
+                            </select>
+                          </div>
+                          <div className="mb-3 col-4">
+                            <label htmlFor="doctorName" className="form-label">
+                              First Name
+                            </label>
+                            <input
+                              type="text"
+                              name="fullName"
+                              placeholder="Name"
+                              className="form-control"
+                              id="doctorName"
+                              onChange={handlechaneg}
+                            />
+                          </div>
+                          <div className="mb-3 col-4">
+                            <label htmlFor="doctorName" className="form-label">
+                              {" "}
+                              Last Name
+                            </label>
+                            <input
+                              type="text"
+                              name="shortName"
+                              onChange={handlechaneg}
+                              placeholder="Last Name"
+                              className="form-control"
+                              id="doctorName"
+                            />
+                          </div>
+                        </div>
+                        <div className="row">
+                          <div className="mb-3 col-4">
+                            <label
+                              htmlFor="specialization"
+                              className="form-label"
+                            >
+                              email
+                            </label>
+                            <input
+                              type="email"
+                              name="email"
+                              placeholder="doctor@gmail.com"
+                              className="form-control"
+                              id="specialization"
+                              onChange={handlechaneg}
+                            />
+                          </div>
+                          <div className="mb-3 col-4">
+                            <label
+                              htmlFor="specialization"
+                              className="form-label"
+                            >
+                              Gender
+                            </label>
+                            <select
+                              className="w-100 form-label py-1 rounded bg-white"
+                              name="gender"
+                              onChange={handlechaneg}
+                            >
+                              <option>Select</option>
+                              <option>Male</option>
+                              <option>Female</option>
+                              <option>Other</option>
+                            </select>
+                          </div>
+                          <div className="mb-3 col-4">
+                            <label
+                              htmlFor="specialization"
+                              className="form-label"
+                            >
+                              Password
+                            </label>
+                            <input
+                              type="passowrd"
+                              name="password"
+                              placeholder="123456"
+                              className="form-control"
+                              id="specialization"
+                              onChange={handlechaneg}
+                            />
+                          </div>
+                        </div>
+                        <div className="row">
+                          <div className="mb-3 col-4">
+                            <label htmlFor="doctorName" className="form-label">
+                              Date Of Birth
+                            </label>
+                            <input
+                              type="date"
+                              name="dateOfBirth"
+                              className="form-control"
+                              id="doctorName"
+                              onChange={handlechaneg}
+                            />
+                          </div>
+                          <div className="mb-3 col-4">
+                            <label
+                              htmlFor="specialization"
+                              className="form-label"
+                            >
+                              License Id
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="License Number"
+                              name="licenseId"
+                              className="form-control"
+                              id="specialization"
+                              onChange={handlechaneg}
+                            />
+                          </div>
+                          <div className="mb-3 col-4">
+                            <label htmlFor="doctorName" className="form-label">
+                              Civil Id
+                            </label>
+                            <input
+                              type="text"
+                              name="civilId"
+                              className="form-control"
+                              placeholder="Civil Id"
+                              id="doctorName"
+                              onChange={handlechaneg}
+                            />
+                          </div>
+                        </div>
+                        <div className="row">
+                          <div className="mb-3 col-4">
+                            <label htmlFor="doctorName" className="form-label">
+                              Passport
+                            </label>
+                            <input
+                              type="text"
+                              name="passport"
+                              placeholder="passport number"
+                              className="form-control"
+                              id="doctorName"
+                              onChange={handlechaneg}
+                            />
+                          </div>
+                          {/* <div className="mb-3 col-4">
                             <label htmlFor="doctorName" className="form-label">
                               Specialty
                             </label>
@@ -1824,46 +2133,46 @@ export default function Staff() {
                               onChange={handlechaneg}
                             />
                           </div> */}
-                      <div className="mb-3 col-4">
-                        <label htmlFor="doctorName" className="form-label">
-                          Photo
-                        </label>
-                        <input
-                          type="file"
-                          name="personalPhoto"
-                          className="form-control"
-                          id="doctorName"
-                          onChange={handlefilechnage}
-                        />
-                      </div>
-                      <div className="mb-3 col-4">
-                        <label htmlFor="doctorName" className="form-label">
-                          Phone Number
-                        </label>
-                        <input
-                          type="text"
-                          name="phoneNumber"
-                          className="form-control"
+                          <div className="mb-3 col-4">
+                            <label htmlFor="doctorName" className="form-label">
+                              Photo
+                            </label>
+                            <input
+                              type="file"
+                              name="personalPhoto"
+                              className="form-control"
+                              id="doctorName"
+                              onChange={handlefilechnage}
+                            />
+                          </div>
+                          <div className="mb-3 col-4">
+                            <label htmlFor="doctorName" className="form-label">
+                              Phone Number
+                            </label>
+                            <input
+                              type="text"
+                              name="phoneNumber"
+                              className="form-control"
                           placeholder="+91 8859932237"
-                          id="doctorName"
-                          onChange={handlechaneg}
-                        />
+                              id="doctorName"
+                              onChange={handlechaneg}
+                            />
+                          </div>
+                        </div>
+                        <div className="d-flex justify-content-center">
+                          <button
+                            type="submit"
+                            className="btn btn-primary"
+                            onClick={AddNurse}
+                          >
+                            Add Nurse
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                    <div className="d-flex justify-content-center">
-                      <button
-                        type="submit"
-                        className="btn btn-primary"
-                        onClick={AddNurse}
-                      >
-                        Add Nurse
-                      </button>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
+              )}
 
           {/* Edit Doctor Modal */}
           {editModal && editDoctor && (
@@ -2421,6 +2730,479 @@ export default function Staff() {
                         type="button"
                         className="btn btn-secondary"
                         onClick={handleViewUserClose}
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* View Staff Modal */}
+          {viewStaffModal && viewStaff && (
+            <div
+              className="modal fade show"
+              aria-labelledby="staticBackdropLabel"
+              style={{
+                backgroundColor: "rgba(0,0,0,0.5)",
+                display: "block",
+              }}
+            >
+              <div className="modal-dialog modal-lg">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">View Staff Details</h5>
+                    <button
+                      type="button"
+                      className="btn-close"
+                      onClick={handleViewStaffClose}
+                    ></button>
+                  </div>
+                  <div className="modal-body">
+                    <div className="row">
+                      <div className="col-md-12 mb-3">
+                        <div className="d-flex align-items-center">
+                          <div className="flex-shrink-0">
+                            <img
+                              src="../assets/images/user/avatar-1.jpg"
+                              alt="staff image"
+                              className="img-radius"
+                              style={{ width: "80px", height: "80px" }}
+                            />
+                          </div>
+                          <div className="flex-grow-1 ms-3">
+                            <h4 className="mb-1">{viewStaff.fullName}</h4>
+                            <p className="text-muted mb-0">Staff Member</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-bold">Full Name</label>
+                        <p className="form-control-plaintext">{viewStaff.fullName}</p>
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-bold">Phone Number</label>
+                        <p className="form-control-plaintext">{viewStaff.phoneNumber}</p>
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-bold">Civil ID</label>
+                        <p className="form-control-plaintext">{viewStaff.civilId}</p>
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-bold">Date of Birth</label>
+                        <p className="form-control-plaintext">
+                          {new Date(viewStaff.dateOfBirth).toLocaleDateString("en-GB")}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-bold">Gender</label>
+                        <p className="form-control-plaintext">{viewStaff.gender}</p>
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-bold">License ID</label>
+                        <p className="form-control-plaintext">{viewStaff.licenseId}</p>
+                      </div>
+                    </div>
+                    <div className="d-flex justify-content-center mt-4">
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={handleViewStaffClose}
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* View Nurse Modal */}
+          {viewNurseModal && viewNurse && (
+            <div
+              className="modal fade show"
+              aria-labelledby="staticBackdropLabel"
+              style={{
+                backgroundColor: "rgba(0,0,0,0.5)",
+                display: "block",
+              }}
+            >
+              <div className="modal-dialog modal-lg">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">View Nurse Details</h5>
+                    <button
+                      type="button"
+                      className="btn-close"
+                      onClick={handleViewNurseClose}
+                    ></button>
+                  </div>
+                  <div className="modal-body">
+                    <div className="row">
+                      <div className="col-md-12 mb-3">
+                        <div className="d-flex align-items-center">
+                          <div className="flex-shrink-0">
+                            <img
+                              src="../assets/images/user/avatar-1.jpg"
+                              alt="nurse image"
+                              className="img-radius"
+                              style={{ width: "80px", height: "80px" }}
+                            />
+                          </div>
+                          <div className="flex-grow-1 ms-3">
+                            <h4 className="mb-1">{viewNurse.fullName}</h4>
+                            <p className="text-muted mb-0">Nurse</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-bold">Full Name</label>
+                        <p className="form-control-plaintext">{viewNurse.fullName}</p>
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-bold">Email</label>
+                        <p className="form-control-plaintext">{viewNurse.email}</p>
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-bold">Civil ID</label>
+                        <p className="form-control-plaintext">{viewNurse.civilId}</p>
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-bold">Date of Birth</label>
+                        <p className="form-control-plaintext">
+                          {new Date(viewNurse.dateOfBirth).toLocaleDateString("en-GB")}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-bold">Gender</label>
+                        <p className="form-control-plaintext">{viewNurse.gender}</p>
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-bold">License ID</label>
+                        <p className="form-control-plaintext">{viewNurse.licenseId}</p>
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-bold">Phone Number</label>
+                        <p className="form-control-plaintext">{viewNurse.phoneNumber}</p>
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label fw-bold">Specialty</label>
+                        <p className="form-control-plaintext">{viewNurse.specialty}</p>
+                      </div>
+                    </div>
+                    <div className="d-flex justify-content-center mt-4">
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={handleViewNurseClose}
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Edit Nurse Modal */}
+          {editNurseModal && editNurse && (
+            <div
+              className="modal fade show"
+              aria-labelledby="staticBackdropLabel"
+              style={{
+                backgroundColor: "rgba(0,0,0,0.5)",
+                display: "block",
+              }}
+            >
+              <div className="modal-dialog modal-lg">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">Edit Nurse</h5>
+                    <button
+                      type="button"
+                      className="btn-close"
+                      onClick={handleEditNurseClose}
+                    ></button>
+                  </div>
+                  <div className="modal-body">
+                    <div className="row">
+                      <div className="mb-3 col-4">
+                        <label htmlFor="nursePrefix" className="form-label">
+                          Prefix
+                        </label>
+                        <br />
+                        <select
+                          className="w-100 bg-white py-1 rounded"
+                          name="prefix"
+                          value={editNurse.prefix || ""}
+                          onChange={handleEditNurseChange}
+                        >
+                          <option value="">Select</option>
+                          <option value="Miss">Miss</option>
+                          <option value="Mr">Mr</option>
+                          <option value="Mrs">Mrs</option>
+                        </select>
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="nurseName" className="form-label">
+                          First Name
+                        </label>
+                        <input
+                          type="text"
+                          name="fullName"
+                          placeholder="Name"
+                          className="form-control"
+                          id="nurseName"
+                          value={editNurse.fullName || ""}
+                          onChange={handleEditNurseChange}
+                        />
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="nurseLastName" className="form-label">
+                          Last Name
+                        </label>
+                        <input
+                          type="text"
+                          name="shortName"
+                          value={editNurse.shortName || ""}
+                          onChange={handleEditNurseChange}
+                          placeholder="Last Name"
+                          className="form-control"
+                          id="nurseLastName"
+                        />
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="mb-3 col-4">
+                        <label htmlFor="nurseEmail" className="form-label">
+                          Email
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          placeholder="nurse@gmail.com"
+                          className="form-control"
+                          id="nurseEmail"
+                          value={editNurse.email || ""}
+                          onChange={handleEditNurseChange}
+                        />
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="nurseGender" className="form-label">
+                          Gender
+                        </label>
+                        <select
+                          className="w-100 form-label py-1 rounded bg-white"
+                          name="gender"
+                          value={editNurse.gender || ""}
+                          onChange={handleEditNurseChange}
+                        >
+                          <option value="">Select</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                        </select>
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="nurseDOB" className="form-label">
+                          Date of Birth
+                        </label>
+                        <input
+                          type="date"
+                          name="dateOfBirth"
+                          className="form-control"
+                          id="nurseDOB"
+                          value={editNurse.dateOfBirth ? editNurse.dateOfBirth.split('T')[0] : ""}
+                          onChange={handleEditNurseChange}
+                        />
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="mb-3 col-4">
+                        <label htmlFor="nurseLicense" className="form-label">
+                          License ID
+                        </label>
+                        <input
+                          type="text"
+                          name="licenseId"
+                          placeholder="License ID"
+                          className="form-control"
+                          id="nurseLicense"
+                          value={editNurse.licenseId || ""}
+                          onChange={handleEditNurseChange}
+                        />
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="nurseCivilId" className="form-label">
+                          Civil ID
+                        </label>
+                        <input
+                          type="text"
+                          name="civilId"
+                          placeholder="Civil ID"
+                          className="form-control"
+                          id="nurseCivilId"
+                          value={editNurse.civilId || ""}
+                          onChange={handleEditNurseChange}
+                        />
+                      </div>
+                      <div className="mb-3 col-4">
+                        <label htmlFor="nursePhone" className="form-label">
+                          Phone Number
+                        </label>
+                        <input
+                          type="text"
+                          name="phoneNumber"
+                          placeholder="Phone Number"
+                          className="form-control"
+                          id="nursePhone"
+                          value={editNurse.phoneNumber || ""}
+                          onChange={handleEditNurseChange}
+                        />
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="mb-3 col-6">
+                        <label htmlFor="nurseSpecialty" className="form-label">
+                          Specialty
+                        </label>
+                        <input
+                          type="text"
+                          name="specialty"
+                          placeholder="Specialty"
+                          className="form-control"
+                          id="nurseSpecialty"
+                          value={editNurse.specialty || ""}
+                          onChange={handleEditNurseChange}
+                        />
+                      </div>
+                      <div className="mb-3 col-6">
+                        <label htmlFor="nursePhoto" className="form-label">
+                          Personal Photo
+                        </label>
+                        <input
+                          type="file"
+                          name="personalPhoto"
+                          className="form-control"
+                          id="nursePhoto"
+                          onChange={handleEditFileChange}
+                          accept="image/*"
+                        />
+                      </div>
+                    </div>
+                    <div className="d-flex justify-content-end">
+                      <button
+                        type="button"
+                        className="btn btn-secondary me-2"
+                        onClick={handleEditNurseClose}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-primary"
+                        onClick={UpdateNurse}
+                      >
+                        Update Nurse
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* View Appointment Modal */}
+          {viewAppointmentModal && viewAppointmentDoctor && (
+            <div
+              className="modal fade show"
+              aria-labelledby="staticBackdropLabel"
+              style={{
+                backgroundColor: "rgba(0,0,0,0.5)",
+                display: "block",
+              }}
+            >
+              <div className="modal-dialog modal-xl">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">
+                      Appointments for Dr. {viewAppointmentDoctor.fullName}
+                    </h5>
+                    <button
+                      type="button"
+                      className="btn-close"
+                      onClick={handleViewAppointmentClose}
+                    ></button>
+                  </div>
+                  <div className="modal-body">
+                    <div className="table-responsive">
+                      <table className="table table-hover">
+                        <thead>
+                          <tr>
+                            <th>Patient Name</th>
+                            <th>Doctor Name</th>
+                            <th>Date</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {appointmentData && appointmentData.length > 0 ? (
+                            appointmentData.map((item, index) => (
+                              <tr key={index}>
+                                <td>{item.patientName}</td>
+                                <td>{item.doctorName}</td>
+                                <td>
+                                  {new Date(item.appointmentDate).toLocaleDateString("en-GB")}
+                                </td>
+                                <td>{item.startTime}</td>
+                                <td>{item.endTime}</td>
+                                <td>{item.reason}</td>
+                                <td>
+                                  <span className={`badge ${
+                                    item.status === 'Confirmed' ? 'bg-success' : 
+                                    item.status === 'Completed' ? 'bg-primary' : 
+                                    item.status === 'Pending' ? 'bg-warning' : 'bg-secondary'
+                                  }`}>
+                                    {item.status}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan="7" className="text-center text-muted">
+                                No appointments found for this doctor
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="d-flex justify-content-center mt-4">
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={handleViewAppointmentClose}
                       >
                         Close
                       </button>
