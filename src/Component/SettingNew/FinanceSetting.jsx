@@ -5,7 +5,7 @@ const FinanceSetting = () => {
     <div className="pc-container">
       <div className="pc-content">
         <div className="row">
-          <div className="col-md-12">
+          <div className="col-md-12 financePage">
             <div className="card mb-3" style={{ position: "relative" }}>
               <div className="personaimg text-center" />
               <div>
@@ -56,7 +56,7 @@ const FinanceSetting = () => {
                   <div className="col-6">
                     <button
                       type="button"
-                      className="btn btn-outline-primary w-100"
+                      className="borderBtn"
                     >
                       Payment Method
                     </button>
@@ -64,7 +64,7 @@ const FinanceSetting = () => {
                   <div className="col-6">
                     <button
                       type="button"
-                      className="btn btn-outline-primary w-100"
+                      className="borderBtn"
                     >
                       Receipt Template
                     </button>
@@ -72,7 +72,7 @@ const FinanceSetting = () => {
                   <div className="col-6">
                     <button
                       type="button"
-                      className="btn btn-outline-primary w-100"
+                      className="borderBtn"
                     >
                       Discount Type
                     </button>
@@ -80,7 +80,7 @@ const FinanceSetting = () => {
                   <div className="col-6">
                     <button
                       type="button"
-                      className="btn btn-outline-primary w-100"
+                      className="borderBtn"
                     >
                       Currency
                     </button>
@@ -88,7 +88,7 @@ const FinanceSetting = () => {
                   <div className="col-6">
                     <button
                       type="button"
-                      className="btn btn-outline-primary w-100"
+                      className="borderBtn"
                     >
                       Discount Limit
                     </button>
@@ -96,7 +96,7 @@ const FinanceSetting = () => {
                   <div className="col-6">
                     <button
                       type="button"
-                      className="btn btn-outline-primary w-100"
+                      className="borderBtn"
                     >
                       Service List
                     </button>
@@ -104,7 +104,7 @@ const FinanceSetting = () => {
                   <div className="col-12">
                     <button
                       type="button"
-                      className="btn btn-outline-primary w-100"
+                      className="borderBtn"
                     >
                       Invoice Template
                     </button>

@@ -24,7 +24,7 @@ const SettingNew = () => {
             </div>
 
             <div className="col-lg-3">
-              <button className="settingCard w-100">
+              <button className="settingCard w-100"  onClick={() => navigate("/Admin/finance")}>
                 <div className="settingIocn">
                   <i className="fas fa-wallet"></i>
                 </div>

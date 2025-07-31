@@ -34052,4 +34052,6 @@ overflow-x: hidden;
 .modal-content p{
   margin-bottom: 10px;
 }
- /* comment add pratima */
+ .financePage .borderBtn{
+  width: 100%;
+ }
